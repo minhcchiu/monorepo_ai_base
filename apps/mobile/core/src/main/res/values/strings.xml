@@ -1,0 +1,17 @@
+<resources>
+    <string name="fcm_default_channel_id">pp09base_fcm_default</string>
+    <string name="fcm_default_channel_name">General Notifications</string>
+    <string name="rating_dialog_title">Enjoying the app?</string>
+    <string name="rating_dialog_subtitle">Was this helpful?</string>
+    <string name="rating_dialog_not_now">Not now</string>
+    <string name="rating_dialog_star_content_description">Rate %1$d stars</string>
+    <string name="rating_feedback_title">Help us improve</string>
+    <string name="rating_feedback_subtitle">What went wrong?</string>
+    <string name="rating_feedback_reason_inaccurate_result">Result was inaccurate</string>
+    <string name="rating_feedback_reason_too_many_ads">Too many ads</string>
+    <string name="rating_feedback_reason_app_slow">App is slow</string>
+    <string name="rating_feedback_reason_other">Other</string>
+    <string name="rating_feedback_optional_hint">Optional feedback</string>
+    <string name="rating_feedback_submit">Submit</string>
+    <string name="rating_feedback_cancel">Cancel</string>
+</resources>

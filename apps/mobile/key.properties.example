@@ -1,0 +1,6 @@
+# Copy thành key.properties (đã gitignore) rồi điền giá trị thật.
+# Tạo keystore mới: keytool -genkey -v -keystore app/release.keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+storePassword=change-me
+keyPassword=change-me
+keyAlias=upload
+storeFile=app/release.keystore.jks

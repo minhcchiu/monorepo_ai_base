@@ -1,0 +1,6 @@
+packages:
+  - 'apps/backend'
+  - 'apps/admin'
+  - 'apps/web'
+  - 'packages/*'
+# Lưu ý: apps/mobile (Android Gradle) KHÔNG nằm trong pnpm workspace — quản lý riêng bằng Gradle.

@@ -1,0 +1,150 @@
+<resources>
+    <string name="app_name">PP09 Base</string>
+    <string name="profile_settings_title">Configuracion</string>
+    <string name="profile_greeting">Hola, explorador de rocas!</string>
+    <string name="profile_account_role">Geologo profesional</string>
+    <string name="profile_premium_title">Mejorar a Premium</string>
+    <string name="profile_premium_subtitle">Desbloquea analisis avanzado de minerales</string>
+    <string name="profile_version_text">App Version 1.0.0</string>
+    <string name="profile_membership_active">Membresia Premium activa</string>
+    <string name="profile_membership_active_desc">Todas las funciones premium y la experiencia sin anuncios estan habilitadas.</string>
+    <string name="profile_section_account">Cuenta</string>
+    <string name="profile_section_preferences">Preferencias</string>
+    <string name="profile_section_support">Soporte</string>
+    <string name="profile_log_out">Cerrar sesion</string>
+    <string name="profile_language">Idioma</string>
+    <string name="profile_units">Unidades</string>
+    <string name="profile_metric">Metrico</string>
+    <string name="profile_imperial">Imperial</string>
+    <string name="profile_help_center">Centro de ayuda</string>
+    <string name="profile_privacy_policy">Politica de privacidad</string>
+    <string name="profile_restore_purchase">Restaurar compra</string>
+    <string name="profile_sync_accounts">Sincronizar cuentas</string>
+    <string name="profile_go_pro">Hazte Pro</string>
+    <string name="profile_premium_active">Premium activo</string>
+    <string name="profile_retry">Reintentar</string>
+    <string name="profile_select_language">Seleccionar idioma</string>
+    <string name="profile_done">Listo</string>
+    <string name="profile_select_units">Seleccionar unidades</string>
+    <string name="profile_millimeters">Milimetros (MM)</string>
+    <string name="profile_inches">Pulgadas (INCH)</string>
+    <string name="profile_back">Atras</string>
+    <string name="profile_profile_details">Detalles del perfil</string>
+    <string name="profile_premium_content_description">Premium</string>
+    <string name="profile_lang_english">Ingles</string>
+    <string name="profile_lang_spanish">Espanol</string>
+    <string name="profile_lang_portuguese_brazil">Portugues (Brasil)</string>
+    <string name="profile_lang_japanese">Japones</string>
+    <string name="profile_lang_korean">Coreano</string>
+    <string name="profile_help_header">Como podemos ayudarte?</string>
+    <string name="profile_help_step1_title">1. Inicia un nuevo escaneo</string>
+    <string name="profile_help_step1_content">Desde Inicio, toca Escanear y apunta la camara a tu muestra de roca o mineral. Manten la muestra enfocada y con buena iluminacion para mejores resultados.</string>
+    <string name="profile_help_step2_title">2. Mejora la precision del escaneo</string>
+    <string name="profile_help_step2_content">Limpia la superficie de la muestra, colocala sobre un fondo liso y evita reflejos. Prueba varios angulos si el primer resultado no es claro.</string>
+    <string name="profile_help_step3_title">3. Gestiona colecciones</string>
+    <string name="profile_help_step3_content">Abre Colecciones para agrupar escaneos por proyecto, ubicacion o tipo. Puedes agregar carpetas y volver a identificaciones guardadas cuando quieras.</string>
+    <string name="profile_help_step4_title">4. Facturacion y suscripcion</string>
+    <string name="profile_help_step4_content">Usa Restaurar compra desde Perfil si cambiaste de dispositivo o reinstalaste la app. Para cambios de plan, abre la configuracion de suscripciones de tu tienda.</string>
+    <string name="profile_help_step5_title">5. Necesitas mas ayuda?</string>
+    <string name="profile_help_step5_content">Envia comentarios a support@pp09base.example.com con la version de la app, modelo del dispositivo y una descripcion breve para ayudarte mas rapido.</string>
+    <string name="profile_privacy_header">Tu privacidad importa</string>
+    <string name="profile_privacy_info_title">Informacion que recopilamos</string>
+    <string name="profile_privacy_info_content">Podemos recopilar datos de cuenta, metadatos de escaneo y diagnosticos para ofrecer resultados de identificacion y mejorar la confiabilidad.</string>
+    <string name="profile_privacy_usage_title">Como usamos los datos</string>
+    <string name="profile_privacy_usage_content">Tus datos se usan para ofrecer analisis de escaneo, sincronizar tu cuenta entre dispositivos y mantener funciones de suscripcion.</string>
+    <string name="profile_privacy_sharing_title">Compartir datos</string>
+    <string name="profile_privacy_sharing_content">No vendemos tus datos personales. Puede haber comparticion limitada con proveedores de confianza para pagos, analitica y almacenamiento en la nube.</string>
+    <string name="profile_privacy_retention_title">Retencion y eliminacion</string>
+    <string name="profile_privacy_retention_content">Conservamos los datos solo el tiempo necesario para operar el servicio o por obligaciones legales. Puedes solicitar eliminacion contactando a support@pp09base.example.com.</string>
+    <string name="profile_privacy_contact_title">Contacto</string>
+    <string name="profile_privacy_contact_content">Si tienes preguntas de privacidad, contactanos en privacy@pp09base.example.com. Podemos actualizar esta politica segun evolucionen las funciones.</string>
+
+    <!-- App-wide keys (placeholder translations) -->
+    <string name="retry">Reintentar</string>
+    <string name="unknown_error">Error desconocido</string>
+
+    <string name="permission_enable_camera_title">Habilitar acceso a la camara</string>
+    <string name="permission_enable_camera_description">Para identificar rocas, necesitamos acceso a tu camara y galeria. Esto permite que nuestra IA analice las muestras en tiempo real.</string>
+
+    <string name="generic_error">Error</string>
+    <string name="welcome_title">Bienvenido</string>
+    <string name="continue_label">Continuar</string>
+
+    <string name="back">Atras</string>
+
+    <string name="home_nav_home">Inicio</string>
+    <string name="home_nav_profile">Perfil</string>
+    <string name="onboarding_skip">Saltar</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_title">Escanea cualquier roca al instante</string>
+    <string name="onboarding_description">Identifica mas de 10,000 tipos de rocas y minerales en segundos.</string>
+    <string name="onboarding_final_title">Listo para explorar los tesoros de la Tierra?</string>
+    <string name="onboarding_final_description">Comienza tu viaje mineral con identificacion impulsada por IA.</string>
+    <string name="onboarding_final_social_proof">Unete a 50,000+ coleccionistas</string>
+    <string name="onboarding_final_footer">Precision geologica garantizada</string>
+    <string name="permission_allow_access">Permitir acceso</string>
+    <string name="permission_maybe_later">Quizas mas tarde</string>
+    <string name="permission_privacy_protected">Privacidad protegida</string>
+    <string name="permission_privacy_note">Las imagenes solo se usan para identificacion mineral y nunca se comparten sin tu permiso explicito.</string>
+    <string name="paywall_close">Cerrar pago</string>
+    <string name="paywall_restore">Restaurar</string>
+    <string name="paywall_badge">Acceso Premium</string>
+    <string name="paywall_title">Unlock Premium</string>
+    <string name="paywall_subtitle">Experimenta el conjunto definitivo de identificacion geologica.</string>
+    <string name="paywall_start_trial_default">Suscribirse ahora</string>
+    <string name="paywall_trial_info_default">$15.99/anio. Cancela en cualquier momento.</string>
+    <string name="paywall_footer_disclaimer">La suscripcion se renovara automaticamente a menos que canceles 24 horas antes del final del periodo actual.</string>
+    <string name="offline_title">Sin conexion a Internet</string>
+    <string name="offline_description">This app needs a server connection to sync your data.</string>
+    <string name="offline_try_again">Intentar de nuevo</string>
+    <string name="offline_check_settings">Revisar ajustes</string>
+    <string name="offline_error_code">Codigo de error: ERR_CONNECTION_LOST</string>
+    <string name="premium_success_brand_label">Premium</string>
+    <string name="premium_success_hero_title">Bienvenido a Premium!</string>
+    <string name="premium_success_hero_description">Your transaction was successful. Enjoy the full premium experience.</string>
+    <string name="premium_success_cta">Volver al resultado</string>
+    <string name="premium_success_receipt_note">Se envio un recibo a tu correo registrado.</string>
+    <string name="premium_success_plan_label">Plan</string>
+    <string name="premium_success_total_label">Total</string>
+    <string name="premium_success_transaction_label">ID DE TRANSACCION</string>
+    <string name="premium_success_feature_unlimited_title">Identificacion ilimitada</string>
+    <string name="premium_success_feature_unlimited_subtitle">Escanea minerales sin limites.</string>
+    <string name="premium_success_feature_science_title">Composicion quimica</string>
+    <string name="premium_success_feature_science_subtitle">Desgloses moleculares detallados.</string>
+    <string name="premium_success_feature_location_title">Mapas globales de origen</string>
+    <string name="premium_success_feature_location_subtitle">Rastrea el origen en todo el mundo.</string>
+    <string name="profile_subscription_title">Suscripcion</string>
+    <string name="profile_subscription_current_plan">Plan actual</string>
+    <string name="profile_subscription_yearly_plan">Plan anual</string>
+    <string name="profile_subscription_active">Activa</string>
+    <string name="profile_subscription_inactive">Inactiva</string>
+    <string name="profile_subscription_renews_on">Se renueva el %1$s</string>
+    <string name="profile_subscription_renewal_unavailable">Fecha de renovacion no disponible</string>
+    <string name="profile_subscription_price_label">$89.99 / anio</string>
+    <string name="profile_subscription_footer_note">Puedes cambiar o cancelar tu suscripcion en cualquier momento desde la configuracion de tu cuenta en el dispositivo.</string>
+    <string name="profile_subscription_benefits_title">Beneficios Premium</string>
+    <string name="profile_subscription_no_active">No hay suscripcion activa</string>
+    <string name="profile_subscription_unlock_note">Compra premium para desbloquear todas las funciones y eliminar anuncios.</string>
+    <string name="profile_subscription_benefit_unlimited_title">Escaneos ilimitados</string>
+    <string name="profile_subscription_benefit_unlimited_desc">Identifica cualquier mineral al instante</string>
+    <string name="profile_subscription_benefit_history_title">Historial avanzado</string>
+    <string name="profile_subscription_benefit_history_desc">Datos quimicos completos</string>
+    <string name="profile_subscription_benefit_cloud_title">Sincronizacion en la nube</string>
+    <string name="profile_subscription_benefit_cloud_desc">Accede a la coleccion desde cualquier dispositivo</string>
+    <!-- TODO: dịch -->
+    <string name="login_email">Email</string>
+    <!-- TODO: dịch -->
+    <string name="login_password">Password</string>
+    <!-- TODO: dịch -->
+    <string name="login_action">Login</string>
+    <!-- TODO: dịch -->
+    <string name="create_account">Create Account</string>
+    <!-- TODO: dịch -->
+    <string name="rock_ai_premium">Premium</string>
+    <!-- TODO: dịch -->
+    <string name="start_scanning_now">Get Started</string>
+    <!-- TODO: dịch -->
+    <string name="onboarding1_title">Discover Key Insights</string>
+    <!-- TODO: dịch -->
+    <string name="onboarding1_description">Get real-time insights and detailed analysis for your content.</string>
+</resources>

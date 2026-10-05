@@ -1,0 +1,20 @@
+{
+  "name": "@pp09base/config",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "index.js",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./prettier.config": "./prettier.config.js",
+    "./eslint.config.mjs": "./eslint.config.mjs"
+  },
+  "scripts": {},
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.20.0"
+  }
+}

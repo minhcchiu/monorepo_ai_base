@@ -1,0 +1,393 @@
+// Core Prisma Schema — base project
+// NestJS + PostgreSQL Backend Architecture
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Connection URL is provided via prisma.config.ts for Prisma v7+ (see prisma.config.ts)
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserStatusEnum {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum NotificationType {
+  SYSTEM_ANNOUNCEMENT
+  GENERAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+  GRACE
+}
+
+enum PlanType {
+  WEEKLY
+  MONTHLY
+  YEARLY
+  LIFETIME
+}
+
+enum Platform {
+  ANDROID
+  IOS
+}
+
+enum PurchaseStatus {
+  PENDING
+  PURCHASED
+  CANCELED
+  EXPIRED
+  REVOKED
+}
+
+enum Language {
+  EN
+  VI
+}
+
+enum Unit {
+  MM
+  INCH
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+/**
+ * User Model
+ * Core user entity with soft delete support and audit trail.
+ * - id: UUID primary key
+ * - email: Unique identifier for authentication
+ * - status: Track user lifecycle (active, suspended, etc.)
+ * - deletedAt & isDeleted: Soft delete pattern for data retention
+ * - role: RBAC implementation
+ */
+model User {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Core Fields
+  email String @unique
+  firstName String
+  lastName String
+  password String? // Optional for OAuth integration
+  phone String?
+  avatar String? // URL to avatar image
+
+  // Status & Verification
+  status UserStatusEnum @default(PENDING_VERIFICATION)
+  emailVerified Boolean @default(false)
+  emailVerificationToken String? @unique
+
+  // Authentication & Authorization
+  role UserRole @default(USER)
+  lastLoginAt DateTime?
+
+  // Soft Delete (for data retention and recovery)
+  deletedAt DateTime?
+  isDeleted Boolean @default(false)
+
+  // Account flag
+  isActive Boolean @default(true)
+
+  // Push notification device tokens
+  fcmTokens String[] @default([])
+
+  // IAP / quota state
+  isPremium            Boolean  @default(false)
+  language             Language @default(EN)
+  unit                 Unit     @default(MM)
+  notificationsEnabled Boolean  @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  refreshTokens RefreshToken[]
+  auditLogs AuditLog[]
+  notifications Notification[]
+  subscription   Subscription?
+  purchases      Purchase[]
+  usage          Usage?
+  apiRequestLogs ApiRequestLog[]
+
+  // Indexes for performance optimization
+  @@index([email])
+  @@index([deletedAt])
+  @@index([status])
+  @@index([role])
+  @@index([isDeleted])
+}
+
+/**
+ * RefreshToken Model
+ * Manages JWT refresh tokens for stateless authentication.
+ * Allows for token revocation and rotation.
+ */
+model RefreshToken {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Token
+  token String @unique
+  expiresAt DateTime
+  revoked Boolean @default(false)
+
+  // Relations
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Indexes
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revoked])
+}
+
+/**
+ * AuditLog Model
+ * Comprehensive audit trail for compliance and debugging.
+ * Tracks all significant actions in the system.
+ */
+model AuditLog {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Audit Information
+  action String // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, PASSWORD_CHANGE, etc.
+  entityType String // User, etc.
+  entityId String // ID of the entity being audited
+  changes Json? // JSON diff of what changed
+  ipAddress String?
+  userAgent String?
+  requestId String? // Trace specific requests across logs
+
+  // Relations
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Indexes
+  @@index([userId])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([requestId])
+}
+
+/**
+ * HealthCheck Model
+ * Monitoring and health check endpoints.
+ * Useful for observability and alerting.
+ */
+model HealthCheck {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Status
+  status String // "healthy", "degraded", "unhealthy"
+  message String?
+  details Json? // Additional diagnostic info
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Indexes
+  @@index([status])
+  @@index([createdAt])
+}
+
+/**
+ * Notification Model
+ * Generic in-app + push notification entity.
+ * referenceId / referenceType are free-form links to any domain entity.
+ */
+model Notification {
+  id          String   @id @default(uuid())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  type        NotificationType @default(GENERAL)
+  title       String
+  message     String
+
+  referenceId   String?
+  referenceType String?
+
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId, isRead])
+  @@index([type])
+  @@index([createdAt])
+}
+
+/**
+ * SystemSetting Model
+ * Key/value store for runtime-configurable application settings.
+ */
+model SystemSetting {
+  id          String   @id @default(uuid())
+
+  key         String   @unique
+  value       String
+
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/**
+ * Subscription Model
+ * Trạng thái subscription HIỆN TẠI của user (1 dòng/user). Lịch sử đầy đủ từng lần
+ * mua nằm ở model Purchase (khoá theo purchaseToken, không bị ghi đè khi user đổi gói).
+ */
+model Subscription {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+
+  platform    Platform?
+
+  status      SubscriptionStatus
+  plan        PlanType
+
+  isTrial     Boolean  @default(false)
+
+  startDate   DateTime?
+  endDate     DateTime?
+  expiresAt   DateTime?
+
+  purchaseToken String? @unique
+  orderId       String?
+
+  autoRenew   Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/**
+ * Purchase Model
+ * Lịch sử đầy đủ từng lần verify purchase với Google Play — append-only, không ghi đè.
+ */
+model Purchase {
+  id            String         @id @default(uuid())
+
+  userId        String?
+  platform      Platform
+
+  productId     String
+  purchaseToken String         @unique
+  orderId       String?
+
+  isTrial       Boolean        @default(false)
+
+  purchaseTime  DateTime?
+  expiresAt     DateTime?
+
+  status        PurchaseStatus
+
+  rawData       Json?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+/**
+ * Usage Model
+ * Đếm hành động miễn phí trong ngày (actionCount) + lượt thưởng từ rewarded ad
+ * (rewardCount). Reset-by-computation: mỗi lần đọc so lastActionDate với hôm nay,
+ * không có cron reset. Xem UsageService/RewardService.
+ */
+model Usage {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+
+  actionCount    Int       @default(0)
+  lastActionDate DateTime?
+
+  rewardCount    Int       @default(0)
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/**
+ * ApiRequestLog Model
+ * Ghi mỗi HTTP request (bật qua env API_LOG_ENABLED) — dùng cho debug/audit.
+ * Tự xoá bản ghi cũ hơn API_LOG_RETENTION_DAYS qua ApiLogCleanupService.
+ */
+model ApiRequestLog {
+  id            String   @id @default(uuid())
+  requestId     String?
+  method        String
+  path          String
+  statusCode    Int
+  durationMs    Int
+
+  userId        String?
+  ipAddress     String?
+  userAgent     String?
+
+  queryParams   Json?
+  routeParams   Json?
+  requestBody   Json?
+  responseBody  Json?
+  errorMessage  String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([requestId])
+  @@index([method])
+  @@index([path])
+  @@index([statusCode])
+  @@index([createdAt])
+}

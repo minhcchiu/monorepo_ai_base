@@ -1,0 +1,28 @@
+# Development Dockerfile with watch mode and debugging
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install required tools
+RUN apk add --no-cache python3 make g++
+
+# Enable pnpm via corepack
+RUN corepack enable
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* ./
+
+# Install all dependencies (including dev dependencies)
+RUN pnpm install --frozen-lockfile=false
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN pnpm db:generate
+
+# Expose ports
+EXPOSE 3000 9229
+
+# Run development server with watch mode
+CMD ["pnpm", "start:dev"]

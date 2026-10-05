@@ -1,0 +1,150 @@
+<resources>
+    <string name="app_name">PP09 Base</string>
+    <string name="profile_settings_title">设置</string>
+    <string name="profile_greeting">こんにちは、ロックハンター！</string>
+    <string name="profile_account_role">プロ地質学者</string>
+    <string name="profile_premium_title">Premiumにアップグレード</string>
+    <string name="profile_premium_subtitle">高度な鉱物分析を解除</string>
+    <string name="profile_version_text">App Version 1.0.0</string>
+    <string name="profile_membership_active">Premiumメンバーシップ有効</string>
+    <string name="profile_membership_active_desc">すべてのPremium機能と広告なし体験が有効です。</string>
+    <string name="profile_section_account">アカウント</string>
+    <string name="profile_section_preferences">設定</string>
+    <string name="profile_section_support">サポート</string>
+    <string name="profile_log_out">ログアウト</string>
+    <string name="profile_language">言語</string>
+    <string name="profile_units">単位</string>
+    <string name="profile_metric">メートル法</string>
+    <string name="profile_imperial">ヤード・ポンド法</string>
+    <string name="profile_help_center">ヘルプセンター</string>
+    <string name="profile_privacy_policy">プライバシーポリシー</string>
+    <string name="profile_restore_purchase">購入を復元</string>
+    <string name="profile_sync_accounts">アカウント同期</string>
+    <string name="profile_go_pro">Proにする</string>
+    <string name="profile_premium_active">Premium有効</string>
+    <string name="profile_retry">再試行</string>
+    <string name="profile_select_language">言語を選択</string>
+    <string name="profile_done">完了</string>
+    <string name="profile_select_units">単位を選択</string>
+    <string name="profile_millimeters">ミリメートル (MM)</string>
+    <string name="profile_inches">インチ (INCH)</string>
+    <string name="profile_back">戻る</string>
+    <string name="profile_profile_details">プロフィール詳細</string>
+    <string name="profile_premium_content_description">Premium</string>
+    <string name="profile_lang_english">英語</string>
+    <string name="profile_lang_spanish">スペイン語</string>
+    <string name="profile_lang_portuguese_brazil">ポルトガル語（ブラジル）</string>
+    <string name="profile_lang_japanese">日本語</string>
+    <string name="profile_lang_korean">韓国語</string>
+    <string name="profile_help_header">どのようにお手伝いできますか？</string>
+    <string name="profile_help_step1_title">1. 新しいスキャンを開始</string>
+    <string name="profile_help_step1_content">ホームから「スキャン」をタップし、岩石や鉱物サンプルにカメラを向けてください。より良い結果のため、ピントを合わせ、明るい場所で撮影してください。</string>
+    <string name="profile_help_step2_title">2. スキャン精度を向上</string>
+    <string name="profile_help_step2_content">サンプル表面を清掃し、無地の背景に置いて反射を避けてください。結果が不明確な場合は、複数の角度を試してください。</string>
+    <string name="profile_help_step3_title">3. コレクションを管理</string>
+    <string name="profile_help_step3_content">コレクションを開いて、プロジェクト、場所、種類ごとにスキャンを整理できます。新しいフォルダを追加し、保存した識別結果をいつでも見返せます。</string>
+    <string name="profile_help_step4_title">4. 請求とサブスクリプション</string>
+    <string name="profile_help_step4_content">端末変更や再インストール時はプロフィールの「購入を復元」を使用してください。プラン変更はストアのサブスクリプション設定で行えます。</string>
+    <string name="profile_help_step5_title">5. さらにサポートが必要ですか？</string>
+    <string name="profile_help_step5_content">appバージョン、端末モデル、簡単な説明を添えて support@pp09base.example.com へご連絡ください。</string>
+    <string name="profile_privacy_header">あなたのプライバシーを大切にします</string>
+    <string name="profile_privacy_info_title">収集する情報</string>
+    <string name="profile_privacy_info_content">識別結果の提供と信頼性向上のため、アカウント情報、スキャンメタデータ、アプリ診断情報を収集する場合があります。</string>
+    <string name="profile_privacy_usage_title">データの利用方法</string>
+    <string name="profile_privacy_usage_content">データは、スキャン分析、端末間同期、サブスクリプション機能の維持に使用されます。</string>
+    <string name="profile_privacy_sharing_title">データ共有</string>
+    <string name="profile_privacy_sharing_content">個人データを販売することはありません。支払い、分析、クラウド保存のために信頼できる提供者と限定的に共有する場合があります。</string>
+    <string name="profile_privacy_retention_title">保持と削除</string>
+    <string name="profile_privacy_retention_content">サービス運用や法的義務に必要な期間のみデータを保持します。削除依頼は support@pp09base.example.com までご連絡ください。</string>
+    <string name="profile_privacy_contact_title">お問い合わせ</string>
+    <string name="profile_privacy_contact_content">プライバシーに関する質問は privacy@pp09base.example.com まで。機能の進化に合わせて本ポリシーを更新する場合があります。</string>
+
+    <!-- App-wide keys (placeholder translations) -->
+    <string name="retry">再試行</string>
+    <string name="unknown_error">不明なエラー</string>
+
+    <string name="permission_enable_camera_title">カメラへのアクセスを有効にする</string>
+    <string name="permission_enable_camera_description">岩石を識別するためにカメラとギャラリーへのアクセスが必要です。これにより、AIが標本をリアルタイムで分析できます。</string>
+
+    <string name="generic_error">エラー</string>
+    <string name="welcome_title">ようこそ</string>
+    <string name="continue_label">続行</string>
+
+    <string name="back">戻る</string>
+
+    <string name="home_nav_home">ホーム</string>
+    <string name="home_nav_profile">プロフィール</string>
+    <string name="onboarding_skip">スキップ</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_title">あらゆる岩石をすぐにスキャン</string>
+    <string name="onboarding_description">10,000種類以上の岩石や鉱物を数秒で識別します。</string>
+    <string name="onboarding_final_title">地球の宝を探検する準備はできましたか？</string>
+    <string name="onboarding_final_description">AIによる識別で鉱物探索を始めましょう。</string>
+    <string name="onboarding_final_social_proof">50,000人以上のコレクターが参加</string>
+    <string name="onboarding_final_footer">地質学的な精度を保証</string>
+    <string name="permission_allow_access">アクセスを許可</string>
+    <string name="permission_maybe_later">後で</string>
+    <string name="permission_privacy_protected">プライバシー保護</string>
+    <string name="permission_privacy_note">画像は鉱物識別のみに使用され、明示的な許可なしに共有されることはありません。</string>
+    <string name="paywall_close">ペイウォールを閉じる</string>
+    <string name="paywall_restore">復元</string>
+    <string name="paywall_badge">プレミアムアクセス</string>
+    <string name="paywall_title">Unlock Premium</string>
+    <string name="paywall_subtitle">最高の地質識別ツールセットを体験してください。</string>
+    <string name="paywall_start_trial_default">今すぐ登録</string>
+    <string name="paywall_trial_info_default">年額$15.99。いつでもキャンセル可能。</string>
+    <string name="paywall_footer_disclaimer">現在の期間終了の24時間前までにキャンセルしない限り、サブスクリプションは自動更新されます。</string>
+    <string name="offline_title">インターネット接続なし</string>
+    <string name="offline_description">This app needs a server connection to sync your data.</string>
+    <string name="offline_try_again">再試行</string>
+    <string name="offline_check_settings">設定を確認</string>
+    <string name="offline_error_code">エラーコード: ERR_CONNECTION_LOST</string>
+    <string name="premium_success_brand_label">Premium</string>
+    <string name="premium_success_hero_title">Premiumへようこそ!</string>
+    <string name="premium_success_hero_description">Your transaction was successful. Enjoy the full premium experience.</string>
+    <string name="premium_success_cta">結果に戻る</string>
+    <string name="premium_success_receipt_note">領収書を登録済みメールに送信しました。</string>
+    <string name="premium_success_plan_label">プラン</string>
+    <string name="premium_success_total_label">合計</string>
+    <string name="premium_success_transaction_label">取引ID</string>
+    <string name="premium_success_feature_unlimited_title">無制限の識別</string>
+    <string name="premium_success_feature_unlimited_subtitle">鉱物を制限なくスキャンできます。</string>
+    <string name="premium_success_feature_science_title">化学組成</string>
+    <string name="premium_success_feature_science_subtitle">詳細な分子分解を表示します。</string>
+    <string name="premium_success_feature_location_title">世界の産地マップ</string>
+    <string name="premium_success_feature_location_subtitle">産地を世界中で追跡します。</string>
+    <string name="profile_subscription_title">サブスクリプション</string>
+    <string name="profile_subscription_current_plan">現在のプラン</string>
+    <string name="profile_subscription_yearly_plan">年間プラン</string>
+    <string name="profile_subscription_active">有効</string>
+    <string name="profile_subscription_inactive">無効</string>
+    <string name="profile_subscription_renews_on">%1$s に更新</string>
+    <string name="profile_subscription_renewal_unavailable">更新日を利用できません</string>
+    <string name="profile_subscription_price_label">$89.99 / 年</string>
+    <string name="profile_subscription_footer_note">端末のアカウント設定からいつでもサブスクリプションを変更またはキャンセルできます。</string>
+    <string name="profile_subscription_benefits_title">Premiumの特典</string>
+    <string name="profile_subscription_no_active">有効なサブスクリプションはありません</string>
+    <string name="profile_subscription_unlock_note">Premiumを購入すると、すべての機能が解放され広告が非表示になります。</string>
+    <string name="profile_subscription_benefit_unlimited_title">無制限スキャン</string>
+    <string name="profile_subscription_benefit_unlimited_desc">あらゆる鉱物を即座に識別</string>
+    <string name="profile_subscription_benefit_history_title">高度な履歴</string>
+    <string name="profile_subscription_benefit_history_desc">完全な化学組成データ</string>
+    <string name="profile_subscription_benefit_cloud_title">クラウド同期</string>
+    <string name="profile_subscription_benefit_cloud_desc">どの端末からでもコレクションにアクセス</string>
+    <!-- TODO: dịch -->
+    <string name="login_email">Email</string>
+    <!-- TODO: dịch -->
+    <string name="login_password">Password</string>
+    <!-- TODO: dịch -->
+    <string name="login_action">Login</string>
+    <!-- TODO: dịch -->
+    <string name="create_account">Create Account</string>
+    <!-- TODO: dịch -->
+    <string name="rock_ai_premium">Premium</string>
+    <!-- TODO: dịch -->
+    <string name="start_scanning_now">Get Started</string>
+    <!-- TODO: dịch -->
+    <string name="onboarding1_title">Discover Key Insights</string>
+    <!-- TODO: dịch -->
+    <string name="onboarding1_description">Get real-time insights and detailed analysis for your content.</string>
+</resources>

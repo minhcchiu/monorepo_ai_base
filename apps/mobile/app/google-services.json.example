@@ -1,0 +1,18 @@
+{
+  "_comment": "Placeholder. Tạo Firebase project mới rồi tải google-services.json thật vào app/google-services.json (đã gitignore). Xem hướng dẫn: https://firebase.google.com/docs/android/setup",
+  "project_info": {
+    "project_number": "REPLACE_ME",
+    "project_id": "REPLACE_ME",
+    "storage_bucket": "REPLACE_ME.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "REPLACE_ME",
+        "android_client_info": { "package_name": "com.izisoft.pp09base" }
+      },
+      "api_key": [{ "current_key": "REPLACE_ME" }]
+    }
+  ],
+  "configuration_version": "1"
+}

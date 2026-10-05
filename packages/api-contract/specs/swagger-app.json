@@ -1,0 +1,2276 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/auth/guest": {
+      "post": {
+        "operationId": "AuthController_guestLogin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Guest login by deviceId",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/register-by-phone": {
+      "post": {
+        "operationId": "AuthController_registerByPhone",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterByPhoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Register user by phone",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/AuthResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login with email and password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/login-by-phone": {
+      "post": {
+        "operationId": "AuthController_loginByPhone",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginByPhoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/AuthResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login with phone and password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/TokenResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/check-phone": {
+      "post": {
+        "operationId": "AuthController_checkPhone",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckPhoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Check if phone exists",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/send-otp": {
+      "post": {
+        "operationId": "AuthController_sendOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent successfully"
+          }
+        },
+        "summary": "Send OTP to phone",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/verifer-otp": {
+      "post": {
+        "operationId": "AuthController_veriferOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Verify OTP for phone",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Send OTP to reset password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Verify OTP and reset password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user role",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "USER",
+                "MODERATOR",
+                "ADMIN"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE",
+                "SUSPENDED",
+                "PENDING_VERIFICATION"
+              ]
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active state",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "emailVerified",
+            "required": false,
+            "in": "query",
+            "description": "Filter by email verification state",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter users from this created date (ISO)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter users to this created date (ISO)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "description": "Search by email, firstName, lastName, phone",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List users (paginated)",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/users/search": {
+      "get": {
+        "operationId": "UsersController_search",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search completed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Search users",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "UsersController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current user's profile",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user by id",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a user",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/user/phone": {
+      "get": {
+        "operationId": "UserPhoneController_findUserIdByPhone",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "query",
+            "description": "Phone number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User id retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user id by phone number",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification": {
+      "post": {
+        "operationId": "NotificationController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create notification",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      },
+      "get": {
+        "operationId": "NotificationController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ANNOUNCEMENT",
+                "GENERAL"
+              ]
+            }
+          },
+          {
+            "name": "isRead",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List notifications (pagination + filters)",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/device-token": {
+      "post": {
+        "operationId": "NotificationController_registerDeviceToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDeviceTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Device token registered successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register current device FCM token",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/device-token/remove": {
+      "post": {
+        "operationId": "NotificationController_removeDeviceToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveDeviceTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Device token removed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove current device FCM token",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/me": {
+      "get": {
+        "operationId": "NotificationController_findMine",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ANNOUNCEMENT",
+                "GENERAL"
+              ]
+            }
+          },
+          {
+            "name": "isRead",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Load notifications of current user",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/unread": {
+      "get": {
+        "operationId": "NotificationController_unread",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Unread notifications counted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Count unread notifications of current user",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/read": {
+      "post": {
+        "operationId": "NotificationController_readNotification",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark one notification as read",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/read-all": {
+      "post": {
+        "operationId": "NotificationController_readAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All notifications marked as read successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark all notifications as read for current user",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/{id}": {
+      "get": {
+        "operationId": "NotificationController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get notification by id",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      },
+      "patch": {
+        "operationId": "NotificationController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update notification",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      },
+      "delete": {
+        "operationId": "NotificationController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete notification (soft)",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/notification/{id}/restore": {
+      "patch": {
+        "operationId": "NotificationController_restore",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Restore soft-deleted notification",
+        "tags": [
+          "Notification"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/upload/image": {
+      "post": {
+        "operationId": "UploadController_uploadImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Upload an image",
+        "tags": [
+          "upload"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/upload/file": {
+      "post": {
+        "operationId": "UploadController_uploadFile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Upload a file",
+        "tags": [
+          "upload"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/upload/multiple": {
+      "post": {
+        "operationId": "UploadController_uploadMultiple",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Upload multiple files",
+        "tags": [
+          "upload"
+        ],
+        "x-scope": [
+          "app",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/app/init": {
+      "post": {
+        "operationId": "AppInitController_init",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppInitRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "App initialized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInitResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Initialize app state on launch",
+        "tags": [
+          "App"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/usage/consume": {
+      "post": {
+        "operationId": "UsageController_consume",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Action count incremented successfully"
+          },
+          "404": {
+            "description": "No usage record found for user"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consume one action unit of the current user's own quota",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/reward/daily": {
+      "post": {
+        "operationId": "RewardController_claimDaily",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Reward claimed, remaining actions returned"
+          },
+          "400": {
+            "description": "Daily reward already claimed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Claim daily reward (free bonus action)",
+        "tags": [
+          "Reward"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/reward/ads": {
+      "post": {
+        "operationId": "RewardController_rewardAds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ad reward granted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Earn bonus action from watching an ad",
+        "tags": [
+          "Reward"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/reward-chat/ads": {
+      "post": {
+        "operationId": "RewardChatController_rewardAds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Chat ad reward granted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Earn bonus AI chat turns from watching an ad",
+        "tags": [
+          "Reward Chat"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/settings/update": {
+      "post": {
+        "operationId": "SettingsController_updateSettings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user settings (language, unit, notificationsEnabled)",
+        "tags": [
+          "Settings"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/track/event": {
+      "post": {
+        "operationId": "TrackController_trackEvent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event tracked"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Track an analytics event",
+        "tags": [
+          "Track"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/subscription/verify": {
+      "post": {
+        "operationId": "SubscriptionApiController_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPurchaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Purchase verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyPurchaseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify Google purchase and activate subscription",
+        "tags": [
+          "Subscription"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/subscription/status": {
+      "get": {
+        "operationId": "SubscriptionApiController_getStatus",
+        "parameters": [
+          {
+            "name": "sync",
+            "required": false,
+            "in": "query",
+            "description": "true để buộc verify lại với Google Play thay vì đọc cache DB",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription status returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionStatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current subscription status",
+        "tags": [
+          "Subscription"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    },
+    "/api/v1/subscription/restore": {
+      "post": {
+        "operationId": "SubscriptionApiController_restore",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestorePurchaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription restored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestorePurchaseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Restore purchase and activate subscription",
+        "tags": [
+          "Subscription"
+        ],
+        "x-scope": [
+          "app"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "PP02 API",
+    "description": "",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Enter JWT token (Bearer <your_token_here>)"
+      }
+    },
+    "schemas": {
+      "GuestLoginDto": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "example": "device-uuid-abc123"
+          }
+        },
+        "required": [
+          "deviceId"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RegisterByPhoneDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          },
+          "password": {
+            "type": "string",
+            "example": "SecurePass123!"
+          }
+        },
+        "required": [
+          "phone",
+          "password"
+        ]
+      },
+      "AuthUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthUserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "user"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "phuong@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Phuong@123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "LoginByPhoneDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          },
+          "password": {
+            "type": "string",
+            "example": "SecurePass123!"
+          }
+        },
+        "required": [
+          "phone",
+          "password"
+        ]
+      },
+      "TokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessToken",
+          "expiresIn"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CheckPhoneDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RequestOtpDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "VerifyOtpDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          },
+          "otp": {
+            "type": "string",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "phone",
+          "otp"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          },
+          "otp": {
+            "type": "string",
+            "example": "123456"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "NewPass123!"
+          }
+        },
+        "required": [
+          "phone",
+          "otp",
+          "newPassword"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name",
+            "minLength": 2
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name",
+            "minLength": 2
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "Avatar URL"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "SUSPENDED",
+              "PENDING_VERIFICATION"
+            ],
+            "description": "User status"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the user is active"
+          },
+          "deletedAt": {
+            "type": "object",
+            "description": "Deleted at timestamp (soft delete)"
+          }
+        }
+      },
+      "CreateNotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM_ANNOUNCEMENT",
+              "GENERAL"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "referenceType": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "readAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "message"
+        ]
+      },
+      "RegisterDeviceTokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Firebase Cloud Messaging device token",
+            "example": "eXampleFcmTokenFromMobileApp"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "RemoveDeviceTokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Firebase Cloud Messaging device token to remove",
+            "example": "eXampleFcmTokenFromMobileApp"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "ReadNotificationDto": {
+        "type": "object",
+        "properties": {
+          "idNotification": {
+            "type": "string",
+            "description": "Notification id",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "idNotification"
+        ]
+      },
+      "UpdateNotificationDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM_ANNOUNCEMENT",
+              "GENERAL"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "referenceType": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "readAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "AppInitRequestDto": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "example": "device-uuid-123"
+          },
+          "appVersion": {
+            "type": "string",
+            "example": "1.0.0"
+          }
+        },
+        "required": [
+          "deviceId"
+        ]
+      },
+      "RemoteConfigDto": {
+        "type": "object",
+        "properties": {
+          "maxFreeAction": {
+            "type": "number",
+            "example": 2
+          },
+          "maxFreeChat": {
+            "type": "number",
+            "example": 3
+          },
+          "adsEnabled": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "maxFreeAction",
+          "maxFreeChat",
+          "adsEnabled"
+        ]
+      },
+      "AppInitResponseDto": {
+        "type": "object",
+        "properties": {
+          "isFirstInstall": {
+            "type": "boolean",
+            "example": true
+          },
+          "isPremium": {
+            "type": "boolean",
+            "example": false
+          },
+          "actionRemaining": {
+            "type": "number",
+            "example": 2
+          },
+          "chatRemaining": {
+            "type": "number",
+            "example": 3
+          },
+          "showPaywall": {
+            "type": "boolean",
+            "example": false
+          },
+          "remoteConfig": {
+            "$ref": "#/components/schemas/RemoteConfigDto"
+          }
+        },
+        "required": [
+          "isFirstInstall",
+          "isPremium",
+          "actionRemaining",
+          "chatRemaining",
+          "showPaywall",
+          "remoteConfig"
+        ]
+      },
+      "UpdateSettingsDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": [
+              "EN",
+              "VI"
+            ],
+            "example": "EN"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "MM",
+              "INCH"
+            ],
+            "example": "MM"
+          },
+          "notificationsEnabled": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "TrackEventDto": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "example": "app_opened"
+          },
+          "metadata": {
+            "type": "object",
+            "example": {
+              "screen": "home",
+              "source": "camera"
+            }
+          }
+        },
+        "required": [
+          "event"
+        ]
+      },
+      "VerifyPurchaseDto": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "ANDROID",
+              "IOS"
+            ],
+            "example": "IOS"
+          },
+          "productId": {
+            "type": "string",
+            "example": "weekly_plan"
+          },
+          "purchaseToken": {
+            "type": "string",
+            "example": "purchase-token-string"
+          }
+        },
+        "required": [
+          "platform",
+          "productId",
+          "purchaseToken"
+        ]
+      },
+      "VerifyPurchaseResponseDto": {
+        "type": "object",
+        "properties": {
+          "isPremium": {
+            "type": "boolean",
+            "example": true
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "WEEKLY",
+              "MONTHLY",
+              "YEARLY",
+              "LIFETIME"
+            ],
+            "example": "WEEKLY"
+          },
+          "isTrial": {
+            "type": "boolean",
+            "example": true
+          },
+          "expiresAt": {
+            "type": "object",
+            "example": "2026-05-20T00:00:00.000Z",
+            "nullable": true
+          },
+          "autoRenew": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "isPremium",
+          "plan",
+          "isTrial",
+          "expiresAt",
+          "autoRenew"
+        ]
+      },
+      "SubscriptionStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "isPremium": {
+            "type": "boolean",
+            "example": true
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "WEEKLY",
+              "MONTHLY",
+              "YEARLY",
+              "LIFETIME"
+            ],
+            "example": "YEARLY",
+            "nullable": true
+          },
+          "isTrial": {
+            "type": "boolean",
+            "example": false
+          },
+          "expiresAt": {
+            "type": "object",
+            "example": "2026-12-01T00:00:00.000Z",
+            "nullable": true
+          },
+          "autoRenew": {
+            "type": "boolean",
+            "example": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "EXPIRED",
+              "CANCELED",
+              "GRACE"
+            ],
+            "example": "ACTIVE",
+            "nullable": true
+          }
+        },
+        "required": [
+          "isPremium",
+          "plan",
+          "isTrial",
+          "expiresAt",
+          "autoRenew",
+          "status"
+        ]
+      },
+      "RestorePurchaseDto": {
+        "type": "object",
+        "properties": {
+          "purchaseToken": {
+            "type": "string",
+            "example": "purchase-token-string"
+          },
+          "productId": {
+            "type": "string",
+            "example": "yearly_plan"
+          }
+        },
+        "required": [
+          "purchaseToken",
+          "productId"
+        ]
+      },
+      "RestorePurchaseResponseDto": {
+        "type": "object",
+        "properties": {
+          "isPremium": {
+            "type": "boolean",
+            "example": true
+          },
+          "expiresAt": {
+            "type": "object",
+            "example": "2026-12-01T00:00:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "isPremium",
+          "expiresAt"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

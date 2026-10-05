@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Android/Gradle build outputs
+.gradle/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local configuration
+local.properties
+*.keystore
+*.jks
+
+# IntelliJ/Android Studio
+.idea/
+*.iml
+
+# Kotlin/Java
+*.class
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Firebase config thật — chỉ commit bản .example
+app/google-services.json
+
+# Key properties file thật — chỉ commit bản .example
+key.properties

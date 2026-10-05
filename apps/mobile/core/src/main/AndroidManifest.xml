@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permission mà code trong :core thật sự dùng (Firebase Analytics/Messaging, AdMob,
+         NetworkMonitor) — khai báo ở đây để lint hiểu đúng contract của module, và để module
+         này tự đủ nếu sau này được dùng lại ở app khác (không dựa hoàn toàn vào app tiêu thụ
+         khai hộ). CAMERA và com.android.vending.BILLING vẫn chỉ khai ở app/ (không có API nào
+         trong :core bị lint gắn cờ thiếu 2 permission này).
+
+         Lưu ý về WAKE_LOCK: khi build APK cuối cùng của :app, permission này được AGP tự merge
+         vào từ manifest riêng của thư viện Firebase Messaging (nên KHÔNG cần khai lại ở app/).
+         Nhưng khi lint chạy cô lập trên module :core (`:core:lintDebug`), AGP KHÔNG merge
+         manifest của các AAR phụ thuộc (firebase-messaging-ktx) vào manifest của :core — bước
+         merge đó chỉ xảy ra ở cấp module application. Do đó lint vẫn báo thiếu WAKE_LOCK cho
+         FirebaseAnalytics.getInstance() nếu không khai ở đây. Khai rõ ràng để `:core:lintDebug`
+         phản ánh đúng permission mà code của module thực sự cần, độc lập với module nào tiêu thụ nó. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+</manifest>

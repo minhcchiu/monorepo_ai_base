@@ -1,0 +1,2882 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/AuthResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login with email and password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/TokenResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Send OTP to reset password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Verify OTP and reset password",
+        "tags": [
+          "auth"
+        ],
+        "x-scope": [
+          "app",
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new user",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/users/{id}": {
+      "delete": {
+        "operationId": "UsersController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft delete a user",
+        "tags": [
+          "users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "AdminUsersController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "USER",
+                "MODERATOR",
+                "ADMIN"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE",
+                "SUSPENDED",
+                "PENDING_VERIFICATION"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by email, firstName, lastName, phone",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/UserListResponseDto"
+                              }
+                            },
+                            "meta": {
+                              "type": "object",
+                              "properties": {
+                                "page": {
+                                  "type": "number"
+                                },
+                                "limit": {
+                                  "type": "number"
+                                },
+                                "total": {
+                                  "type": "number"
+                                },
+                                "totalPages": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get list of users",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminUsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create new user",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}": {
+      "get": {
+        "operationId": "AdminUsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/UserResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user detail",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminUsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/UserResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminUsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft delete user",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/me/change-password": {
+      "patch": {
+        "operationId": "AdminUsersController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change own password",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/me/profile": {
+      "patch": {
+        "operationId": "AdminUsersController_updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/UserResponseDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update own profile",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/toggle-status": {
+      "post": {
+        "operationId": "AdminUsersController_toggleStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User status toggled"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Toggle user status (lock/unlock)",
+        "tags": [
+          "admin - users"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/system-settings": {
+      "get": {
+        "operationId": "AdminSystemSettingsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get system settings successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get list of system settings",
+        "tags": [
+          "admin - system-settings"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminSystemSettingsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateSystemSettingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "System setting created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create new system setting",
+        "tags": [
+          "admin - system-settings"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/system-settings/{key}": {
+      "get": {
+        "operationId": "AdminSystemSettingsController_findByKey",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "description": "Setting key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get system setting successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get system setting by key",
+        "tags": [
+          "admin - system-settings"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminSystemSettingsController_update",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "description": "Setting key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateSystemSettingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "System setting updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update system setting by key",
+        "tags": [
+          "admin - system-settings"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminSystemSettingsController_remove",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "description": "Setting key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "System setting deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete system setting by key",
+        "tags": [
+          "admin - system-settings"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/summary": {
+      "get": {
+        "operationId": "AdminDashboardController_getSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "$ref": "#/components/schemas/DashboardSummaryDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "403": {
+            "description": "FORBIDDEN"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get system summary statistics",
+        "tags": [
+          "admin - dashboard"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/overview": {
+      "get": {
+        "operationId": "AdminDashboardController_getOverview",
+        "parameters": [
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get dashboard overview successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get system overview dashboard",
+        "tags": [
+          "admin - dashboard"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/users": {
+      "get": {
+        "operationId": "AdminDashboardController_getUserStats",
+        "parameters": [
+          {
+            "name": "groupBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DAY",
+                "WEEK",
+                "MONTH"
+              ]
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get user statistics successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user growth statistics by time period",
+        "tags": [
+          "admin - dashboard"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/notifications": {
+      "get": {
+        "operationId": "AdminNotificationsController_findAll",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Lọc theo người nhận (UUID)",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Lọc theo loại thông báo",
+            "schema": {
+              "enum": [
+                "SYSTEM_ANNOUNCEMENT",
+                "GENERAL"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "isRead",
+            "required": false,
+            "in": "query",
+            "description": "Lọc theo trạng thái đã đọc",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/AdminNotificationListItemDto"
+                              }
+                            },
+                            "meta": {
+                              "type": "object",
+                              "properties": {
+                                "page": {
+                                  "type": "number"
+                                },
+                                "limit": {
+                                  "type": "number"
+                                },
+                                "total": {
+                                  "type": "number"
+                                },
+                                "totalPages": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_ERROR"
+          },
+          "401": {
+            "description": "UNAUTHORIZED"
+          },
+          "403": {
+            "description": "FORBIDDEN"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List sent notifications (pagination + filters)",
+        "tags": [
+          "admin"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/notifications/send-user": {
+      "post": {
+        "operationId": "AdminNotificationsController_sendToOne",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSendUserNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification sent successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send notification to one user",
+        "tags": [
+          "admin"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/notifications/send-many": {
+      "post": {
+        "operationId": "AdminNotificationsController_sendToMany",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSendManyNotificationsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notifications sent successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send notification to many users",
+        "tags": [
+          "admin"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/notifications/broadcast": {
+      "post": {
+        "operationId": "AdminNotificationsController_broadcast",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBroadcastNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Broadcast completed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Broadcast notification with role filters",
+        "tags": [
+          "admin"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/subscriptions": {
+      "get": {
+        "operationId": "AdminSubscriptionsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ACTIVE",
+                "EXPIRED",
+                "CANCELED",
+                "GRACE"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "plan",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "WEEKLY",
+                "MONTHLY",
+                "YEARLY",
+                "LIFETIME"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "desc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List subscriptions (paginated)",
+        "tags": [
+          "admin - subscriptions"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/subscriptions/{id}": {
+      "get": {
+        "operationId": "AdminSubscriptionsController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Subscription UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get subscription by ID",
+        "tags": [
+          "admin - subscriptions"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminSubscriptionsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Subscription UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update subscription (chỉnh tay trạng thái/gói/ngày hết hạn)",
+        "tags": [
+          "admin - subscriptions"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminSubscriptionsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Subscription UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete subscription",
+        "tags": [
+          "admin - subscriptions"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/usage": {
+      "post": {
+        "operationId": "UsageController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUsageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usage record created successfully"
+          },
+          "400": {
+            "description": "Invalid usage data"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "409": {
+            "description": "User already has a usage record"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new usage record",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "get": {
+        "operationId": "UsageController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Sort field (createdAt, actionCount)",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order (asc or desc)",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage records retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all usage records (paginated)",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/usage/my": {
+      "get": {
+        "operationId": "UsageController_getMyUsage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User usage retrieved successfully"
+          },
+          "404": {
+            "description": "No usage record found for user"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current user usage",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/usage/{id}": {
+      "get": {
+        "operationId": "UsageController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Usage UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage record retrieved successfully"
+          },
+          "404": {
+            "description": "Usage record not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get usage record by ID",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "operationId": "UsageController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Usage UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUsageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usage record updated successfully"
+          },
+          "403": {
+            "description": "Forbidden - not the usage owner"
+          },
+          "404": {
+            "description": "Usage record not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update usage record",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      },
+      "delete": {
+        "operationId": "UsageController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Usage UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage record deleted successfully"
+          },
+          "403": {
+            "description": "Forbidden - not the usage owner"
+          },
+          "404": {
+            "description": "Usage record not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete usage record",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/usage/{userId}/increment-actions": {
+      "patch": {
+        "operationId": "UsageController_incrementActionCount",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "User UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Action count incremented successfully"
+          },
+          "404": {
+            "description": "Usage record not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Increment action count",
+        "tags": [
+          "Usage"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/logs/api": {
+      "get": {
+        "operationId": "ApiLogController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "method",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "POST",
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "/api/v1/subscription/webhook/google",
+              "type": "string"
+            }
+          },
+          {
+            "name": "statusCode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 200,
+              "type": "number"
+            }
+          },
+          {
+            "name": "requestId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "8ac91718-dfc7-484e-8cb2-cdd8fdb6f4d5",
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "user-uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-05-09T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-05-09T23:59:59.999Z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API logs retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiLogListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get API request logs with filters",
+        "tags": [
+          "API Logs"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/logs/api/{id}": {
+      "get": {
+        "operationId": "ApiLogController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "API log UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API log detail retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get API log detail by ID",
+        "tags": [
+          "API Logs"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/subscription/sync": {
+      "post": {
+        "operationId": "SubscriptionApiController_sync",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncPurchaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription synced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncPurchaseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Manual sync subscription state from Google",
+        "tags": [
+          "Subscription"
+        ],
+        "x-scope": [
+          "admin"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "PP02 API",
+    "description": "",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Enter JWT token (Bearer <your_token_here>)"
+      }
+    },
+    "schemas": {
+      "AuthUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthUserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "user"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "phuong@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Phuong@123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "TokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessToken",
+          "expiresIn"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "example": "+84901234567"
+          },
+          "otp": {
+            "type": "string",
+            "example": "123456"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "NewPass123!"
+          }
+        },
+        "required": [
+          "phone",
+          "otp",
+          "newPassword"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the user is active"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Created at timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Updated at timestamp"
+          },
+          "deletedAt": {
+            "type": "object",
+            "description": "Deleted at timestamp (soft delete)"
+          }
+        }
+      },
+      "UserListResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "lastLoginAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "object"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the user is active"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "createdAt"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "lastLoginAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "object",
+            "description": "Soft delete timestamp"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the user is active"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdminCreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "MODERATOR",
+              "ADMIN"
+            ],
+            "default": "USER"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "SUSPENDED",
+              "PENDING_VERIFICATION"
+            ],
+            "default": "ACTIVE"
+          }
+        },
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "password"
+        ]
+      },
+      "AdminUpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "MODERATOR",
+              "ADMIN"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "SUSPENDED",
+              "PENDING_VERIFICATION"
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 6
+          },
+          "confirmPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword",
+          "confirmPassword"
+        ]
+      },
+      "UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminCreateSystemSettingDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Unique setting key"
+          },
+          "value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
+      },
+      "AdminUpdateSystemSettingDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "DashboardSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalUsers": {
+            "type": "number",
+            "description": "Tổng số người dùng (chưa xoá mềm)",
+            "example": 128
+          },
+          "activeUsers": {
+            "type": "number",
+            "description": "Số người dùng đang hoạt động",
+            "example": 120
+          },
+          "totalNotifications": {
+            "type": "number",
+            "description": "Tổng số thông báo",
+            "example": 64
+          },
+          "unreadNotifications": {
+            "type": "number",
+            "description": "Số thông báo chưa đọc",
+            "example": 12
+          },
+          "totalSettings": {
+            "type": "number",
+            "description": "Tổng số cấu hình hệ thống",
+            "example": 8
+          }
+        },
+        "required": [
+          "totalUsers",
+          "activeUsers",
+          "totalNotifications",
+          "unreadNotifications",
+          "totalSettings"
+        ]
+      },
+      "AdminNotificationUserRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "phone"
+        ]
+      },
+      "AdminNotificationListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM_ANNOUNCEMENT",
+              "GENERAL"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "object",
+            "nullable": true
+          },
+          "referenceType": {
+            "type": "object",
+            "nullable": true
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "readAt": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "user": {
+            "description": "Người nhận thông báo",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminNotificationUserRefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "type",
+          "title",
+          "message",
+          "referenceId",
+          "referenceType",
+          "isRead",
+          "readAt",
+          "createdAt",
+          "updatedAt",
+          "user"
+        ]
+      },
+      "AdminSendUserNotificationDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "Target user id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM_ANNOUNCEMENT",
+              "GENERAL"
+            ],
+            "default": "SYSTEM_ANNOUNCEMENT"
+          },
+          "title": {
+            "type": "string",
+            "description": "Notification title",
+            "maxLength": 160
+          },
+          "message": {
+            "type": "string",
+            "description": "Notification message body",
+            "maxLength": 1000
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Reference entity id (optional)"
+          },
+          "referenceType": {
+            "type": "string",
+            "description": "Reference entity type (optional)"
+          }
+        },
+        "required": [
+          "userId",
+          "title",
+          "message"
+        ]
+      },
+      "AdminSendManyNotificationsDto": {
+        "type": "object",
+        "properties": {
+          "userIds": {
+            "description": "Target user ids",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM_ANNOUNCEMENT",
+              "GENERAL"
+            ],
+            "default": "SYSTEM_ANNOUNCEMENT"
+          },
+          "title": {
+            "type": "string",
+            "description": "Notification title",
+            "maxLength": 160
+          },
+          "message": {
+            "type": "string",
+            "description": "Notification message body",
+            "maxLength": 1000
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Reference entity id (optional)"
+          },
+          "referenceType": {
+            "type": "string",
+            "description": "Reference entity type (optional)"
+          }
+        },
+        "required": [
+          "userIds",
+          "title",
+          "message"
+        ]
+      },
+      "AdminBroadcastNotificationDto": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "description": "Target roles. If omitted, sends to all non-deleted users (except ADMIN if excludeAdmin=true).",
+            "items": {
+              "type": "string",
+              "enum": [
+                "USER",
+                "MODERATOR",
+                "ADMIN"
+              ]
+            }
+          },
+          "excludeAdmin": {
+            "type": "boolean",
+            "default": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM_ANNOUNCEMENT",
+              "GENERAL"
+            ],
+            "default": "SYSTEM_ANNOUNCEMENT"
+          },
+          "title": {
+            "type": "string",
+            "description": "Notification title",
+            "maxLength": 160
+          },
+          "message": {
+            "type": "string",
+            "description": "Notification message body",
+            "maxLength": 1000
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Reference entity id (optional)"
+          },
+          "referenceType": {
+            "type": "string",
+            "description": "Reference entity type (optional)"
+          }
+        },
+        "required": [
+          "title",
+          "message"
+        ]
+      },
+      "UpdateSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "EXPIRED",
+              "CANCELED",
+              "GRACE"
+            ]
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "WEEKLY",
+              "MONTHLY",
+              "YEARLY",
+              "LIFETIME"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date (ISO 8601)"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date (ISO 8601)"
+          }
+        }
+      },
+      "CreateUsageDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User ID"
+          },
+          "actionCount": {
+            "type": "number",
+            "description": "Action count",
+            "default": 0
+          },
+          "rewardCount": {
+            "type": "number",
+            "description": "Reward count",
+            "default": 0
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "UpdateUsageDto": {
+        "type": "object",
+        "properties": {
+          "actionCount": {
+            "type": "number",
+            "description": "Action count"
+          },
+          "lastActionDate": {
+            "type": "string",
+            "description": "Last scan date (ISO 8601)"
+          },
+          "rewardCount": {
+            "type": "number",
+            "description": "Reward count"
+          }
+        }
+      },
+      "ApiLogItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "log-uuid"
+          },
+          "requestId": {
+            "type": "object",
+            "example": "request-id",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "example": "POST"
+          },
+          "path": {
+            "type": "string",
+            "example": "/api/v1/subscription/verify"
+          },
+          "statusCode": {
+            "type": "number",
+            "example": 200
+          },
+          "durationMs": {
+            "type": "number",
+            "example": 45
+          },
+          "userId": {
+            "type": "object",
+            "example": "user-uuid",
+            "nullable": true
+          },
+          "ipAddress": {
+            "type": "object",
+            "example": "::1",
+            "nullable": true
+          },
+          "userAgent": {
+            "type": "object",
+            "example": "Mozilla/5.0",
+            "nullable": true
+          },
+          "queryParams": {
+            "type": "object",
+            "nullable": true
+          },
+          "routeParams": {
+            "type": "object",
+            "nullable": true
+          },
+          "requestBody": {
+            "type": "object",
+            "nullable": true
+          },
+          "responseBody": {
+            "type": "object",
+            "nullable": true
+          },
+          "errorMessage": {
+            "type": "object",
+            "example": "HTTP_500",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-05-09T10:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "requestId",
+          "method",
+          "path",
+          "statusCode",
+          "durationMs",
+          "userId",
+          "ipAddress",
+          "userAgent",
+          "queryParams",
+          "routeParams",
+          "requestBody",
+          "responseBody",
+          "errorMessage",
+          "createdAt"
+        ]
+      },
+      "ApiLogListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiLogItemDto"
+            }
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 450
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 23
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "SyncPurchaseDto": {
+        "type": "object",
+        "properties": {
+          "purchaseToken": {
+            "type": "string",
+            "example": "purchase-token-string"
+          },
+          "productId": {
+            "type": "string",
+            "example": "weekly_plan"
+          }
+        },
+        "required": [
+          "purchaseToken",
+          "productId"
+        ]
+      },
+      "SyncPurchaseResponseDto": {
+        "type": "object",
+        "properties": {
+          "isPremium": {
+            "type": "boolean",
+            "example": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "EXPIRED",
+              "CANCELED",
+              "GRACE"
+            ],
+            "example": "ACTIVE"
+          },
+          "expiresAt": {
+            "type": "object",
+            "example": "2026-12-01T00:00:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "isPremium",
+          "status",
+          "expiresAt"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

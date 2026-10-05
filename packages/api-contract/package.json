@@ -1,0 +1,26 @@
+{
+  "name": "@pp09base/api-contract",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Single source of truth cho API contract: swagger spec (app/admin/user) + TypeScript types generate từ chúng.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
+    "./app": { "types": "./src/generated/app.ts", "default": "./src/generated/app.ts" },
+    "./admin": { "types": "./src/generated/admin.ts", "default": "./src/generated/admin.ts" },
+    "./user": { "types": "./src/generated/user.ts", "default": "./src/generated/user.ts" }
+  },
+  "scripts": {
+    "codegen": "pnpm run codegen:app && pnpm run codegen:admin && pnpm run codegen:user",
+    "codegen:app": "openapi-typescript specs/swagger-app.json -o src/generated/app.ts",
+    "codegen:admin": "openapi-typescript specs/swagger-admin.json -o src/generated/admin.ts",
+    "codegen:user": "openapi-typescript specs/swagger-user.json -o src/generated/user.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.0",
+    "typescript": "^5.7.3"
+  }
+}
