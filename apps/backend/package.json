@@ -1,5 +1,5 @@
 {
-  "name": "@pp09base/backend",
+  "name": "@cloudpulse/backend",
   "version": "1.0.0",
   "description": "Production-ready NestJS backend with PostgreSQL and JWT authentication",
   "author": "izisoft",

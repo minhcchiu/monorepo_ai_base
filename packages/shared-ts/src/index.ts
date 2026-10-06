@@ -1,8 +1,8 @@
 /**
- * @pp09base/shared-ts
+ * @cloudpulse/shared-ts
  *
  * Shared TypeScript contracts dùng chung giữa các TS client (backend, web-admin, web-user).
- * Endpoint-specific types KHÔNG ở đây — chúng được generate vào @pp09base/api-contract.
+ * Endpoint-specific types KHÔNG ở đây — chúng được generate vào @cloudpulse/api-contract.
  * Ở đây chỉ chứa các khung response/pagination dùng chung cho mọi endpoint.
  *
  * Chuẩn: success `{ success, message, data }`; error `{ success, message, errorCode }`

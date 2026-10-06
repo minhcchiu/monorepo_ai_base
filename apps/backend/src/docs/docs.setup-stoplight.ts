@@ -75,18 +75,18 @@ export async function setupDocs(app: INestApplication, configService: AppConfigS
     <link rel="icon" href="/docs-favicon.ico" />
     <link rel="stylesheet" href="/static/elements/styles.min.css" />
     <style>
-      :root { --pp09base-primary: ${process.env.SWAGGER_PRIMARY_COLOR || '#0069ff'}; }
+      :root { --cloudpulse-primary: ${process.env.SWAGGER_PRIMARY_COLOR || '#0069ff'}; }
       html, body, #elements-root { height: 100%; margin: 0; }
-      .sl-elements, elements-api { --sl-color-primary: var(--pp09base-primary); }
-      #pp09base-set-token { background: var(--pp09base-primary); }
+      .sl-elements, elements-api { --sl-color-primary: var(--cloudpulse-primary); }
+      #cloudpulse-set-token { background: var(--cloudpulse-primary); }
     </style>
   </head>
   <body>
     <div style="position:fixed;top:8px;right:16px;z-index:9999;background:#fff;padding:8px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
       <label style="font-size:12px;color:#333;margin-right:8px;">Authorize:</label>
-      <input id="pp09base-token" placeholder="Bearer <token>" style="width:320px;padding:6px;border:1px solid #ddd;border-radius:4px;margin-right:6px;" />
-      <button id="pp09base-set-token" style="padding:6px 10px;border:none;background:var(--pp09base-primary);color:#fff;border-radius:4px;">Set</button>
-      <button id="pp09base-clear-token" style="padding:6px 10px;border:none;background:#e0e0e0;color:#333;border-radius:4px;margin-left:4px;">Clear</button>
+      <input id="cloudpulse-token" placeholder="Bearer <token>" style="width:320px;padding:6px;border:1px solid #ddd;border-radius:4px;margin-right:6px;" />
+      <button id="cloudpulse-set-token" style="padding:6px 10px;border:none;background:var(--cloudpulse-primary);color:#fff;border-radius:4px;">Set</button>
+      <button id="cloudpulse-clear-token" style="padding:6px 10px;border:none;background:#e0e0e0;color:#333;border-radius:4px;margin-left:4px;">Clear</button>
     </div>
 
     <div id="elements-root">
@@ -101,13 +101,13 @@ export async function setupDocs(app: INestApplication, configService: AppConfigS
     <script src="/static/elements/web-components.min.js"></script>
     <script>
       document.documentElement.setAttribute('theme', 'dark');
-      const STORAGE_KEY = 'pp09base:auth_token';
+      const STORAGE_KEY = 'cloudpulse:auth_token';
       function getToken() { return localStorage.getItem(STORAGE_KEY) || ''; }
       function setToken(v) { if (v) { const normalized = v.startsWith('Bearer ') ? v : 'Bearer ' + v; localStorage.setItem(STORAGE_KEY, normalized); } else localStorage.removeItem(STORAGE_KEY); }
       document.addEventListener('DOMContentLoaded', () => {
-        const input = document.getElementById('pp09base-token');
-        const btn = document.getElementById('pp09base-set-token');
-        const clearBtn = document.getElementById('pp09base-clear-token');
+        const input = document.getElementById('cloudpulse-token');
+        const btn = document.getElementById('cloudpulse-set-token');
+        const clearBtn = document.getElementById('cloudpulse-clear-token');
         if (input) input.value = getToken();
         btn.addEventListener('click', () => { const v = input.value.trim(); setToken(v); input.value = getToken(); alert('Authorization token saved for Try-it requests'); });
         clearBtn.addEventListener('click', () => { setToken(''); input.value = ''; alert('Authorization token cleared'); });

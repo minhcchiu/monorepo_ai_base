@@ -1,5 +1,5 @@
 /**
- * Response envelopes của web-admin — NGUỒN SỰ THẬT: `@pp09base/shared-ts`.
+ * Response envelopes của web-admin — NGUỒN SỰ THẬT: `@cloudpulse/shared-ts`.
  *
  * Không định nghĩa lại contract ở đây nữa (tránh lệch với backend/web-user).
  * Quy ước web-admin: tầng `modules/<m>/api.ts` chỉ trả về nhánh THÀNH CÔNG
@@ -11,7 +11,7 @@ import type {
   ApiErrorResponse,
   PaginatedResponse,
   PaginationMeta,
-} from '@pp09base/shared-ts';
+} from '@cloudpulse/shared-ts';
 
 export type { ApiErrorResponse, PaginationMeta };
 

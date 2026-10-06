@@ -34,7 +34,7 @@ packages/
 - Response thành công: `{ success: true, message, data }` (backend trả qua `BaseResponseDto.success`).
 - Response lỗi: `{ success: false, message, errorCode? }`.
 - Danh sách phân trang: `{ data, meta: { page, limit, total, totalPages } }`.
-- Các khung trên định nghĩa MỘT LẦN tại `@pp09base/shared-ts` — client KHÔNG tự định nghĩa lại.
+- Các khung trên định nghĩa MỘT LẦN tại `@cloudpulse/shared-ts` — client KHÔNG tự định nghĩa lại.
 
 ## 3. Cơ chế 3 tài liệu API + multi-scope
 
@@ -46,7 +46,7 @@ packages/
 - `scope-filter.ts` lọc cả `paths` LẪN `components.schemas` theo nhóm → mỗi spec chỉ chứa
   endpoint + schema của nhóm mình, không lẫn.
 - Runtime docs (Scalar UI): `/docs/app`, `/docs/admin`, `/docs/user` (+ `/docs` full nội bộ).
-- Export spec ra file: `pnpm --filter @pp09base/backend docs:export`
+- Export spec ra file: `pnpm --filter @cloudpulse/backend docs:export`
   → ghi `packages/api-contract/specs/swagger-{app,admin,user}.json`.
 
 ## 4. Luồng phụ thuộc (một chiều)
@@ -55,7 +55,7 @@ packages/
 backend (DTO + @ApiScope)
    └─ docs:export ─> packages/api-contract/specs/*.json
         └─ codegen ─> packages/api-contract/src/generated/{app,admin,user}.ts
-             ├─ web-admin  import '@pp09base/api-contract/admin'  (CHỈ nhóm admin)
+             ├─ web-admin  import '@cloudpulse/api-contract/admin'  (CHỈ nhóm admin)
              └─ mobile     Retrofit + tay viết interface theo swagger-app.json (CHỈ nhóm app)
 ```
 

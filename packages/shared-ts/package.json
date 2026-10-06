@@ -1,5 +1,5 @@
 {
-  "name": "@pp09base/shared-ts",
+  "name": "@cloudpulse/shared-ts",
   "version": "0.0.0",
   "private": true,
   "description": "Shared TypeScript types & helpers for PP00 Base TS clients (backend, web-admin, web-user).",

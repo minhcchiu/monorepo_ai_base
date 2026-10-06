@@ -18,7 +18,7 @@ type SendPushNotificationResult = {
 @Injectable()
 export class FirebaseMessagingService {
   private readonly logger = new Logger(FirebaseMessagingService.name);
-  private readonly appName = 'pp09base-backend-firebase';
+  private readonly appName = 'cloudpulse-backend-firebase';
 
   constructor(private readonly appConfig: AppConfigService) {}
 

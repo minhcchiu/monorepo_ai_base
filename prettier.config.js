@@ -1,1 +1,1 @@
-module.exports = require('@pp09base/config/prettier.config');
+module.exports = require('@cloudpulse/config/prettier.config');

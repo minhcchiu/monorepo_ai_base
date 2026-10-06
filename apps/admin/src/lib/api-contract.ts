@@ -1,5 +1,5 @@
 /**
- * Cầu nối tới types generate từ @pp09base/api-contract (nhóm `admin`).
+ * Cầu nối tới types generate từ @cloudpulse/api-contract (nhóm `admin`).
  *
  * web-admin CHỈ dùng nhóm admin. `AdminSchemas` = các DTO request backend export ra.
  *
@@ -8,6 +8,6 @@
  *   Các entity chưa annotate (Notification, Dashboard...) vẫn viết tay tới khi backend gắn @ApiResponse.
  * - Role đã thống nhất theo backend thật: USER|MODERATOR|ADMIN (nguồn: modules/users/roles).
  */
-import type { components } from '@pp09base/api-contract/admin';
+import type { components } from '@cloudpulse/api-contract/admin';
 
 export type AdminSchemas = components['schemas'];

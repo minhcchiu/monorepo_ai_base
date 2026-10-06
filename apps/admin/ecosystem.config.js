@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "pp09base-web-admin",
+      name: "cloudpulse-web-admin",
       script: "node_modules/.bin/next",
       args: "start -p 32090",
       cwd: "./",

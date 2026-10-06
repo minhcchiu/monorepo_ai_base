@@ -333,18 +333,24 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
               name: app.name,
               path: app.path,
               filter: app.filter,
-              port: app.defaultPort || 3000,
+              port: app.defaultPort || (app.id.includes('backend') ? 22090 : 32090),
               enabled: true,
-              envText: `PORT=${app.defaultPort || 3000}\nNODE_ENV=production`,
+              envText: `PORT=${app.defaultPort || (app.id.includes('backend') ? 22090 : 32090)}\nNODE_ENV=production`,
               envMode: 'PASTE',
             })),
           );
         }
 
         setAutoDetected(true);
-        toast.success(
-          `Đã nhận diện kiến trúc & cấu hình Port từ Branch "${targetBranch || res.gitBranch || gitBranch}" (${res.detectedApps?.length || 2} Sub-apps)!`,
-        );
+        if (res.hasEcosystem) {
+          toast.success(
+            `✨ Đã đọc file ecosystem.config.js ở Root: Phát hiện ${res.detectedApps.length} Apps & đúng số Ports từ Repo!`,
+          );
+        } else {
+          toast.success(
+            `Đã nhận diện kiến trúc & cấu hình Port từ Branch "${targetBranch || res.gitBranch || gitBranch}" (${res.detectedApps?.length || 2} Sub-apps)!`,
+          );
+        }
       }
     } catch (e) {
       // Local fallback worked

@@ -1,5 +1,5 @@
 {
-  "name": "@pp09base/admin",
+  "name": "@cloudpulse/admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,17 +9,17 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "pm2:start": "pm2 start ecosystem.config.js",
-    "pm2:stop": "pm2 stop pp09base-web-admin",
-    "pm2:restart": "pm2 restart pp09base-web-admin",
-    "pm2:reload": "pm2 reload pp09base-web-admin",
-    "pm2:delete": "pm2 delete pp09base-web-admin",
-    "pm2:logs": "pm2 logs pp09base-web-admin",
+    "pm2:stop": "pm2 stop cloudpulse-web-admin",
+    "pm2:restart": "pm2 restart cloudpulse-web-admin",
+    "pm2:reload": "pm2 reload cloudpulse-web-admin",
+    "pm2:delete": "pm2 delete cloudpulse-web-admin",
+    "pm2:logs": "pm2 logs cloudpulse-web-admin",
     "deploy": "pnpm build && pm2 reload ecosystem.config.js --update-env"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
-    "@pp09base/api-contract": "workspace:*",
-    "@pp09base/shared-ts": "workspace:*",
+    "@cloudpulse/api-contract": "workspace:*",
+    "@cloudpulse/shared-ts": "workspace:*",
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-query-devtools": "^5.101.0",
     "@tanstack/react-table": "^8.21.3",

@@ -1,4 +1,4 @@
-# @pp09base/api-contract
+# @cloudpulse/api-contract
 
 Single source of truth cho hợp đồng API giữa backend và các client.
 
@@ -19,13 +19,13 @@ backend (@ApiScope) ──export──> specs/swagger-{app,admin,user}.json ─�
 ## Lệnh
 ```bash
 # Sau khi đã `pnpm install` ở gốc:
-pnpm --filter @pp09base/api-contract codegen        # gen cả 3 nhóm
-pnpm --filter @pp09base/api-contract codegen:admin  # gen riêng 1 nhóm
+pnpm --filter @cloudpulse/api-contract codegen        # gen cả 3 nhóm
+pnpm --filter @cloudpulse/api-contract codegen:admin  # gen riêng 1 nhóm
 ```
 
 ## Quy ước import (client)
 ```ts
-import type { paths } from '@pp09base/api-contract/admin'; // web-admin
-import type { paths } from '@pp09base/api-contract/user';  // web-user
+import type { paths } from '@cloudpulse/api-contract/admin'; // web-admin
+import type { paths } from '@cloudpulse/api-contract/user';  // web-user
 ```
 Mỗi client CHỈ import nhóm của mình.

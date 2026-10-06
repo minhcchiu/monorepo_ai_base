@@ -2,20 +2,20 @@
 
 # Deploy nhanh
 # deploy lần đầu
-cd /home && git clone git@gitlab.com:izisoftware2020/pp09base-admin.git -b develop
-cd /home/pp09base-admin && npm install && npm run build && npm run pm2:start
+cd /home && git clone git@gitlab.com:izisoftware2020/cloudpulse-admin.git -b develop
+cd /home/cloudpulse-admin && npm install && npm run build && npm run pm2:start
 
 # deploy các lần sau
-cd /home/pp09base-admin && git pull && npm i && npm run deploy
+cd /home/cloudpulse-admin && git pull && npm i && npm run deploy
 
 # Config nginx
 cd /etc/nginx/conf.d/
-nano pp09base-admin.izisoft.io.conf
+nano cloudpulse-admin.izisoft.io.conf
 server {
   listen 80;
   listen [::]:80;
 
-  server_name  pp09base-admin.izisoft.io;
+  server_name  cloudpulse-admin.izisoft.io;
 
   location / {
     proxy_pass http://localhost:11123;

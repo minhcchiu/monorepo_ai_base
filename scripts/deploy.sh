@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Deploy pp09base (backend + web-admin) lên server qua SSH.
+# Deploy cloudpulse (backend + web-admin) lên server qua SSH.
 #
 #   ./scripts/deploy.sh --help
 #
@@ -21,7 +21,7 @@ LOG_APP=""
 
 usage() {
   cat <<'EOF'
-Deploy pp09base lên server qua SSH.
+Deploy cloudpulse lên server qua SSH.
 
   ./scripts/deploy.sh [tuỳ chọn]
 
@@ -95,9 +95,9 @@ done
 
 SSH_PORT="${SSH_PORT:-22}"
 REPO_BRANCH="${REPO_BRANCH:-main}"
-PM2_BACKEND="${PM2_BACKEND:-pp09base-backend}"
-PM2_ADMIN="${PM2_ADMIN:-pp09base-web-admin}"
-PM2_WEB="${PM2_WEB:-pp09base-web}"
+PM2_BACKEND="${PM2_BACKEND:-cloudpulse-backend}"
+PM2_ADMIN="${PM2_ADMIN:-cloudpulse-web-admin}"
+PM2_WEB="${PM2_WEB:-cloudpulse-web}"
 [[ -n "$LOG_APP" ]] || LOG_APP="$PM2_BACKEND"
 
 SSH_OPTS=(-p "$SSH_PORT" -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new)

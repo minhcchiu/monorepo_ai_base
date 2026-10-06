@@ -8,10 +8,10 @@ importers:
 
   .:
     dependencies:
-      '@pp09base/config':
+      '@cloudpulse/config':
         specifier: workspace:^
         version: link:packages/config
-      '@pp09base/ui':
+      '@cloudpulse/ui':
         specifier: workspace:^
         version: link:packages/ui
     devDependencies:
@@ -24,10 +24,10 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.9.1(@sinclair/typebox@0.34.49)(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(class-transformer@0.5.1)(class-validator@0.14.4)(effect@3.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.4))(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
-      '@pp09base/api-contract':
+      '@cloudpulse/api-contract':
         specifier: workspace:*
         version: link:../../packages/api-contract
-      '@pp09base/shared-ts':
+      '@cloudpulse/shared-ts':
         specifier: workspace:*
         version: link:../../packages/shared-ts
       '@tanstack/react-query':
@@ -293,10 +293,10 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.9.1(@sinclair/typebox@0.34.49)(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(class-transformer@0.5.1)(class-validator@0.14.4)(effect@3.20.0)(react-hook-form@7.89.0(@types/react@19.3.0)(react@19.2.4))(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
-      '@pp09base/api-contract':
+      '@cloudpulse/api-contract':
         specifier: workspace:*
         version: link:../../packages/api-contract
-      '@pp09base/shared-ts':
+      '@cloudpulse/shared-ts':
         specifier: workspace:*
         version: link:../../packages/shared-ts
       '@tanstack/react-query':

@@ -1,9 +1,9 @@
 module.exports = {
   apps: [
     {
-      name: "pp09base-backend",
+      name: "cloudpulse-backend",
       script: "dist/src/main.js",
-      cwd: "/home/pp09base/apps/backend",
+      cwd: "/home/cloudpulse/apps/backend",
       instances: 1,
       exec_mode: "cluster",
       env: {

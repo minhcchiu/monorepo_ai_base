@@ -1,8 +1,8 @@
 {
-  "name": "pp09base",
+  "name": "cloudpulse",
   "version": "0.0.0",
   "private": true,
-  "description": "Base monorepo (backend NestJS, web-admin Next.js, mobile Android Kotlin, shared packages).",
+  "description": "CloudPulse — Modern Infrastructure Orchestrator (VPS, PM2, deployments, domains, backups, monitoring). Monorepo: backend NestJS, web + web-admin Next.js, mobile Android Kotlin, shared packages.",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20.0.0",
@@ -11,9 +11,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:backend": "turbo run dev --filter @pp09base/backend",
-    "dev:admin": "turbo run dev --filter @pp09base/admin",
-    "dev:web": "turbo run dev --filter @pp09base/web",
+    "dev:backend": "turbo run dev --filter @cloudpulse/backend",
+    "dev:admin": "turbo run dev --filter @cloudpulse/admin",
+    "dev:web": "turbo run dev --filter @cloudpulse/web",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
@@ -24,7 +24,7 @@
     "turbo": "^2.3.0"
   },
   "dependencies": {
-    "@pp09base/config": "workspace:^",
-    "@pp09base/ui": "workspace:^"
+    "@cloudpulse/config": "workspace:^",
+    "@cloudpulse/ui": "workspace:^"
   }
 }

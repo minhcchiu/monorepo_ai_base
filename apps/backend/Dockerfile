@@ -9,7 +9,7 @@ RUN corepack enable
 
 # Copy package files
 # NOTE (monorepo): build context vẫn là apps/backend (standalone). Backend hiện chưa import
-# package workspace nào nên cài độc lập được. Nếu sau này backend dùng @pp09base/*, cần đổi build
+# package workspace nào nên cài độc lập được. Nếu sau này backend dùng @cloudpulse/*, cần đổi build
 # context sang repo root + dùng `pnpm deploy --filter`.
 COPY package.json pnpm-lock.yaml* ./
 

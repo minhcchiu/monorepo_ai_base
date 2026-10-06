@@ -1,1 +1,1 @@
-export { default } from '@pp09base/config/eslint.config.mjs';
+export { default } from '@cloudpulse/config/eslint.config.mjs';

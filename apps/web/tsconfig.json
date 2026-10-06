@@ -1,5 +1,5 @@
 {
-  "extends": "@pp09base/config/tsconfig.base.json",
+  "extends": "@cloudpulse/config/tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],

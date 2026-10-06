@@ -1,7 +1,7 @@
 /**
  * Export 3 OpenAPI spec tách theo nhóm @ApiScope ra packages/api-contract/specs/.
  *
- * Chạy:  pnpm --filter @pp09base/backend docs:export
+ * Chạy:  pnpm --filter @cloudpulse/backend docs:export
  *        (hoặc: ts-node src/docs/export-specs.ts)
  *
  * Dùng "preview mode" của Nest để KHÔNG khởi tạo provider (không kết nối DB/Redis),

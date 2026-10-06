@@ -1,10 +1,10 @@
-// PM2 config cho pp09base (3 apps: backend, admin, web) trên 1 server.
+// PM2 config cho cloudpulse (3 apps: backend, admin, web) trên 1 server.
 //
 // Cách dùng (chạy từ gốc repo):
 //   pm2 start ecosystem.config.js                      # khởi động cả 3 app
-//   pm2 start ecosystem.config.js --only pp09base-backend
-//   pm2 start ecosystem.config.js --only pp09base-web-admin
-//   pm2 start ecosystem.config.js --only pp09base-web
+//   pm2 start ecosystem.config.js --only cloudpulse-backend
+//   pm2 start ecosystem.config.js --only cloudpulse-web-admin
+//   pm2 start ecosystem.config.js --only cloudpulse-web
 //   pm2 reload ecosystem.config.js                     # deploy lại cả 3 app (zero-downtime)
 //
 // Cổng sản xuất nội bộ 3 app:
@@ -37,7 +37,7 @@ const nextBinPath = fs.existsSync(path.join(__dirname, "node_modules", "next", "
 module.exports = {
   apps: [
     {
-      name: "pp09base-backend",
+      name: "cloudpulse-backend",
       cwd: path.join(appsDir, "backend"),
       script: "dist/src/main.js",
       instances: 1,
@@ -51,7 +51,7 @@ module.exports = {
       },
     },
     {
-      name: "pp09base-web-admin",
+      name: "cloudpulse-web-admin",
       cwd: adminDir,
       script: nextBinPath,
       args: "start -p 32090",
@@ -66,7 +66,7 @@ module.exports = {
       },
     },
     {
-      name: "pp09base-web",
+      name: "cloudpulse-web",
       cwd: webDir,
       script: nextBinPath,
       args: "start -p 42090",

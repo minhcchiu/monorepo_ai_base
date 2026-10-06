@@ -36,8 +36,8 @@ cp .env.example .env
 Mở `.env` vừa tạo, sửa lại chuỗi kết nối PostgreSQL ở biến `DATABASE_URL` cho đúng với máy của bạn.
 Sau đó khởi tạo Database và Seed dữ liệu (tài khoản Admin mẫu):
 ```bash
-pnpm --filter @pp09base/backend db:migrate:dev --name init
-pnpm --filter @pp09base/backend db:seed
+pnpm --filter @cloudpulse/backend db:migrate:dev --name init
+pnpm --filter @cloudpulse/backend db:seed
 ```
 
 ### Bước 3: Thiết lập Environment cho Frontend (Admin & Web)

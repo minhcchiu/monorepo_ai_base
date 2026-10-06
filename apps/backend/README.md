@@ -11,7 +11,7 @@ yarn db:generate
 # Run migrations
 yarn db:migrate:dev
 
-cd /home/pp09base-backend/; git pull; yarn build;pm2 stop pp09base-backend; yarn db:generate; yarn db:migrate:dev; pm2 restart pp09base-backend
+cd /home/cloudpulse-backend/; git pull; yarn build;pm2 stop cloudpulse-backend; yarn db:generate; yarn db:migrate:dev; pm2 restart cloudpulse-backend
 
 ## 🎯 Project Overview
 
@@ -89,7 +89,7 @@ prisma/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd pp09base-backend
+   cd cloudpulse-backend
    ```
 
 2. **Install dependencies**

@@ -1,5 +1,5 @@
 {
-  "name": "@pp09base/api-contract",
+  "name": "@cloudpulse/api-contract",
   "version": "0.0.0",
   "private": true,
   "description": "Single source of truth cho API contract: swagger spec (app/admin/user) + TypeScript types generate từ chúng.",

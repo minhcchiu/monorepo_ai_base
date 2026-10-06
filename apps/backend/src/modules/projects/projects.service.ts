@@ -283,7 +283,13 @@ export class ProjectsService {
       path: string;
       filter: string;
       defaultPort: number;
+      pm2Name?: string;
+      script?: string;
+      maxMemory?: string;
     }> = [];
+
+    let hasEcosystem = false;
+    let rawEcosystemContent = '';
 
     // 1. Try inspecting ecosystem.config.js on selectedBranch over SSH
     try {
@@ -293,28 +299,40 @@ export class ProjectsService {
       );
 
       if (ecoRes.exitCode === 0 && ecoRes.stdout.trim()) {
+        hasEcosystem = true;
+        rawEcosystemContent = ecoRes.stdout.trim();
         const ecoContent = ecoRes.stdout;
+
         const appBlocks = ecoContent.split(/{\s*name:/g).slice(1);
 
         appBlocks.forEach((block) => {
           const nameMatch = block.match(/^\s*["']([^"']+)["']/);
           const nameStr = nameMatch ? nameMatch[1] : '';
 
-          const pathMatch = block.match(/cwd:\s*.*["'](apps\/[^"']+)["']/) || block.match(/["'](apps\/[^"']+)["']/);
-          const pathStr = pathMatch ? pathMatch[1] : nameStr.includes('backend') ? 'apps/backend' : nameStr.includes('admin') ? 'apps/web-admin' : 'apps/web';
+          const cwdMatch = block.match(/cwd:\s*.*["']([^"']+)["']/);
+          const folderName = cwdMatch ? cwdMatch[1].split(/[\\/]/).pop() || '' : nameStr.includes('backend') ? 'backend' : 'web-admin';
+
+          const pathStr = `apps/${folderName}`;
 
           const portMatch = block.match(/PORT:\s*(\d+)/i) || block.match(/-p\s*(\d+)/);
-          const portNum = portMatch ? parseInt(portMatch[1], 10) : nameStr.includes('backend') ? 3001 : nameStr.includes('admin') ? 3000 : 3002;
+          const portNum = portMatch ? parseInt(portMatch[1], 10) : folderName.includes('backend') ? 22090 : 32090;
 
-          const appId = pathStr.replace('apps/', '') || nameStr.replace(/[^a-z0-9_-]/gi, '');
+          const scriptMatch = block.match(/script:\s*.*["']([^"']+)["']/);
+          const scriptStr = scriptMatch ? scriptMatch[1] : 'dist/src/main.js';
 
-          if (appId) {
+          const memMatch = block.match(/max_memory_restart:\s*["']([^"']+)["']/);
+          const memStr = memMatch ? memMatch[1] : '512M';
+
+          if (folderName) {
             detectedApps.push({
-              id: appId,
-              name: appId === 'backend' ? 'Backend API' : appId === 'web-admin' ? 'Web Admin' : appId === 'web' ? 'Web User App' : nameStr || appId,
+              id: folderName,
+              name: nameStr || (folderName === 'backend' ? 'Backend API' : folderName === 'web-admin' ? 'Web Admin' : folderName),
               path: pathStr,
-              filter: `@calo_ai/${appId}`,
+              filter: `@calo_ai/${folderName}`,
               defaultPort: portNum,
+              pm2Name: nameStr,
+              script: scriptStr,
+              maxMemory: memStr,
             });
           }
         });
@@ -347,7 +365,7 @@ export class ProjectsService {
               name: folder === 'backend' ? 'Backend API' : folder === 'web-admin' ? 'Web Admin' : folder === 'web' ? 'Web User App' : folder,
               path: `apps/${folder}`,
               filter: `@calo_ai/${folder}`,
-              defaultPort: folder === 'backend' ? 3001 : folder === 'web-admin' ? 3000 : folder === 'web' ? 3002 : portCounter++,
+              defaultPort: folder === 'backend' ? 22090 : folder === 'web-admin' ? 32090 : portCounter++,
             });
           });
         }
@@ -364,14 +382,14 @@ export class ProjectsService {
           name: 'Backend API',
           path: 'apps/backend',
           filter: '@calo_ai/backend',
-          defaultPort: 3001,
+          defaultPort: 22090,
         },
         {
           id: 'web-admin',
           name: 'Web Admin',
           path: 'apps/web-admin',
           filter: '@calo_ai/web-admin',
-          defaultPort: 3000,
+          defaultPort: 32090,
         },
       ];
     }
@@ -383,11 +401,13 @@ export class ProjectsService {
       branches,
       gitBranch: selectedBranch,
       gitHash,
-      suggestedPort,
+      suggestedPort: detectedApps[0]?.defaultPort || 22090,
       deployDir: `/home/production-deploys/${slug}`,
-      domainProxy: `${slug}.io`,
+      domainProxy: `${slug}.izisoft.io`,
       buildFilter: `@calo_ai/${slug}`,
       detectedApps,
+      hasEcosystem,
+      rawEcosystemContent,
       sshAccessOk,
     };
   }
