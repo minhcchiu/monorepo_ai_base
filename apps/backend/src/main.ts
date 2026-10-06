@@ -170,12 +170,11 @@ async function bootstrap() {
   const port = configService.getPort();
   const nodeEnv = configService.getNodeEnv();
 
-  await app.listen(port, () => {
-    logger.log(`✅ Application listening on port ${port}`);
-    logger.log(`📍 Environment: ${nodeEnv}`);
-    logger.log(`📚 API Prefix: /${apiPrefix}/${apiVersion}`);
-    logger.log(`🚀 Ready to accept requests`);
-  });
+  await app.listen(port, '0.0.0.0');
+  logger.log(`✅ Application listening on port ${port} (0.0.0.0)`);
+  logger.log(`📍 Environment: ${nodeEnv}`);
+  logger.log(`📚 API Prefix: /${apiPrefix}/${apiVersion}`);
+  logger.log(`🚀 Ready to accept requests`);
 }
 
 // Start the application

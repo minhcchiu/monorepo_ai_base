@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/deploy.local.env"
 EXAMPLE_FILE="$SCRIPT_DIR/deploy.env.example"
 
-TARGET="both"   # both | backend | admin
+TARGET="both"   # both | backend | admin | web
 FULL=0
 ASSUME_YES=0
 MODE="deploy"   # deploy | preview | status | logs
@@ -26,9 +26,10 @@ Deploy pp09base lên server qua SSH.
   ./scripts/deploy.sh [tuỳ chọn]
 
 Tuỳ chọn:
-  (không cờ)          xem trước → hỏi xác nhận → deploy backend + web-admin
+  (không cờ)          xem trước → hỏi xác nhận → deploy tất cả app (backend + admin + web)
   --only backend      chỉ deploy backend
-  --only admin        chỉ deploy web-admin
+  --only admin        chỉ deploy admin
+  --only web          chỉ deploy web
   --full              xoá dist/.next trước khi build (chữa build bẩn, trắng trang)
   --yes, -y           bỏ bước hỏi xác nhận
   --dry-run           chỉ xem trước rồi thoát, không đụng gì tới server
@@ -50,7 +51,7 @@ die() { echo "❌ $*" >&2; exit 1; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --only)
-      [[ $# -ge 2 ]] || die "--only cần giá trị: backend hoặc admin"
+      [[ $# -ge 2 ]] || die "--only cần giá trị: backend, admin hoặc web"
       TARGET="$2"; shift 2 ;;
     --full)     FULL=1; shift ;;
     --yes|-y)   ASSUME_YES=1; shift ;;
@@ -65,8 +66,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$TARGET" in
-  both|backend|admin) ;;
-  *) die "--only chỉ nhận 'backend' hoặc 'admin', nhận được: $TARGET" ;;
+  both|all|backend|admin|web) ;;
+  *) die "--only chỉ nhận 'backend', 'admin' hoặc 'web', nhận được: $TARGET" ;;
 esac
 
 # ---------- nạp cấu hình ----------
@@ -96,6 +97,7 @@ SSH_PORT="${SSH_PORT:-22}"
 REPO_BRANCH="${REPO_BRANCH:-main}"
 PM2_BACKEND="${PM2_BACKEND:-pp09base-backend}"
 PM2_ADMIN="${PM2_ADMIN:-pp09base-web-admin}"
+PM2_WEB="${PM2_WEB:-pp09base-web}"
 [[ -n "$LOG_APP" ]] || LOG_APP="$PM2_BACKEND"
 
 SSH_OPTS=(-p "$SSH_PORT" -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new)
@@ -120,8 +122,8 @@ remote() {
 # Các biến cấu hình được nhúng vào đầu script remote, đã quote an toàn.
 prelude() {
   printf 'set -euo pipefail\n'
-  printf 'REMOTE_PATH=%q\nREPO_BRANCH=%q\nPM2_BACKEND=%q\nPM2_ADMIN=%q\nTARGET=%q\nFULL=%q\nLOG_APP=%q\n' \
-    "$REMOTE_PATH" "$REPO_BRANCH" "$PM2_BACKEND" "$PM2_ADMIN" "$TARGET" "$FULL" "$LOG_APP"
+  printf 'REMOTE_PATH=%q\nREPO_BRANCH=%q\nPM2_BACKEND=%q\nPM2_ADMIN=%q\nPM2_WEB=%q\nTARGET=%q\nFULL=%q\nLOG_APP=%q\n' \
+    "$REMOTE_PATH" "$REPO_BRANCH" "$PM2_BACKEND" "$PM2_ADMIN" "$PM2_WEB" "$TARGET" "$FULL" "$LOG_APP"
 }
 
 # Guard chung cho mọi thao tác cần repo: script này CHỈ deploy lại, không cài lần đầu.
@@ -165,7 +167,7 @@ git pull --ff-only origin "$REPO_BRANCH"
 echo "==> pnpm install"
 pnpm install --frozen-lockfile
 
-if [ "$TARGET" = "both" ] || [ "$TARGET" = "backend" ]; then
+if [ "$TARGET" = "both" ] || [ "$TARGET" = "all" ] || [ "$TARGET" = "backend" ]; then
   cd "$REMOTE_PATH/apps/backend"
   echo "==> backend: prisma generate"
   pnpm db:generate
@@ -176,11 +178,24 @@ if [ "$TARGET" = "both" ] || [ "$TARGET" = "backend" ]; then
   pnpm build
 fi
 
-if [ "$TARGET" = "both" ] || [ "$TARGET" = "admin" ]; then
-  cd "$REMOTE_PATH/apps/web-admin"
-  if [ "$FULL" = "1" ]; then echo "==> web-admin: xoá .next"; rm -rf .next; fi
-  echo "==> web-admin: build"
+if [ "$TARGET" = "both" ] || [ "$TARGET" = "all" ] || [ "$TARGET" = "admin" ]; then
+  if [ -d "$REMOTE_PATH/apps/admin" ]; then
+    cd "$REMOTE_PATH/apps/admin"
+  else
+    cd "$REMOTE_PATH/apps/web-admin"
+  fi
+  if [ "$FULL" = "1" ]; then echo "==> admin: xoá .next"; rm -rf .next; fi
+  echo "==> admin: build"
   pnpm build
+fi
+
+if [ "$TARGET" = "both" ] || [ "$TARGET" = "all" ] || [ "$TARGET" = "web" ]; then
+  if [ -d "$REMOTE_PATH/apps/web" ]; then
+    cd "$REMOTE_PATH/apps/web"
+    if [ "$FULL" = "1" ]; then echo "==> web: xoá .next"; rm -rf .next; fi
+    echo "==> web: build"
+    pnpm build
+  fi
 fi
 
 cd "$REMOTE_PATH"
@@ -191,6 +206,8 @@ if [ "$TARGET" = "backend" ]; then
   pm2 startOrReload ecosystem.config.js --only "$PM2_BACKEND"
 elif [ "$TARGET" = "admin" ]; then
   pm2 startOrReload ecosystem.config.js --only "$PM2_ADMIN"
+elif [ "$TARGET" = "web" ]; then
+  pm2 startOrReload ecosystem.config.js --only "$PM2_WEB"
 else
   pm2 startOrReload ecosystem.config.js
 fi

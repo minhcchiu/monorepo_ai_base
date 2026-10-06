@@ -1,0 +1,967 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error":"#ffffff","on-primary-container":"#eeefff","primary-fixed-dim":"#b4c5ff","on-error-container":"#93000a","tertiary":"#006242","secondary-container":"#dae2fd","secondary":"#565e74","on-primary":"#ffffff","surface-tint":"#0053db","surface-container-high":"#dce9ff","on-tertiary":"#ffffff","on-tertiary-container":"#bdffdb","surface-container-low":"#eff4ff","primary-container":"#2563eb","surface-dim":"#cbdbf5","on-secondary-container":"#5c647a","error-container":"#ffdad6","surface-container-highest":"#d3e4fe","on-background":"#0b1c30","tertiary-container":"#007d55","on-surface-variant":"#434655","on-primary-fixed":"#00174b","on-surface":"#0b1c30","inverse-on-surface":"#eaf1ff","surface-bright":"#f8f9ff","inverse-primary":"#b4c5ff","inverse-surface":"#213145","outline":"#737686","on-secondary-fixed-variant":"#3f465c","background":"#f8f9ff","surface-container":"#e5eeff","error":"#ba1a1a","surface-variant":"#d3e4fe","on-secondary-fixed":"#131b2e","tertiary-fixed-dim":"#4edea3","secondary-fixed":"#dae2fd","on-primary-fixed-variant":"#003ea8","on-secondary":"#ffffff","tertiary-fixed":"#6ffbbe","on-tertiary-fixed-variant":"#005236","surface":"#f8f9ff","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#002113","outline-variant":"#c3c6d7","primary-fixed":"#dbe1ff","primary":"#004ac6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin":"2rem","margin-sm":"1rem","gutter-sm":"1rem","space-xl":"2.5rem","gutter":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.5rem","space-md":"1rem"},fontFamily:{"code-md":["JetBrains Mono"],"label-md":["Inter"],"body-sm":["Inter"],"body-lg":["Inter"],"code-sm":["JetBrains Mono"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"display-lg-mobile":["Inter"],"display-lg":["Inter"],"headline-md":["Inter"]},fontSize:{"code-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"display-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"display-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center justify-between border-b border-outline-variant"><div class="flex items-center gap-space-sm"><img alt="Modern minimalist SaaS logo mark for CloudPulse web platform, clean geometric cloud-pulse symbol in elegant royal blue and crisp indigo, modern tech startup branding, minimalist vector icon. Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XkkzMEYQtSl5RGG8pHKN_GdWtnGZxNh9fTCZ3HhXKvuq1boguOizJ4PzNYRXAbRQjpR3KV5DiZDC8TKHINOPhRBYF392jeutATCY1UUcbG00qp71sv8bzC84dnihwoKwIn1UlSf9kUkGdXulspc4_1HpRXh1tPaUCyLoMONycjM8zTafJKPWPruK3DzBLEZ4oI2aGkP7fml4moeLW6Xa0VIzHFVh6kpN_rZKpuKU5Cm8DzwBGBzz4DCucD"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">CloudPulse</span><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm border border-outline-variant">v2.5</span></div></div><div class="p-space-sm border-b border-outline-variant"><button class="w-full flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors text-left" type="button"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-label-sm text-label-sm font-semibold shrink-0">MI</div><div class="min-w-0 flex-1"><div class="font-label-md text-label-md text-on-surface truncate">Minh Infrastructure</div><div class="font-code-sm text-code-sm text-on-surface-variant truncate">Prod Cloud • 12 Nodes</div></div></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">unfold_more</span></button></div><div class="px-space-md pt-space-md pb-space-xs font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Infrastructure</div><nav class="flex flex-col gap-1 px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-medium rounded-lg"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Dashboard</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 transition-colors bg-primary-container text-on-primary-container font-medium rounded-lg" data-path="vps-instances" href="#"><span class="material-symbols-outlined text-[20px]">dns</span><span>VPS</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="projects" href="#"><span class="material-symbols-outlined text-[20px]">folder</span><span>Projects</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="deployments" href="#"><span class="material-symbols-outlined text-[20px]">rocket_launch</span><span>Deployments</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="monitoring" href="#"><span class="material-symbols-outlined text-[20px]">show_chart</span><span>Monitoring</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications_active</span><span>Alerts</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="backups" href="#"><span class="material-symbols-outlined text-[20px]">backup</span><span>Backups</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="activity-logs" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span>Activity Logs</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span>Settings</span></a></nav></div><div class="p-space-sm border-t border-outline-variant flex flex-col gap-space-sm"><div class="px-space-sm py-1.5 rounded-lg bg-surface-container-low flex items-center justify-between border border-outline-variant"><div class="flex items-center gap-space-sm"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-label-sm text-label-sm text-on-surface-variant">All Systems Normal</span></div><span class="font-code-sm text-code-sm text-tertiary">99.98%</span></div><div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container transition-colors"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="min-w-0"><div class="font-label-md text-label-md text-on-surface truncate font-medium">Minh Nguyen</div><div class="font-body-sm text-body-sm text-on-surface-variant truncate">DevOps Lead</div></div></div><a class="p-1 text-on-surface-variant hover:text-on-surface transition-colors rounded" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span></a></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant z-40 px-gutter flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.02)]"><div class="flex items-center gap-space-md"><img alt="Modern minimalist SaaS logo mark for CloudPulse web platform, clean geometric cloud-pulse symbol in elegant royal blue and crisp indigo, modern tech startup branding, minimalist vector icon. Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XkkzMEYQtSl5RGG8pHKN_GdWtnGZxNh9fTCZ3HhXKvuq1boguOizJ4PzNYRXAbRQjpR3KV5DiZDC8TKHINOPhRBYF392jeutATCY1UUcbG00qp71sv8bzC84dnihwoKwIn1UlSf9kUkGdXulspc4_1HpRXh1tPaUCyLoMONycjM8zTafJKPWPruK3DzBLEZ4oI2aGkP7fml4moeLW6Xa0VIzHFVh6kpN_rZKpuKU5Cm8DzwBGBzz4DCucD"><nav class="flex items-center gap-space-md" data-active-classes="text-primary font-semibold"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard" href="#">Console</a><a aria-current="page" class="transition-colors text-primary font-semibold" data-path="vps-instances" href="#">Clusters</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="monitoring" href="#">Telemetry</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="settings" href="#">API Keys</a></nav></div><div class="flex items-center gap-space-sm"><div class="relative flex items-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute left-3 pointer-events-none">search</span><input class="h-9 pl-9 pr-12 rounded bg-surface-container-low border border-outline-variant font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary w-64 lg:w-80 transition-all" placeholder="Quick search clusters, nodes, IPs..." type="text"><span class="absolute right-2.5 px-1.5 py-0.5 rounded bg-surface-container-lowest border border-outline-variant font-code-sm text-code-sm text-on-surface-variant pointer-events-none">⌘K</span></div><div class="h-5 w-px bg-outline-variant mx-space-xs"></div><a class="relative p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary"></span></a><button class="h-9 px-space-md rounded bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center gap-1.5 hover:bg-primary transition-colors shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">add</span><span>Deploy Node</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<!-- Visual Ambient Depth Backdrop Accents -->
+<div class="relative w-full">
+<div class="absolute -top-6 -right-10 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-48 left-1/3 w-80 h-80 bg-tertiary-container/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- Tier 1 Global VPS Management Header -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm mb-1">
+<span class="font-code-sm text-code-sm uppercase tracking-wider text-primary font-semibold px-2 py-0.5 rounded bg-surface-container-high">Tier 1 • Global Infrastructure</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">•</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Live Heartbeat 10s</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight">VPS Instances</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">Manage, monitor, and connect to all dedicated and cloud VPS servers across distributed edge zones.</p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<!-- Cluster Health Quick Telemetry Badge -->
+<div class="hidden xl:flex items-center gap-3 px-space-md py-2 rounded-lg bg-surface-container-low shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Global Fleet Load</span>
+<div class="flex items-center gap-2">
+<div class="w-20 h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 48%;"></div>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">48.2%</span>
+</div>
+</div>
+<div class="w-px h-7 bg-surface-container-highest"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Total vCPU</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">56 Cores</span>
+</div>
+</div>
+<!-- Add VPS Modal Trigger -->
+<button class="h-10 px-space-md rounded bg-primary text-on-primary font-label-md text-label-md flex items-center gap-2 hover:bg-surface-tint shadow-md hover:shadow-lg transition-all active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-[19px]">add_circle</span>
+<span>Add VPS</span>
+</button>
+</div>
+</div>
+<!-- Quick Interaction Cue Alert Banner -->
+<div class="mb-space-lg p-space-sm px-space-md rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between flex-wrap gap-2">
+<div class="flex items-center gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[16px]">touch_app</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">
+<strong>Interactive Workspace:</strong> Click any VPS row or the terminal icon to directly open the Tier 2 dedicated server shell, PM2 orchestrator, and real-time socket logs.
+        </span>
+</div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-primary">
+<span>Press</span>
+<kbd class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface">Esc</kbd>
+<span>to exit full terminal sessions</span>
+</div>
+</div>
+<!-- Main Toolbar Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md mb-space-lg flex flex-col gap-space-md">
+<!-- Upper Filter Row: Search & Core Filters -->
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Search Field -->
+<div class="relative flex-1 min-w-[280px]">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant absolute left-3.5 top-2.5 pointer-events-none">search</span>
+<input class="w-full h-10 pl-10 pr-14 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" placeholder="Search by VPS name, IP address, tag, or OS (e.g. 103.56, Ubuntu, prod)..." type="text">
+<div class="absolute right-2.5 top-2 flex items-center gap-1 pointer-events-none">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest font-code-sm text-code-sm text-on-surface-variant shadow-xs">⌘K</span>
+</div>
+</div>
+<!-- Filter Controls Group -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Environment Filter -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md appearance-none focus:outline-none cursor-pointer hover:bg-surface-container transition-colors">
+<option value="all">All Envs (12)</option>
+<option selected="" value="prod">Production (6)</option>
+<option value="staging">Staging (4)</option>
+<option value="dev">Development (2)</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-2.5 top-2.5 pointer-events-none">expand_more</span>
+</div>
+<!-- Group / Tag Filter -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md appearance-none focus:outline-none cursor-pointer hover:bg-surface-container transition-colors">
+<option value="all">All Groups</option>
+<option value="backend">Backend (5)</option>
+<option value="frontend">Frontend (2)</option>
+<option value="gateway">Gateway (2)</option>
+<option value="database">Database (3)</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-2.5 top-2.5 pointer-events-none">filter_alt</span>
+</div>
+<!-- Sort Select -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md appearance-none focus:outline-none cursor-pointer hover:bg-surface-container transition-colors">
+<option value="cpu">Sort by: Highest CPU</option>
+<option value="projects">Sort by: Most Projects</option>
+<option selected="" value="active">Sort by: Recently Active</option>
+<option value="name">Sort by: Name (A-Z)</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-2.5 top-2.5 pointer-events-none">swap_vert</span>
+</div>
+<!-- View Toggle: List / Grid -->
+<div class="flex items-center p-1 rounded-lg bg-surface-container-low">
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-primary shadow-xs font-label-sm text-label-sm flex items-center gap-1.5 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">table_rows</span>
+<span class="hidden sm:inline">List</span>
+</button>
+<button class="px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1.5 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+<span class="hidden sm:inline">Grid</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Lower Status Tabs Row -->
+<div class="flex items-center justify-between pt-space-xs overflow-x-auto">
+<div class="flex items-center gap-2">
+<!-- All Status Tab -->
+<button class="h-8 px-3 rounded-full bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container-high transition-colors" type="button">
+<span>All VPS</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-code-sm text-code-sm font-semibold">12</span>
+</button>
+<!-- Online Tab -->
+<button class="h-8 px-3 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md flex items-center gap-2 shadow-xs" type="button">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span>Online</span>
+<span class="px-1.5 py-0.2 rounded-full bg-on-tertiary-fixed/10 font-code-sm text-code-sm font-bold">9</span>
+</button>
+<!-- Warning Tab -->
+<button class="h-8 px-3 rounded-full bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors" type="button">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span>Warning</span>
+<span class="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 font-code-sm text-code-sm font-bold">2</span>
+</button>
+<!-- Offline Tab -->
+<button class="h-8 px-3 rounded-full bg-surface-container-low text-on-surface font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors" type="button">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Offline</span>
+<span class="px-1.5 py-0.2 rounded-full bg-error-container text-on-error-container font-code-sm text-code-sm font-bold">1</span>
+</button>
+</div>
+<div class="hidden md:flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary">autorenew</span>
+<span>Auto-refreshing every 10s</span>
+</div>
+</div>
+</div>
+<!-- High Density VPS Modern SaaS Table -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-space-lg">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm tracking-wider uppercase">
+<th class="py-3 px-space-md" scope="col">VPS Instance &amp; Address</th>
+<th class="py-3 px-space-sm" scope="col">Status</th>
+<th class="py-3 px-space-sm" scope="col">Environment</th>
+<th class="py-3 px-space-md" scope="col">Specs &amp; OS</th>
+<th class="py-3 px-space-md w-72" scope="col">Resource Telemetry</th>
+<th class="py-3 px-space-sm" scope="col">Deployments</th>
+<th class="py-3 px-space-sm" scope="col">Uptime &amp; Ping</th>
+<th class="py-3 px-space-md text-right" scope="col">Quick Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-transparent font-body-sm text-body-sm">
+<!-- ROW 1: Production API Master -->
+<tr class="group hover:bg-surface-container-low transition-all cursor-pointer">
+<!-- VPS Name & IP -->
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm min-w-[220px]">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">dns</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors truncate">Production API Master</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant font-medium">SG-01</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>103.56.162.45</span>
+<button class="p-0.5 hover:text-primary transition-colors rounded" title="Copy Public IP" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<!-- Status badge -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span>Online</span>
+</span>
+</td>
+<!-- Environment badge -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-code-sm text-code-sm font-semibold uppercase">
+                  Production
+                </span>
+</td>
+<!-- OS & Specs -->
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-medium">Ubuntu 24.04 LTS</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">4 vCPU • 8 GB RAM • 160 GB SSD</span>
+</div>
+</td>
+<!-- Resource Telemetry (3 Sleek Bars) -->
+<td class="py-3.5 px-space-md">
+<div class="flex flex-col gap-1.5 w-full min-w-[200px]">
+<!-- CPU -->
+<div class="flex items-center justify-between font-code-sm text-code-sm">
+<span class="text-on-surface-variant">CPU</span>
+<span class="font-semibold text-on-surface">32%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 32%;"></div>
+</div>
+<!-- RAM & Disk inline mini -->
+<div class="grid grid-cols-2 gap-2 mt-0.5">
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>RAM</span>
+<span class="font-medium text-on-surface">61%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 61%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>SSD</span>
+<span class="font-medium text-on-surface">48%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 48%;"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<!-- Projects & PM2 -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface w-fit">
+<span class="material-symbols-outlined text-[13px] text-primary">folder_open</span>
+<span>3 Projects</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant w-fit">
+<span class="material-symbols-outlined text-[13px] text-tertiary">memory</span>
+<span>8 PM2 Active</span>
+</span>
+</div>
+</td>
+<!-- Uptime & Last Seen -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-tertiary font-code-sm text-code-sm font-semibold">99.98%</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">Uptime 42d 14h</span>
+<span class="text-on-surface-variant font-body-sm text-[11px]">Active 2m ago</span>
+</div>
+</td>
+<!-- Actions -->
+<td class="py-3.5 px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">
+<button class="p-1.5 rounded-lg bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary transition-all shadow-xs" title="Quick Terminal (SSH)" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Soft Restart PM2 / System" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+<a class="px-2 py-1.5 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm flex items-center gap-1 hover:bg-primary transition-colors shadow-xs" href="#">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 2: Worker Queue Node 01 (WARNING STATE) -->
+<tr class="group hover:bg-surface-container-low transition-all cursor-pointer bg-amber-500/5">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm min-w-[220px]">
+<div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700 shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">storage</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors truncate">Worker Queue Node 01</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant font-medium">VN-HN</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>103.178.234.19</span>
+<button class="p-0.5 hover:text-primary transition-colors rounded" title="Copy Public IP" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<!-- Status badge: Warning -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-amber-600 animate-ping"></span>
+<span>CPU Spike &gt; 85%</span>
+</span>
+</td>
+<!-- Environment badge -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-code-sm text-code-sm font-semibold uppercase">
+                  Production
+                </span>
+</td>
+<!-- OS & Specs -->
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-medium">Ubuntu 24.04 LTS</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">2 vCPU • 4 GB RAM • 80 GB SSD</span>
+</div>
+</td>
+<!-- Resource Telemetry (High CPU Warning Alert) -->
+<td class="py-3.5 px-space-md">
+<div class="flex flex-col gap-1.5 w-full min-w-[200px]">
+<div class="flex items-center justify-between font-code-sm text-code-sm">
+<span class="text-amber-800 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> CPU Thrashing
+                    </span>
+<span class="font-bold text-amber-700">88%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full" style="width: 88%;"></div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-0.5">
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>RAM</span>
+<span class="font-medium text-on-surface">64%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 64%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>SSD</span>
+<span class="font-medium text-on-surface">39%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 39%;"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<!-- Projects & PM2 -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface w-fit">
+<span class="material-symbols-outlined text-[13px] text-primary">folder_open</span>
+<span>1 Project</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant w-fit">
+<span class="material-symbols-outlined text-[13px] text-amber-600">memory</span>
+<span>6 PM2 Heavy</span>
+</span>
+</div>
+</td>
+<!-- Uptime -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-tertiary font-code-sm text-code-sm font-semibold">99.82%</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">Uptime 18d 03h</span>
+<span class="text-on-surface-variant font-body-sm text-[11px]">Active 1m ago</span>
+</div>
+</td>
+<!-- Actions -->
+<td class="py-3.5 px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">
+<button class="p-1.5 rounded-lg bg-amber-100 text-amber-900 hover:bg-amber-600 hover:text-white transition-all shadow-xs" title="Launch Terminal Diagnostics" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface" title="Scale Queue Workers" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+<a class="px-2 py-1.5 rounded-lg bg-surface-container hover:bg-primary-container hover:text-on-primary-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="#">
+<span>Inspect</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 3: Staging Gateway HCM -->
+<tr class="group hover:bg-surface-container-low transition-all cursor-pointer">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm min-w-[220px]">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">router</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors truncate">Staging Gateway HCM</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant font-medium">VN-HCM</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>103.56.162.88</span>
+<button class="p-0.5 hover:text-primary transition-colors rounded" title="Copy Public IP" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<!-- Status: Online -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Online</span>
+</span>
+</td>
+<!-- Environment: Staging -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 font-code-sm text-code-sm font-semibold uppercase">
+                  Staging
+                </span>
+</td>
+<!-- OS & Specs -->
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-medium">Debian 12 Bookworm</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">2 vCPU • 4 GB RAM • 60 GB SSD</span>
+</div>
+</td>
+<!-- Telemetry -->
+<td class="py-3.5 px-space-md">
+<div class="flex flex-col gap-1.5 w-full min-w-[200px]">
+<div class="flex items-center justify-between font-code-sm text-code-sm">
+<span class="text-on-surface-variant">CPU</span>
+<span class="font-semibold text-on-surface">18%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 18%;"></div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-0.5">
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>RAM</span>
+<span class="font-medium text-on-surface">42%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 42%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>SSD</span>
+<span class="font-medium text-on-surface">35%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 35%;"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<!-- Projects & PM2 -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface w-fit">
+<span class="material-symbols-outlined text-[13px] text-primary">folder_open</span>
+<span>2 Projects</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant w-fit">
+<span class="material-symbols-outlined text-[13px] text-tertiary">memory</span>
+<span>4 PM2 Active</span>
+</span>
+</div>
+</td>
+<!-- Uptime -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-tertiary font-code-sm text-code-sm font-semibold">99.99%</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">Uptime 14d 09h</span>
+<span class="text-on-surface-variant font-body-sm text-[11px]">Active 12m ago</span>
+</div>
+</td>
+<!-- Actions -->
+<td class="py-3.5 px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Terminal" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" title="Restart" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+<a class="px-2 py-1.5 rounded-lg hover:bg-surface-container text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="#">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 4: Database Replica SG (RAM ALERT) -->
+<tr class="group hover:bg-surface-container-low transition-all cursor-pointer bg-amber-500/5">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm min-w-[220px]">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">database</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors truncate">Database Replica SG</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant font-medium">SG-02</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>103.56.162.77</span>
+<button class="p-0.5 hover:text-primary transition-colors rounded" title="Copy Public IP" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<!-- Status: Warning RAM -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-amber-600"></span>
+<span>RAM &gt; 90%</span>
+</span>
+</td>
+<!-- Env: Prod -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-code-sm text-code-sm font-semibold uppercase">
+                  Production
+                </span>
+</td>
+<!-- Specs -->
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-medium">Ubuntu 24.04 LTS</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">8 vCPU • 16 GB RAM • 320 GB NVMe</span>
+</div>
+</td>
+<!-- Telemetry with Alert -->
+<td class="py-3.5 px-space-md">
+<div class="flex flex-col gap-1.5 w-full min-w-[200px]">
+<div class="flex items-center justify-between font-code-sm text-code-sm">
+<span class="text-on-surface-variant">CPU</span>
+<span class="font-semibold text-on-surface">52%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 52%;"></div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-0.5">
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-amber-800 font-bold mb-0.5">
+<span>RAM (Swap Active)</span>
+<span>91%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-amber-500" style="width: 91%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>SSD</span>
+<span class="font-medium text-on-surface">72%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 72%;"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<!-- Projects & PM2 -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface w-fit">
+<span class="material-symbols-outlined text-[13px] text-primary">folder_open</span>
+<span>1 Project</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant w-fit">
+<span class="material-symbols-outlined text-[13px] text-tertiary">memory</span>
+<span>2 PM2 DB Pools</span>
+</span>
+</div>
+</td>
+<!-- Uptime -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-tertiary font-code-sm text-code-sm font-semibold">99.95%</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">Uptime 90d 22h</span>
+<span class="text-on-surface-variant font-body-sm text-[11px]">Active 3m ago</span>
+</div>
+</td>
+<!-- Actions -->
+<td class="py-3.5 px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Terminal" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" title="Flush Cache" type="button">
+<span class="material-symbols-outlined text-[18px]">cleaning_services</span>
+</button>
+<a class="px-2 py-1.5 rounded-lg hover:bg-surface-container text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="#">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 5: Auth Identity Service -->
+<tr class="group hover:bg-surface-container-low transition-all cursor-pointer">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm min-w-[220px]">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">security</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors truncate">Auth Identity Service</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant font-medium">JP-Tokyo</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>139.162.88.102</span>
+<button class="p-0.5 hover:text-primary transition-colors rounded" title="Copy Public IP" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<!-- Status -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Online</span>
+</span>
+</td>
+<!-- Env -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-code-sm text-code-sm font-semibold uppercase">
+                  Production
+                </span>
+</td>
+<!-- OS & Specs -->
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-medium">AlmaLinux 9 Enterprise</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">4 vCPU • 8 GB RAM • 120 GB SSD</span>
+</div>
+</td>
+<!-- Telemetry -->
+<td class="py-3.5 px-space-md">
+<div class="flex flex-col gap-1.5 w-full min-w-[200px]">
+<div class="flex items-center justify-between font-code-sm text-code-sm">
+<span class="text-on-surface-variant">CPU</span>
+<span class="font-semibold text-on-surface">24%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 24%;"></div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-0.5">
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>RAM</span>
+<span class="font-medium text-on-surface">53%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 53%;"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between font-code-sm text-[10px] text-on-surface-variant mb-0.5">
+<span>SSD</span>
+<span class="font-medium text-on-surface">42%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 42%;"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<!-- Projects & PM2 -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface w-fit">
+<span class="material-symbols-outlined text-[13px] text-primary">folder_open</span>
+<span>2 Projects</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant w-fit">
+<span class="material-symbols-outlined text-[13px] text-tertiary">memory</span>
+<span>4 PM2 Active</span>
+</span>
+</div>
+</td>
+<!-- Uptime -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-tertiary font-code-sm text-code-sm font-semibold">99.99%</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">Uptime 31d 08h</span>
+<span class="text-on-surface-variant font-body-sm text-[11px]">Active 30m ago</span>
+</div>
+</td>
+<!-- Actions -->
+<td class="py-3.5 px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Terminal" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" title="Restart" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+<a class="px-2 py-1.5 rounded-lg hover:bg-surface-container text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="#">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 6: Dev Sandbox Cluster (OFFLINE STATE) -->
+<tr class="group hover:bg-surface-container-low transition-all cursor-pointer bg-error-container/20">
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-space-sm min-w-[220px]">
+<div class="w-9 h-9 rounded-lg bg-error-container flex items-center justify-center text-on-error-container shrink-0 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">cloud_off</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors truncate">Dev Sandbox Cluster</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant font-medium">US-East</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm mt-0.5">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>103.178.23.11</span>
+<button class="p-0.5 hover:text-primary transition-colors rounded" title="Copy Public IP" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<!-- Status: Offline -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-800 font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-rose-600"></span>
+<span>Offline</span>
+</span>
+</td>
+<!-- Env: Dev -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 font-code-sm text-code-sm font-semibold uppercase">
+                  Development
+                </span>
+</td>
+<!-- Specs -->
+<td class="py-3.5 px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-medium">Ubuntu 24.04 LTS</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">2 vCPU • 4 GB RAM • 50 GB SSD</span>
+</div>
+</td>
+<!-- Telemetry: Disconnected -->
+<td class="py-3.5 px-space-md">
+<div class="flex items-center gap-2 p-2 rounded-lg bg-surface-container font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-error">link_off</span>
+<span>Telemetry Disconnected • 0%</span>
+</div>
+</td>
+<!-- Projects & PM2 -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface w-fit">
+<span class="material-symbols-outlined text-[13px] text-on-surface-variant">folder_open</span>
+<span>1 Project</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant w-fit">
+<span class="material-symbols-outlined text-[13px] text-error">stop</span>
+<span>0 PM2 Running</span>
+</span>
+</div>
+</td>
+<!-- Uptime -->
+<td class="py-3.5 px-space-sm whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-error font-code-sm text-code-sm font-semibold">Offline</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">Heartbeat timed out</span>
+<span class="text-error font-body-sm text-[11px] font-medium">Offline 4h ago</span>
+</div>
+</td>
+<!-- Actions -->
+<td class="py-3.5 px-space-md text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1" onclick="event.stopPropagation()">
+<button class="p-1.5 rounded-lg bg-surface-container hover:bg-error hover:text-on-error text-on-surface-variant transition-colors shadow-xs" title="Hard Reboot VPS" type="button">
+<span class="material-symbols-outlined text-[18px]">power_settings_new</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" title="Troubleshoot Network" type="button">
+<span class="material-symbols-outlined text-[18px]">network_check</span>
+</button>
+<a class="px-2 py-1.5 rounded-lg hover:bg-surface-container text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors" href="#">
+<span>Logs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / High-Utility Pagination -->
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+            Showing <strong class="text-on-surface font-semibold">6</strong> of <strong class="text-on-surface font-semibold">12</strong> VPS instances across <strong class="text-on-surface font-semibold">4 global regions</strong> (SG, VN, JP, US)
+          </span>
+</div>
+<div class="flex items-center gap-space-md">
+<!-- Page Size Selector -->
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Per page:</span>
+<select class="h-8 px-2 rounded bg-surface-container-lowest text-on-surface font-code-sm text-code-sm focus:outline-none cursor-pointer">
+<option selected="" value="10">10</option>
+<option value="25">25</option>
+<option value="50">50</option>
+</select>
+</div>
+<!-- Pagination Controls -->
+<div class="flex items-center gap-1">
+<button class="h-8 px-3 rounded-lg bg-surface-container-lowest text-on-surface-variant opacity-50 cursor-not-allowed font-label-md text-label-md flex items-center gap-1" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+<span>Previous</span>
+</button>
+<div class="flex items-center px-2 font-code-sm text-code-sm text-on-surface">
+<span>Page 1 of 2</span>
+</div>
+<button class="h-8 px-3 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1 shadow-xs transition-colors" type="button">
+<span>Next</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Tier 1 Overview Global Map & Telemetry Bento Bottom Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
+<!-- Global Edge Map Card -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col justify-between">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Global VPS Distribution</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">4 Active Availability Zones connected via encrypted WireGuard mesh</span>
+</div>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm font-medium">BGP Route Optimised</span>
+</div>
+<!-- Inline Visual Topology representation -->
+<div class="relative w-full h-52 bg-surface-container-low rounded-lg overflow-hidden p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between z-10">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="font-code-sm text-code-sm font-semibold text-on-surface">Edge Transit Health: 100%</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Sub-45ms latency mesh</span>
+</div>
+<!-- Decorative SVG Edge Mesh Map Lines -->
+<svg class="absolute inset-0 w-full h-full opacity-60 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+<line class="text-primary/40" stroke="currentColor" stroke-dasharray="4" x1="20%" x2="48%" y1="65%" y2="55%"></line>
+<line class="text-primary/40" stroke="currentColor" stroke-dasharray="4" x1="48%" x2="72%" y1="55%" y2="40%"></line>
+<line class="text-primary/40" stroke="currentColor" stroke-dasharray="4" x1="72%" x2="88%" y1="40%" y2="70%"></line>
+<line class="text-primary/40" stroke="currentColor" stroke-dasharray="4" x1="48%" x2="88%" y1="55%" y2="70%"></line>
+<!-- Node circles -->
+<circle class="fill-primary" cx="20%" cy="65%" r="6"></circle>
+<circle class="fill-primary" cx="48%" cy="55%" r="8"></circle>
+<circle class="fill-primary" cx="72%" cy="40%" r="6"></circle>
+<circle class="fill-secondary" cx="88%" cy="70%" r="5"></circle>
+</svg>
+<!-- Region Pills -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 z-10">
+<div class="p-2 rounded bg-surface-container-lowest/90 backdrop-blur shadow-xs">
+<div class="font-label-sm text-label-sm text-on-surface-variant">Singapore (SG)</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-0.5">5 Nodes</div>
+<div class="font-code-sm text-code-sm text-tertiary">14ms avg</div>
+</div>
+<div class="p-2 rounded bg-surface-container-lowest/90 backdrop-blur shadow-xs">
+<div class="font-label-sm text-label-sm text-on-surface-variant">Vietnam (VN)</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-0.5">4 Nodes</div>
+<div class="font-code-sm text-code-sm text-tertiary">18ms avg</div>
+</div>
+<div class="p-2 rounded bg-surface-container-lowest/90 backdrop-blur shadow-xs">
+<div class="font-label-sm text-label-sm text-on-surface-variant">Japan (JP)</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-0.5">2 Nodes</div>
+<div class="font-code-sm text-code-sm text-tertiary">38ms avg</div>
+</div>
+<div class="p-2 rounded bg-surface-container-lowest/90 backdrop-blur shadow-xs">
+<div class="font-label-sm text-label-sm text-on-surface-variant">US East (US)</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-0.5">1 Node</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant">Offline</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Command Executor / SSH Gateway Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">Global SSH Dispatch</span>
+<span class="material-symbols-outlined text-primary text-[20px]">bolt</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Broadcast ephemeral maintenance or diagnostic scripts across all active production nodes.</p>
+<div class="space-y-space-sm">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface mb-1 block">Target Scope</label>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-1 rounded bg-blue-50 text-blue-700 font-code-sm text-code-sm">Production (6)</span>
+<span class="px-2 py-1 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">Online only</span>
+</div>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface mb-1 block">Quick Routine</label>
+<select class="w-full h-9 px-2.5 rounded bg-surface-container-low font-body-sm text-body-sm text-on-surface focus:outline-none">
+<option>pm2 reload all --update-env</option>
+<option>apt update &amp;&amp; apt upgrade -y (Staged)</option>
+<option>docker system prune -af</option>
+<option>journalctl --vacuum-time=3d</option>
+</select>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-transparent flex items-center justify-between">
+<div class="flex items-center gap-1 text-on-surface-variant font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified_user</span>
+<span>Signed 4096-bit Ed25519</span>
+</div>
+<button class="h-9 px-space-md rounded bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary font-label-md text-label-md transition-colors shadow-xs" type="button">
+            Run Dispatch
+          </button>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

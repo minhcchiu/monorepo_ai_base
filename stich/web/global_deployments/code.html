@@ -1,0 +1,758 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error":"#ffffff","on-primary-container":"#eeefff","primary-fixed-dim":"#b4c5ff","on-error-container":"#93000a","tertiary":"#006242","secondary-container":"#dae2fd","secondary":"#565e74","on-primary":"#ffffff","surface-tint":"#0053db","surface-container-high":"#dce9ff","on-tertiary":"#ffffff","on-tertiary-container":"#bdffdb","surface-container-low":"#eff4ff","primary-container":"#2563eb","surface-dim":"#cbdbf5","on-secondary-container":"#5c647a","error-container":"#ffdad6","surface-container-highest":"#d3e4fe","on-background":"#0b1c30","tertiary-container":"#007d55","on-surface-variant":"#434655","on-primary-fixed":"#00174b","on-surface":"#0b1c30","inverse-on-surface":"#eaf1ff","surface-bright":"#f8f9ff","inverse-primary":"#b4c5ff","inverse-surface":"#213145","outline":"#737686","on-secondary-fixed-variant":"#3f465c","background":"#f8f9ff","surface-container":"#e5eeff","error":"#ba1a1a","surface-variant":"#d3e4fe","on-secondary-fixed":"#131b2e","tertiary-fixed-dim":"#4edea3","secondary-fixed":"#dae2fd","on-primary-fixed-variant":"#003ea8","on-secondary":"#ffffff","tertiary-fixed":"#6ffbbe","on-tertiary-fixed-variant":"#005236","surface":"#f8f9ff","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#002113","outline-variant":"#c3c6d7","primary-fixed":"#dbe1ff","primary":"#004ac6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin":"2rem","margin-sm":"1rem","gutter-sm":"1rem","space-xl":"2.5rem","gutter":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.5rem","space-md":"1rem"},fontFamily:{"code-md":["JetBrains Mono"],"label-md":["Inter"],"body-sm":["Inter"],"body-lg":["Inter"],"code-sm":["JetBrains Mono"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"display-lg-mobile":["Inter"],"display-lg":["Inter"],"headline-md":["Inter"]},fontSize:{"code-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"display-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"display-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center justify-between border-b border-outline-variant"><div class="flex items-center gap-space-sm"><img alt="Modern minimalist SaaS logo mark for CloudPulse web platform, clean geometric cloud-pulse symbol in elegant royal blue and crisp indigo, modern tech startup branding, minimalist vector icon. Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XkkzMEYQtSl5RGG8pHKN_GdWtnGZxNh9fTCZ3HhXKvuq1boguOizJ4PzNYRXAbRQjpR3KV5DiZDC8TKHINOPhRBYF392jeutATCY1UUcbG00qp71sv8bzC84dnihwoKwIn1UlSf9kUkGdXulspc4_1HpRXh1tPaUCyLoMONycjM8zTafJKPWPruK3DzBLEZ4oI2aGkP7fml4moeLW6Xa0VIzHFVh6kpN_rZKpuKU5Cm8DzwBGBzz4DCucD"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">CloudPulse</span><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm border border-outline-variant">v2.5</span></div></div><div class="p-space-sm border-b border-outline-variant"><button class="w-full flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors text-left" type="button"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-label-sm text-label-sm font-semibold shrink-0">MI</div><div class="min-w-0 flex-1"><div class="font-label-md text-label-md text-on-surface truncate font-medium">Minh Infrastructure</div><div class="font-code-sm text-code-sm text-on-surface-variant truncate">Prod Cloud • 12 Nodes</div></div></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">unfold_more</span></button></div><div class="px-space-md pt-space-md pb-space-xs font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Infrastructure</div><nav class="flex flex-col gap-1 px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-medium rounded-lg"><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-dashboard" href="#">Dashboard</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-vps-list" href="#">VPS</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-projects" href="#">Projects</a><a aria-current="page" class="flex items-center justify-between px-space-sm py-2 transition-colors bg-primary-container text-on-primary-container font-medium rounded-lg" data-path="global-deployments" href="#">Deployments</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-monitoring" href="#">Monitoring</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-alerts" href="#"><span>Alerts</span><span class="px-1.5 py-0.5 text-[10px] font-label-sm rounded-full bg-error-container text-on-error-container">3</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-backups" href="#">Backups</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="global-activity-logs" href="#">Activity Logs</a></nav></div><div class="p-space-sm border-t border-outline-variant flex flex-col gap-space-sm"><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-medium rounded-lg"><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="settings" href="#">Settings</a></nav><div class="px-space-sm py-1.5 rounded-lg bg-surface-container-low flex items-center justify-between border border-outline-variant"><div class="flex items-center gap-space-sm"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-label-sm text-label-sm text-on-surface-variant">All Systems Normal</span></div><span class="font-code-sm text-code-sm text-tertiary">99.98%</span></div><div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container transition-colors"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="min-w-0"><div class="font-label-md text-label-md text-on-surface truncate font-medium">Minh Nguyen</div><div class="font-body-sm text-body-sm text-on-surface-variant truncate">DevOps Lead</div></div></div><a class="p-1 text-on-surface-variant hover:text-on-surface transition-colors rounded" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span></a></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant z-40 px-gutter flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.02)]"><div class="flex items-center gap-space-md"><button class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg bg-surface-container-low border border-outline-variant text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px] text-primary">dns</span><span class="font-label-md text-label-md font-medium">Prod Cloud Cluster</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">arrow_drop_down</span></button><nav class="flex items-center gap-space-md" data-active-classes="text-primary font-semibold"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="global-dashboard" href="#">Console</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="global-vps-list" href="#">Clusters</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="global-monitoring" href="#">Telemetry</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="settings" href="#">API Keys</a></nav></div><div class="flex items-center gap-space-sm"><div class="relative flex items-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute left-3 pointer-events-none">search</span><input class="h-9 pl-9 pr-12 rounded bg-surface-container-low border border-outline-variant font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary w-64 lg:w-80 transition-all" placeholder="Quick search clusters, nodes, IPs..." type="text"><span class="absolute right-2.5 px-1.5 py-0.5 rounded bg-surface-container-lowest border border-outline-variant font-code-sm text-code-sm text-on-surface-variant pointer-events-none">⌘K</span></div><div class="h-5 w-px bg-outline-variant mx-space-xs"></div><a class="relative p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="global-alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary"></span></a><button class="h-9 px-space-md rounded bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center gap-1.5 hover:bg-primary transition-colors shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">add</span><span>Deploy Node</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<!-- Macro Header Section -->
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Global Deployments</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-code-sm text-code-sm font-semibold shadow-sm">Live Engine</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+        Real-time CI/CD release pipeline, build status, and automated deployment history across all VPS clusters.
+      </p>
+</div>
+<!-- Action Toolbar -->
+<div class="flex items-center flex-wrap gap-space-sm shrink-0">
+<button class="h-9 px-space-md rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors shadow-sm flex items-center gap-2 font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">calendar_today</span>
+<span>Last 24 Hours</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors shadow-sm flex items-center gap-2 font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">download</span>
+<span>Export Logs</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-primary text-on-primary hover:bg-primary-container transition-all shadow-md hover:shadow-lg flex items-center gap-1.5 font-label-md text-label-md font-semibold" type="button">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+<span>Trigger Deploy</span>
+</button>
+</div>
+</div>
+<!-- Summary KPI Bento Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-lg">
+<!-- Card 1: Total Deployments -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Total Releases (24h)</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-lg text-display-lg text-on-surface">48</span>
+<span class="inline-flex items-center text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+              12% vs yday
+            </span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low text-primary flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</div>
+</div>
+<!-- Sparkline bar chart visual -->
+<div class="flex items-end gap-1.5 h-8 mt-space-md pt-1">
+<div class="flex-1 bg-surface-container h-[40%] rounded-xs"></div>
+<div class="flex-1 bg-surface-container h-[65%] rounded-xs"></div>
+<div class="flex-1 bg-surface-container h-[50%] rounded-xs"></div>
+<div class="flex-1 bg-surface-container h-[85%] rounded-xs"></div>
+<div class="flex-1 bg-surface-container h-[70%] rounded-xs"></div>
+<div class="flex-1 bg-surface-container h-[90%] rounded-xs"></div>
+<div class="flex-1 bg-primary h-[100%] rounded-xs shadow-sm"></div>
+</div>
+</div>
+<!-- Card 2: Success Rate -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Success Reliability</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-lg text-display-lg text-tertiary">95.8%</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">46 passed</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low text-tertiary flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+</div>
+<!-- SVG Progress Arc -->
+<div class="flex items-center justify-between mt-space-md">
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
+<div class="bg-tertiary h-full rounded-full" style="width: 95.8%"></div>
+<div class="bg-error h-full" style="width: 4.2%"></div>
+</div>
+</div>
+</div>
+<!-- Card 3: Running & Queued -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Active Pipeline</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-lg text-display-lg text-primary">02</span>
+<span class="inline-flex items-center text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping inline-block mr-1.5"></span>
+              Runners Busy
+            </span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low text-primary flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[20px] animate-spin">sync</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-md text-on-surface-variant font-code-sm text-code-sm">
+<span>Slot 1: Docker Build</span>
+<span class="text-primary font-medium">Step 3/5</span>
+</div>
+</div>
+<!-- Card 4: Failed Deployments -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Failure Incidents</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-display-lg text-display-lg text-error">02</span>
+<span class="font-label-sm text-label-sm text-error font-medium">Needs Attention</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-error-container text-error flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-md font-body-sm text-body-sm text-on-surface-variant">
+<span>Exit 137 (OOM killed)</span>
+<a class="text-primary hover:underline font-label-sm text-label-sm font-semibold" href="#quick-logs">Review logs</a>
+</div>
+</div>
+</div>
+<!-- Operational Filter Deck -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-lowest p-space-md rounded-xl shadow-sm mb-space-md">
+<!-- Search Query Bar -->
+<div class="relative flex items-center flex-1 max-w-lg">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant absolute left-3 pointer-events-none">search</span>
+<input class="w-full h-10 pl-10 pr-12 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all shadow-inner" placeholder="Search by project, commit SHA, branch, or VPS node... (⌘K)" type="text">
+<kbd class="absolute right-3 px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface-variant shadow-sm pointer-events-none">⌘K</kbd>
+</div>
+<!-- Segmented Status Tabs -->
+<div class="flex items-center overflow-x-auto p-1 bg-surface-container-low rounded-lg shrink-0">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md font-semibold shadow-sm transition-all flex items-center gap-1.5" type="button">
+<span>All</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-on-surface text-[10px]">48</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all flex items-center gap-1.5" type="button">
+<span>Running</span>
+<span class="px-1.5 py-0.2 rounded-full bg-primary-container text-on-primary-container text-[10px]">2</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all flex items-center gap-1.5" type="button">
+<span>Success</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-tertiary text-[10px]">44</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all flex items-center gap-1.5" type="button">
+<span>Failed</span>
+<span class="px-1.5 py-0.2 rounded-full bg-error-container text-on-error-container text-[10px]">2</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all flex items-center gap-1.5" type="button">
+<span>Cancelled</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-on-surface-variant text-[10px]">0</span>
+</button>
+</div>
+<!-- Dropdown Filters -->
+<div class="flex items-center gap-space-sm shrink-0">
+<!-- VPS Node Dropdown -->
+<button class="h-10 px-3 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md flex items-center gap-2 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">dns</span>
+<span>Nodes: All (12)</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</button>
+<!-- Environment Dropdown -->
+<button class="h-10 px-3 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md flex items-center gap-2 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">public</span>
+<span>Env: All Clusters</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</button>
+<!-- Sort Selection -->
+<button class="h-10 px-3 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container font-label-md text-label-md flex items-center gap-2 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">swap_vert</span>
+<span>Newest First</span>
+</button>
+</div>
+</div>
+<!-- Main Deployment Pipeline Table Container -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col mb-space-lg">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider select-none">
+<th class="py-3.5 px-space-md font-semibold">Service &amp; Target Node</th>
+<th class="py-3.5 px-space-md font-semibold">Environment</th>
+<th class="py-3.5 px-space-md font-semibold">Branch &amp; Commit</th>
+<th class="py-3.5 px-space-md font-semibold">Version</th>
+<th class="py-3.5 px-space-md font-semibold">Status / Progress</th>
+<th class="py-3.5 px-space-md font-semibold">Operator</th>
+<th class="py-3.5 px-space-md font-semibold">Timeline</th>
+<th class="py-3.5 px-space-md font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- Row 1: Calo AI Backend (Running) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-bold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">neurology</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Calo AI Backend</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-medium">#210</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">dns</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">api-prod-cluster-01</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-low font-code-sm text-code-sm text-secondary">103.56.162.45</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold shadow-xs">
+                Production
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col max-w-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">fork_right</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">main</span>
+<span class="font-code-sm text-code-sm text-primary">#8c9d2a</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5" title="Optimize Redis cache query">
+                  Optimize Redis cache query
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-1 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface font-medium shadow-2xs">
+                v2.4.1
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/15 text-primary font-label-sm text-label-sm font-semibold">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                  Running (Building Step 3/5)
+                </span>
+<div class="w-32 bg-surface-container h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 60%"></div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-sm text-label-sm font-bold shadow-xs">
+                  TL
+                </div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Tuấn Lê</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">45s ago</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Elapsed: 45s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary transition-colors" title="Inspect Terminal Logs" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Cancel Run" type="button">
+<span class="material-symbols-outlined text-[18px]">stop_circle</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Auth & Identity Service (Success) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer bg-surface-container-lowest">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-secondary flex items-center justify-center font-bold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">shield_person</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Auth &amp; Identity Service</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-medium">#209</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">dns</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">auth-identity-service</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-low font-code-sm text-code-sm text-secondary">103.56.162.88</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold shadow-xs">
+                Production
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col max-w-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">fork_right</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">release/v1.9.0</span>
+<span class="font-code-sm text-code-sm text-primary">#7e11f0</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">
+                  OAuth2 session security update
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-1 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface font-medium shadow-2xs">
+                v1.9.0
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                Success
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold shadow-xs">
+                  MN
+                </div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Minh Nguyễn</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">18 mins ago</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Duration: 1m 18s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Inspect Terminal Logs" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Redeploy build" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Rollback version" type="button">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Worker Queue Node (Failed) -->
+<tr class="hover:bg-error-container/10 transition-colors group cursor-pointer bg-error-container/5">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-error-container text-error flex items-center justify-center font-bold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">alt_route</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Worker Queue Node</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-medium">#208</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">dns</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">worker-queue-node</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-low font-code-sm text-code-sm text-secondary">103.56.163.12</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold shadow-xs">
+                Production
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col max-w-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">fork_right</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">main</span>
+<span class="font-code-sm text-code-sm text-error">#4b290a</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">
+                  Fix Celery task ack timeout
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-1 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface font-medium shadow-2xs">
+                v2.1.0
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                Failed (Exit 1 - OOM)
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center font-label-sm text-label-sm font-bold shadow-xs">
+<span class="material-symbols-outlined text-[16px]">smart_toy</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">CI Bot</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">42 mins ago</span>
+<span class="font-code-sm text-code-sm text-error">Failed after: 48s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg bg-error-container text-error hover:bg-error hover:text-on-error transition-colors" title="Debug Build Failure" type="button">
+<span class="material-symbols-outlined text-[18px]">bug_report</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Retry Run" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Admin Management Portal (Success) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-secondary flex items-center justify-center font-bold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Admin Management Portal</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-medium">#207</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">dns</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">api-prod-cluster-01</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-low font-code-sm text-code-sm text-secondary">103.56.162.45</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold shadow-xs">
+                Production
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col max-w-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">fork_right</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">main</span>
+<span class="font-code-sm text-code-sm text-primary">#9f55c2</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">
+                  Next.js 14 SSR hydration fix
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-1 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface font-medium shadow-2xs">
+                v1.4.2
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                Success
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-sm text-label-sm font-bold shadow-xs">
+                  TL
+                </div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Tuấn Lê</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">1 hour ago</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Duration: 2m 04s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Inspect Terminal Logs" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Redeploy build" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Staging Gateway API (Staging, Success) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-secondary flex items-center justify-center font-bold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Staging Gateway API</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-medium">#206</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">dns</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">staging-gateway-hcm</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-low font-code-sm text-code-sm text-secondary">103.56.160.104</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold shadow-xs">
+                Staging
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col max-w-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">fork_right</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">feat/webhooks</span>
+<span class="font-code-sm text-code-sm text-primary">#3a18d1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">
+                  Add Stripe webhook listener
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-1 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface font-medium shadow-2xs">
+                v0.9.4
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                Success
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-sm text-label-sm font-bold shadow-xs">
+                  TL
+                </div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Tuấn Lê</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">2 hours ago</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Duration: 58s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Inspect Terminal Logs" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Redeploy build" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Analytics Ingestion Pipeline (Success) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-secondary flex items-center justify-center font-bold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">query_stats</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Analytics Ingestion Pipeline</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-on-surface font-medium">#205</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">dns</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">worker-queue-node</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-low font-code-sm text-code-sm text-secondary">103.56.163.12</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold shadow-xs">
+                Production
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col max-w-xs">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">fork_right</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">main</span>
+<span class="font-code-sm text-code-sm text-primary">#1190bc</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate mt-0.5">
+                  Rust stream batch size increase
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-1 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface font-medium shadow-2xs">
+                v1.2.0
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                Success
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold shadow-xs">
+                  MN
+                </div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Minh Nguyễn</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">4 hours ago</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Duration: 3m 12s</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Inspect Terminal Logs" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" title="Redeploy build" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination & Cluster Footprint Bar -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md px-space-md py-3.5 bg-surface-container-low text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span>Showing <strong class="text-on-surface font-semibold">1-6</strong> of <strong class="text-on-surface font-semibold">48</strong> deployments across <span class="font-code-sm text-code-sm bg-surface-container px-1.5 py-0.5 rounded text-on-surface font-medium">12 VPS Servers</span></span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container disabled:opacity-40 transition-colors font-label-md text-label-md shadow-xs" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold shadow-xs" type="button">
+          1
+        </button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md shadow-xs transition-colors" type="button">
+          2
+        </button>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md shadow-xs transition-colors" type="button">
+          3
+        </button>
+<span class="px-1 text-on-surface-variant">...</span>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md shadow-xs transition-colors" type="button">
+          8
+        </button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container transition-colors font-label-md text-label-md shadow-xs" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Live Telemetry / Build Stream Preview Dock -->
+<div class="w-full bg-inverse-surface text-inverse-on-surface rounded-xl p-space-md shadow-lg flex flex-col gap-space-sm mb-space-lg" id="quick-logs">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm border-b-0 pb-2">
+<div class="flex items-center gap-space-sm">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary-fixed-dim"></span>
+</span>
+<span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-surface-bright">Live Stream Drawer</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/20 font-code-sm text-code-sm text-inverse-primary">Deployment #210</span>
+<span class="font-body-sm text-body-sm text-outline-variant">Calo AI Backend</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded bg-surface-container-highest/20 hover:bg-surface-container-highest/30 font-code-sm text-code-sm text-surface-bright transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+<span>Copy Stream</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-primary-container text-on-primary-container hover:bg-primary font-code-sm text-code-sm font-semibold transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">open_in_full</span>
+<span>Expand Terminal</span>
+</button>
+</div>
+</div>
+<!-- Terminal Output Shell -->
+<div class="font-code-md text-code-md bg-inverse-surface/80 rounded-lg p-space-md flex flex-col gap-1 text-outline-variant leading-relaxed">
+<div class="flex items-start gap-3">
+<span class="text-outline shrink-0 select-none">14:31:52</span>
+<span class="text-tertiary-fixed-dim font-bold">[info]</span>
+<span class="text-surface-bright">Pulling image docker.registry.internal/minh-cloud/calo-ai-backend:v2.4.1... Complete</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-outline shrink-0 select-none">14:31:58</span>
+<span class="text-tertiary-fixed-dim font-bold">[info]</span>
+<span class="text-surface-bright">Running container health check on node api-prod-cluster-01 (103.56.162.45:8080/health)</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-outline shrink-0 select-none">14:32:01</span>
+<span class="text-primary-fixed-dim font-bold">[exec]</span>
+<span class="text-surface-bright">prisma migrate deploy --schema=./prisma/schema.prisma — 0 pending migrations</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-outline shrink-0 select-none">14:32:05</span>
+<span class="text-tertiary-fixed-dim font-bold">[info]</span>
+<span class="text-surface-bright font-semibold">PM2 cluster reloaded with zero-downtime: 4 workers online (Memory: 312MB, CPU: 4.2%)</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-outline shrink-0 select-none">14:32:08</span>
+<span class="text-primary-fixed-dim font-bold">[ready]</span>
+<span class="text-inverse-primary animate-pulse">Telemetry stream connected. Ingress routing updated in NGINX upstream pool.</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple filter tab interactivity
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      if (this.textContent.includes('Copy Stream')) {
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span> Copied!';
+        setTimeout(() => {
+          this.innerHTML = originalText;
+        }, 1800);
+      }
+    });
+  });
+</script></main></div></body></html>

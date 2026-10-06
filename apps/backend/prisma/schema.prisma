@@ -69,6 +69,42 @@ enum Unit {
   INCH
 }
 
+enum VpsStatus {
+  ONLINE
+  WARNING
+  OFFLINE
+}
+
+enum ProjectStatus {
+  RUNNING
+  DEGRADED
+  STOPPED
+  DEPLOYING
+}
+
+enum DeploymentStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum SslStatus {
+  VALID
+  EXPIRING
+  EXPIRED
+  NONE
+}
+
+enum ActivityType {
+  DEPLOY
+  PM2
+  ENV
+  DOMAIN
+  NGINX
+  SYSTEM
+}
+
 // ============================================================================
 // MODELS
 // ============================================================================
@@ -391,3 +427,137 @@ model ApiRequestLog {
   @@index([statusCode])
   @@index([createdAt])
 }
+
+// ============================================================================
+// VPS & PROJECT MANAGEMENT MODELS
+// ============================================================================
+
+model Vps {
+  id                 String     @id @default(uuid())
+  name               String
+  ip                 String
+  port               Int        @default(22)
+  username           String     @default("root")
+  sshKey             String?
+  password           String?
+  os                 String     @default("Ubuntu 24.04 LTS")
+  kernel             String?
+  uptime             String?
+  region             String
+  regionCode         String
+  environment        String     @default("prod")
+  status             VpsStatus  @default(ONLINE)
+  statusBadgeText    String?
+  cpuPercent         Float      @default(0)
+  ramPercent         Float      @default(0)
+  diskPercent        Float      @default(0)
+  ramUsedGb          Float      @default(0)
+  ramTotalGb          Float      @default(0)
+  diskUsedGb         Float      @default(0)
+  diskTotalGb        Float      @default(0)
+  networkInMbps      Float      @default(0)
+  networkOutMbps     Float      @default(0)
+  dockerInstalled    Boolean    @default(true)
+  nginxInstalled     Boolean    @default(true)
+  redisInstalled     Boolean    @default(false)
+  postgresInstalled  Boolean    @default(false)
+
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  projects           Project[]
+
+  @@index([ip])
+  @@index([status])
+  @@index([environment])
+}
+
+model Project {
+  id           String            @id @default(uuid())
+  vpsId        String
+  vps          Vps               @relation(fields: [vpsId], references: [id], onDelete: Cascade)
+
+  name         String
+  description  String?
+  engine       String            @default("Node.js")
+  environment  String            @default("prod")
+  status       ProjectStatus     @default(RUNNING)
+  pm2Name      String?
+  pm2Instances String            @default("1 process")
+  port         Int
+  domainProxy  String
+  gitRepo      String?
+  gitBranch    String            @default("main")
+  gitHash      String?
+  workingDir   String?
+  cpuPercent   Float             @default(0)
+  memoryMb     Float             @default(0)
+
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  deployments  Deployment[]
+  domains      ProjectDomain[]
+  activities   ProjectActivity[]
+
+  @@index([vpsId])
+  @@index([status])
+  @@index([environment])
+}
+
+model Deployment {
+  id          String           @id @default(uuid())
+  projectId   String
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  buildNumber String
+  commitHash  String
+  branch      String
+  author      String
+  status      DeploymentStatus @default(SUCCESS)
+  logs        String?
+  timeAgo     String?
+  triggeredBy String?
+  startedAt   DateTime         @default(now())
+  finishedAt  DateTime?
+
+  createdAt   DateTime         @default(now())
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model ProjectDomain {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  domainName  String
+  targetPort  Int
+  sslStatus   SslStatus @default(VALID)
+  sslExpiryDays Int     @default(90)
+  httpPort    Int       @default(443)
+
+  createdAt   DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([domainName])
+}
+
+model ProjectActivity {
+  id          String       @id @default(uuid())
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  type        ActivityType @default(SYSTEM)
+  title       String
+  description String
+  time        String?
+  metadata    Json?
+
+  createdAt   DateTime     @default(now())
+
+  @@index([projectId])
+  @@index([createdAt])
+}
+

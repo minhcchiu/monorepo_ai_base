@@ -25,6 +25,9 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { TrackModule } from './modules/track/track.module';
 import { ApiLogModule } from './modules/api-log/api-log.module';
 import { SubscriptionApiModule } from './modules/subscription-api/subscription-api.module';
+import { VpsModule } from './modules/vps/vps.module';
+import { ProjectsModule } from './modules/projects/projects.module';
+import { InfrastructureModule } from './modules/infrastructure/infrastructure.module';
 
 // Middleware
 import { RequestIdMiddleware, LoggingMiddleware } from './common/middleware';
@@ -83,6 +86,9 @@ import { RequestIdMiddleware, LoggingMiddleware } from './common/middleware';
     TrackModule,
     ApiLogModule,
     SubscriptionApiModule,
+    VpsModule,
+    ProjectsModule,
+    InfrastructureModule,
   ],
   controllers: [AppController],
   providers: [AppService],

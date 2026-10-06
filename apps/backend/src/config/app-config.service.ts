@@ -104,7 +104,7 @@ export class AppConfigService {
   private loadConfig(): AppConfig {
     return {
       nodeEnv: this.configService.get('NODE_ENV') || 'development',
-      port: parseInt(this.configService.get('PORT') || '3000', 10),
+      port: parseInt(this.configService.get('PORT') || '8000', 10),
       databaseUrl: this.configService.get('DATABASE_URL') || '',
       jwtSecret: this.configService.get('JWT_SECRET') || '',
       jwtAccessTokenExpires: this.configService.get('JWT_ACCESS_TOKEN_EXPIRES') || '15m',

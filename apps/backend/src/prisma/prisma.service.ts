@@ -61,8 +61,7 @@ export class PrismaService extends PrismaClient {
       await this.$connect();
       this.logger.log('✅ Database connected successfully');
     } catch (error) {
-      this.logger.error('❌ Failed to connect to database:', error);
-      throw error;
+      this.logger.warn('⚠️ Database connection warning (will retry on query):', error);
     }
   }
 

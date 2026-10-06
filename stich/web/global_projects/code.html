@@ -1,0 +1,775 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error":"#ffffff","on-primary-container":"#eeefff","primary-fixed-dim":"#b4c5ff","on-error-container":"#93000a","tertiary":"#006242","secondary-container":"#dae2fd","secondary":"#565e74","on-primary":"#ffffff","surface-tint":"#0053db","surface-container-high":"#dce9ff","on-tertiary":"#ffffff","on-tertiary-container":"#bdffdb","surface-container-low":"#eff4ff","primary-container":"#2563eb","surface-dim":"#cbdbf5","on-secondary-container":"#5c647a","error-container":"#ffdad6","surface-container-highest":"#d3e4fe","on-background":"#0b1c30","tertiary-container":"#007d55","on-surface-variant":"#434655","on-primary-fixed":"#00174b","on-surface":"#0b1c30","inverse-on-surface":"#eaf1ff","surface-bright":"#f8f9ff","inverse-primary":"#b4c5ff","inverse-surface":"#213145","outline":"#737686","on-secondary-fixed-variant":"#3f465c","background":"#f8f9ff","surface-container":"#e5eeff","error":"#ba1a1a","surface-variant":"#d3e4fe","on-secondary-fixed":"#131b2e","tertiary-fixed-dim":"#4edea3","secondary-fixed":"#dae2fd","on-primary-fixed-variant":"#003ea8","on-secondary":"#ffffff","tertiary-fixed":"#6ffbbe","on-tertiary-fixed-variant":"#005236","surface":"#f8f9ff","surface-container-lowest":"#ffffff","on-tertiary-fixed":"#002113","outline-variant":"#c3c6d7","primary-fixed":"#dbe1ff","primary":"#004ac6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin":"2rem","margin-sm":"1rem","gutter-sm":"1rem","space-xl":"2.5rem","gutter":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.5rem","space-md":"1rem"},fontFamily:{"code-md":["JetBrains Mono"],"label-md":["Inter"],"body-sm":["Inter"],"body-lg":["Inter"],"code-sm":["JetBrains Mono"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"display-lg-mobile":["Inter"],"display-lg":["Inter"],"headline-md":["Inter"]},fontSize:{"code-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0.005em","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"display-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"display-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col"><div class="h-16 px-space-md flex items-center justify-between border-b border-outline-variant"><div class="flex items-center gap-space-sm"><img alt="Modern minimalist SaaS logo mark for CloudPulse web platform, clean geometric cloud-pulse symbol in elegant royal blue and crisp indigo, modern tech startup branding, minimalist vector icon. Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XkkzMEYQtSl5RGG8pHKN_GdWtnGZxNh9fTCZ3HhXKvuq1boguOizJ4PzNYRXAbRQjpR3KV5DiZDC8TKHINOPhRBYF392jeutATCY1UUcbG00qp71sv8bzC84dnihwoKwIn1UlSf9kUkGdXulspc4_1HpRXh1tPaUCyLoMONycjM8zTafJKPWPruK3DzBLEZ4oI2aGkP7fml4moeLW6Xa0VIzHFVh6kpN_rZKpuKU5Cm8DzwBGBzz4DCucD"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">CloudPulse</span><span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm border border-outline-variant">v2.5</span></div></div><div class="p-space-sm border-b border-outline-variant"><button class="w-full flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors text-left" type="button"><div class="flex items-center gap-space-sm min-w-0"><div class="w-7 h-7 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-label-sm text-label-sm font-semibold shrink-0">MI</div><div class="min-w-0 flex-1"><div class="font-label-md text-label-md text-on-surface truncate">Minh Infrastructure</div><div class="font-code-sm text-code-sm text-on-surface-variant truncate">Prod Cloud • 12 Nodes</div></div></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">unfold_more</span></button></div><div class="px-space-md pt-space-md pb-space-xs font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Infrastructure</div><nav class="flex flex-col gap-1 px-space-sm" data-active-classes="bg-primary-container text-on-primary-container font-medium rounded-lg"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="vps-instances" href="#"><span class="material-symbols-outlined text-[20px]">dns</span><span>VPS</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 transition-colors bg-primary-container text-on-primary-container font-medium rounded-lg" data-path="projects" href="#"><span class="material-symbols-outlined text-[20px]">folder</span><span>Projects</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="deployments" href="#"><span class="material-symbols-outlined text-[20px]">rocket_launch</span><span>Deployments</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="monitoring" href="#"><span class="material-symbols-outlined text-[20px]">show_chart</span><span>Monitoring</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications_active</span><span>Alerts</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="backups" href="#"><span class="material-symbols-outlined text-[20px]">backup</span><span>Backups</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="activity-logs" href="#"><span class="material-symbols-outlined text-[20px]">history</span><span>Activity Logs</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span>Settings</span></a></nav></div><div class="p-space-sm border-t border-outline-variant flex flex-col gap-space-sm"><div class="px-space-sm py-1.5 rounded-lg bg-surface-container-low flex items-center justify-between border border-outline-variant"><div class="flex items-center gap-space-sm"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-label-sm text-label-sm text-on-surface-variant">All Systems Normal</span></div><span class="font-code-sm text-code-sm text-tertiary">99.98%</span></div><div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container transition-colors"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="min-w-0"><div class="font-label-md text-label-md text-on-surface truncate font-medium">Minh Nguyen</div><div class="font-body-sm text-body-sm text-on-surface-variant truncate">DevOps Lead</div></div></div><a class="p-1 text-on-surface-variant hover:text-on-surface transition-colors rounded" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span></a></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant z-40 px-gutter flex items-center justify-between shadow-[0_1px_3px_rgba(15,23,42,0.02)]"><div class="flex items-center gap-space-md"><img alt="Modern minimalist SaaS logo mark for CloudPulse web platform, clean geometric cloud-pulse symbol in elegant royal blue and crisp indigo, modern tech startup branding, minimalist vector icon. Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XkkzMEYQtSl5RGG8pHKN_GdWtnGZxNh9fTCZ3HhXKvuq1boguOizJ4PzNYRXAbRQjpR3KV5DiZDC8TKHINOPhRBYF392jeutATCY1UUcbG00qp71sv8bzC84dnihwoKwIn1UlSf9kUkGdXulspc4_1HpRXh1tPaUCyLoMONycjM8zTafJKPWPruK3DzBLEZ4oI2aGkP7fml4moeLW6Xa0VIzHFVh6kpN_rZKpuKU5Cm8DzwBGBzz4DCucD"><nav class="flex items-center gap-space-md" data-active-classes="text-primary font-semibold"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard" href="#">Console</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="vps-instances" href="#">Clusters</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="monitoring" href="#">Telemetry</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="settings" href="#">API Keys</a></nav></div><div class="flex items-center gap-space-sm"><div class="relative flex items-center"><span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute left-3 pointer-events-none">search</span><input class="h-9 pl-9 pr-12 rounded bg-surface-container-low border border-outline-variant font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary w-64 lg:w-80 transition-all" placeholder="Quick search clusters, nodes, IPs..." type="text"><span class="absolute right-2.5 px-1.5 py-0.5 rounded bg-surface-container-lowest border border-outline-variant font-code-sm text-code-sm text-on-surface-variant pointer-events-none">⌘K</span></div><div class="h-5 w-px bg-outline-variant mx-space-xs"></div><a class="relative p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" data-path="alerts" href="#"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary"></span></a><button class="h-9 px-space-md rounded bg-primary-container text-on-primary-container font-label-md text-label-md flex items-center gap-1.5 hover:bg-primary transition-colors shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">add</span><span>Deploy Node</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<!-- Macro Section: Header & Quick Actions -->
+<section class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
+<div>
+<div class="flex items-center gap-space-sm mb-space-xs">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-code-sm text-code-sm uppercase tracking-wider font-semibold">Mesh Registry</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">ap-southeast-1 · 12 Nodes Active</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight">Global Projects</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">View, monitor, and orchestrate all microservices, runtimes, and ingress layers across your bare-metal &amp; cloud VPS fleet.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto shrink-0">
+<!-- Deploy All Dropdown trigger -->
+<div class="relative">
+<button class="h-9 px-space-md rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-md text-label-md flex items-center gap-1.5 transition-colors shadow-sm" id="deployDropdownBtn" onclick="document.getElementById('deployMenu').classList.toggle('hidden')">
+<span class="material-symbols-outlined text-[18px]">publish</span>
+<span>Deploy All</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-1 w-56 rounded-lg bg-surface-container-lowest shadow-xl z-30 p-1.5 flex flex-col gap-0.5" id="deployMenu">
+<a class="px-3 py-2 rounded text-body-sm font-body-sm text-on-surface hover:bg-surface-container flex items-center justify-between" href="#">
+<span>Rollout Production</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">11 apps</span>
+</a>
+<a class="px-3 py-2 rounded text-body-sm font-body-sm text-on-surface hover:bg-surface-container flex items-center justify-between" href="#">
+<span>Rollout Staging</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">5 apps</span>
+</a>
+<div class="h-px bg-surface-container-high my-1"></div>
+<a class="px-3 py-2 rounded text-body-sm font-body-sm text-error hover:bg-error-container flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Force Hot-Reload PM2</span>
+</a>
+</div>
+</div>
+<!-- New Project Primary Button -->
+<button class="h-9 px-space-md rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 hover:bg-surface-tint shadow-sm transition-all transform active:scale-95">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>New Project</span>
+</button>
+</div>
+</section>
+<!-- Summary Stats Bento Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mb-space-lg">
+<!-- Stat 1: Total Projects -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-primary/5 group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Projects</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</div>
+</div>
+<div class="my-space-sm">
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">18 <span class="font-headline-sm text-headline-sm text-on-surface-variant font-normal">Apps</span></div>
+<div class="flex items-center gap-2 mt-1.5">
+<span class="inline-flex items-center gap-1 text-tertiary font-code-sm text-code-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>15 Active
+          </span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">·</span>
+<span class="inline-flex items-center gap-1 text-secondary font-code-sm text-code-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>2 Idle
+          </span>
+<span class="text-on-surface-variant font-code-sm text-code-sm">·</span>
+<span class="inline-flex items-center gap-1 text-error font-code-sm text-code-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>1 Failed
+          </span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 flex overflow-hidden">
+<div class="bg-tertiary h-full" style="width: 83.3%;"></div>
+<div class="bg-secondary h-full" style="width: 11.1%;"></div>
+<div class="bg-error h-full" style="width: 5.6%;"></div>
+</div>
+</div>
+<!-- Stat 2: Active PM2 Instances -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-surface-container-high/40 group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">PM2 Fleet Execution</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">memory</span>
+</div>
+</div>
+<div class="my-space-sm">
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">42 <span class="font-headline-sm text-headline-sm text-on-surface-variant font-normal">Workers</span></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">hub</span>
+<span>Cluster mode active on <strong>8 nodes</strong></span>
+</p>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Avg IPC latency</span>
+<span class="font-code-sm text-code-sm text-primary font-medium">0.82 ms</span>
+</div>
+</div>
+<!-- Stat 3: Total Ports Mapped -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-surface-tint/5 group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Ingress Routing</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">alt_route</span>
+</div>
+</div>
+<div class="my-space-sm">
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">18 <span class="font-headline-sm text-headline-sm text-on-surface-variant font-normal">Ports Mapped</span></div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">lock</span>
+<span>Reverse proxied via Nginx &amp; SSL</span>
+</p>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Edge Ingress Cache</span>
+<span class="font-code-sm text-code-sm text-tertiary font-medium">99.1% Hit</span>
+</div>
+</div>
+<!-- Stat 4: Fleet Health Ratio -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-tertiary/5 group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Health Assessment</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[20px]">vital_signs</span>
+</div>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-2">
+<div class="font-display-lg text-display-lg text-on-surface font-semibold tracking-tight">94.4%</div>
+<span class="px-1.5 py-0.5 rounded text-code-sm font-code-sm bg-surface-container-high text-primary font-semibold">Healthy</span>
+</div>
+<p class="font-body-sm text-body-sm text-error mt-1.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>1 degraded node &amp; 1 process crash</span>
+</p>
+</div>
+<!-- Inline sparkline chart (under 2KB) -->
+<div class="flex items-center justify-between pt-1">
+<span class="font-code-sm text-code-sm text-on-surface-variant">24h Uptime Trend</span>
+<svg class="w-24 h-5 text-tertiary" fill="none" viewBox="0 0 96 20">
+<path d="M0 16 L12 15 L24 16 L36 12 L48 13 L60 8 L72 14 L84 4 L96 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- Filter & Control Deck -->
+<section class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm mb-space-md flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Live Search Input -->
+<div class="relative flex-1 max-w-xl">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute left-3.5 top-2.5 pointer-events-none">search</span>
+<input class="h-10 w-full pl-10 pr-14 rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest transition-colors shadow-inner" placeholder="Search by project name, domain, branch, or VPS host..." type="text">
+<span class="absolute right-3 top-2.5 px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm pointer-events-none">⌘K</span>
+</div>
+<!-- Filter Pills & Grouping -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Environment Dropdown Pill -->
+<div class="flex items-center bg-surface-container-low rounded-lg p-0.5">
+<button class="px-3 py-1.5 rounded-md bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm font-semibold">All Envs</button>
+<button class="px-3 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors">Prod <span class="font-code-sm opacity-70">11</span></button>
+<button class="px-3 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors">Staging <span class="font-code-sm opacity-70">5</span></button>
+<button class="px-3 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors">Dev <span class="font-code-sm opacity-70">2</span></button>
+</div>
+<!-- VPS Host Selector -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:outline-none appearance-none cursor-pointer">
+<option>All VPS Hosts (12 Active)</option>
+<option>api-prod-cluster-01 [103.56.162.45]</option>
+<option>staging-gateway-hcm [118.69.182.20]</option>
+<option>worker-queue-node [103.56.162.88]</option>
+<option>auth-identity-service [133.18.201.12]</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-2.5 top-2.5 pointer-events-none">unfold_more</span>
+</div>
+<!-- Status Filter Dropdown -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:outline-none appearance-none cursor-pointer">
+<option>All Statuses (18)</option>
+<option>🟢 Running (15)</option>
+<option>🟠 Degraded (2)</option>
+<option>🔴 Stopped / Error (1)</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-2.5 top-2.5 pointer-events-none">filter_list</span>
+</div>
+<!-- Sort Options -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:outline-none appearance-none cursor-pointer">
+<option>Sort: Last Deployed</option>
+<option>Sort: Highest Traffic</option>
+<option>Sort: Alphabetical</option>
+<option>Sort: Memory Footprint</option>
+</select>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant absolute right-2.5 top-2.5 pointer-events-none">sort</span>
+</div>
+</div>
+</section>
+<!-- Modern Dense SaaS Table Container -->
+<section class="rounded-xl bg-surface-container-lowest shadow-sm overflow-hidden flex flex-col mb-space-md">
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[1100px]">
+<thead>
+<tr class="bg-surface-container-low/70 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3 px-space-md">Project &amp; Engine</th>
+<th class="py-3 px-space-md">Host VPS Server</th>
+<th class="py-3 px-space-md">Env</th>
+<th class="py-3 px-space-md">State</th>
+<th class="py-3 px-space-md">PM2 Architecture</th>
+<th class="py-3 px-space-md">Port &amp; Domain Proxy</th>
+<th class="py-3 px-space-md">Git Branch &amp; Hash</th>
+<th class="py-3 px-space-md">Last Rollout</th>
+<th class="py-3 px-space-md text-right">Quick Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- Row 1: Calo AI Backend API -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary font-code-sm font-bold shrink-0">
+                  JS
+                </div>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="truncate">Calo AI Backend</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0" title="Auto-deploy hook enabled"></span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">Node.js/Express core inference API</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<a class="group/host flex flex-col" href="#">
+<span class="font-label-md text-label-md text-primary group-hover/host:underline flex items-center gap-1">
+<span>api-prod-cluster-01</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">103.56.162.45 · Singapore 🇸🇬</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-primary/10 text-primary font-semibold">Production</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span>Running</span>
+</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">Cluster Mode</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span>
+<span>4 instances</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">:3000</div>
+<a class="font-body-sm text-body-sm text-primary hover:underline flex items-center gap-1" href="https://api.calo.ai" target="_blank">
+<span class="material-symbols-outlined text-[13px] text-tertiary">lock</span>
+<span class="truncate max-w-[140px]">api.calo.ai</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 text-on-surface font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">fork_right</span>
+<span class="font-medium">main</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">github.com/calo/api · #8f3d1a</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-body-sm text-body-sm text-on-surface">12m ago</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">by Tuấn Lê</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Quick Deploy">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Restart PM2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<a class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" href="https://api.calo.ai" target="_blank" title="Open URL">
+<span class="material-symbols-outlined text-[18px]">launch</span>
+</a>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="More Options">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Auth & Identity Service -->
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface font-code-sm font-bold shrink-0">
+                  GO
+                </div>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="truncate">Auth &amp; Identity Service</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">OAuth2 / OIDC &amp; Session Store</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<a class="group/host flex flex-col" href="#">
+<span class="font-label-md text-label-md text-primary group-hover/host:underline flex items-center gap-1">
+<span>auth-identity-service</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">133.18.201.12 · Tokyo 🇯🇵</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-primary/10 text-primary font-semibold">Production</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span>Running</span>
+</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">Fork Mode</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span>
+<span>2 instances</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">:4000</div>
+<a class="font-body-sm text-body-sm text-primary hover:underline flex items-center gap-1" href="https://auth.calo.ai" target="_blank">
+<span class="material-symbols-outlined text-[13px] text-tertiary">lock</span>
+<span class="truncate max-w-[140px]">auth.calo.ai</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 text-on-surface font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">fork_right</span>
+<span class="font-medium">main</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">github.com/calo/auth · #7c2b99</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-body-sm text-body-sm text-on-surface">4h ago</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">by Tuấn Lê</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Quick Deploy">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Restart PM2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<a class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" href="https://auth.calo.ai" target="_blank" title="Open URL">
+<span class="material-symbols-outlined text-[18px]">launch</span>
+</a>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="More Options">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Worker Queue Service (Degraded) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary font-code-sm font-bold shrink-0">
+                  PY
+                </div>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="truncate">Worker Queue Service</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">Celery &amp; Redis message processor</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<a class="group/host flex flex-col" href="#">
+<span class="font-label-md text-label-md text-primary group-hover/host:underline flex items-center gap-1">
+<span>worker-queue-node</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">103.56.162.88 · Vietnam 🇻🇳</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-primary/10 text-primary font-semibold">Production</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-medium">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>Degraded (RAM 89%)</span>
+</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">Cluster Mode</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">tune</span>
+<span>6 instances</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">:5050</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant italic">Internal RPC</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 text-on-surface font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">fork_right</span>
+<span class="font-medium">main</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">github.com/calo/queue · #99a11f</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-body-sm text-body-sm text-on-surface">1d ago</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">by Minh Nguyen</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Quick Deploy">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-error transition-colors" title="Restart PM2">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+<button class="p-1.5 rounded text-outline-variant cursor-not-allowed" disabled="" title="Disabled Internal URL">
+<span class="material-symbols-outlined text-[18px]">launch</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="More Options">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Admin Management Portal -->
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-code-sm font-bold shrink-0">
+                  RX
+                </div>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="truncate">Admin Management Portal</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">Next.js 14 Backoffice SPA</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<a class="group/host flex flex-col" href="#">
+<span class="font-label-md text-label-md text-primary group-hover/host:underline flex items-center gap-1">
+<span>api-prod-cluster-01</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">103.56.162.45 · Singapore 🇸🇬</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-primary/10 text-primary font-semibold">Production</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span>Running</span>
+</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">Fork Mode</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span>
+<span>1 instance</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">:8080</div>
+<a class="font-body-sm text-body-sm text-primary hover:underline flex items-center gap-1" href="https://admin.calo.ai" target="_blank">
+<span class="material-symbols-outlined text-[13px] text-tertiary">lock</span>
+<span class="truncate max-w-[140px]">admin.calo.ai</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 text-on-surface font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">fork_right</span>
+<span class="font-medium">main</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">github.com/calo/admin · #4d11ea</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-body-sm text-body-sm text-on-surface">2d ago</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">by Linh Phan</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Quick Deploy">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Restart PM2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<a class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" href="https://admin.calo.ai" target="_blank" title="Open URL">
+<span class="material-symbols-outlined text-[18px]">launch</span>
+</a>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="More Options">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Staging Gateway API -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface font-code-sm font-bold shrink-0">
+                  NG
+                </div>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="truncate">Staging Gateway API</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">Express Proxy &amp; Mock Services</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<a class="group/host flex flex-col" href="#">
+<span class="font-label-md text-label-md text-primary group-hover/host:underline flex items-center gap-1">
+<span>staging-gateway-hcm</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">118.69.182.20 · Vietnam 🇻🇳</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container-high text-on-surface font-semibold">Staging</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-medium">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span>Running</span>
+</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">Fork Mode</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check_circle</span>
+<span>2 instances</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">:3001</div>
+<a class="font-body-sm text-body-sm text-primary hover:underline flex items-center gap-1" href="https://staging-api.calo.dev" target="_blank">
+<span class="material-symbols-outlined text-[13px] text-on-surface-variant">link</span>
+<span class="truncate max-w-[140px]">staging-api.calo.dev</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 text-on-surface font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">fork_right</span>
+<span class="font-medium">staging</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">github.com/calo/api · #12e8cb</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-body-sm text-body-sm text-on-surface">18m ago</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">by Tuấn Lê</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors" title="Quick Deploy">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="Restart PM2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<a class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" href="https://staging-api.calo.dev" target="_blank" title="Open URL">
+<span class="material-symbols-outlined text-[18px]">launch</span>
+</a>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="More Options">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Analytics Ingestion Pipeline (Error State) -->
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-error-container flex items-center justify-center text-error font-code-sm font-bold shrink-0">
+                  RS
+                </div>
+<div class="min-w-0">
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="truncate">Analytics Ingestion Pipeline</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate">Rust telemetry log consumer</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<a class="group/host flex flex-col" href="#">
+<span class="font-label-md text-label-md text-primary group-hover/host:underline flex items-center gap-1">
+<span>worker-queue-node</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">103.56.162.88 · Vietnam 🇻🇳</span>
+</a>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-primary/10 text-primary font-semibold">Production</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-error font-label-sm text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Process Crash (Exit 137)</span>
+</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-error font-medium">Fork Mode (Halted)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-error">cancel</span>
+<span>0/1 online</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-code-sm text-code-sm text-on-surface font-medium">:6000</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant italic">Internal Port</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 text-on-surface font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">fork_right</span>
+<span class="font-medium">main</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">github.com/calo/analytics · #33c890</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-body-sm text-body-sm text-error font-medium">Failed 45m ago</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Out of Memory (OOM)</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="inline-flex items-center gap-1">
+<button class="p-1.5 rounded bg-error-container text-error hover:bg-error hover:text-on-error transition-colors" title="Retry Deployment">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="View Logs">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" title="More Options">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="p-space-md bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+        Showing <span class="font-semibold text-on-surface">6</span> of <span class="font-semibold text-on-surface">18</span> Projects across <span class="font-semibold text-on-surface">12 VPS Servers</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-1">
+<button class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface-variant opacity-50 cursor-not-allowed flex items-center font-label-md text-label-md" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+<span class="hidden sm:inline ml-0.5">Prev</span>
+</button>
+<button class="h-8 w-8 rounded bg-primary text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center">1</button>
+<button class="h-8 w-8 rounded hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center justify-center transition-colors">2</button>
+<button class="h-8 w-8 rounded hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center justify-center transition-colors">3</button>
+<button class="h-8 px-2.5 rounded bg-surface-container-low text-on-surface hover:bg-surface-container flex items-center font-label-md text-label-md transition-colors">
+<span class="hidden sm:inline mr-0.5">Next</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+<div class="h-4 w-px bg-surface-container mx-1 hidden sm:block"></div>
+<div class="relative hidden sm:block">
+<select class="h-8 pl-2 pr-6 rounded bg-surface-container-low text-on-surface font-code-sm text-code-sm focus:outline-none appearance-none cursor-pointer">
+<option>10 per page</option>
+<option>25 per page</option>
+<option>50 per page</option>
+</select>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant absolute right-1.5 top-2 pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Macro Section: Operational Fleet Health & Telemetry Strip -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Visual Panel 1: Deployment Topology & Node Distribution -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Node Topology</span>
+<span class="font-code-sm text-code-sm text-primary">3 Geographies</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Multi-region distribution mapped by ingress point and target reverse proxy.</p>
+<div class="space-y-space-sm">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">🇸🇬 Singapore (api-prod-cluster-01)</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">8 Apps · 58% Load</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-primary" style="width: 58%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">🇻🇳 Vietnam (worker-queue + gateway)</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">7 Apps · 84% Load</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-secondary" style="width: 84%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">🇯🇵 Tokyo (auth-identity-service)</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">3 Apps · 22% Load</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full bg-tertiary" style="width: 22%;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md flex items-center justify-between">
+<span class="font-code-sm text-code-sm text-on-surface-variant">Edge CDN Status</span>
+<span class="font-code-sm text-code-sm text-tertiary flex items-center gap-1 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>Anycast Active
+        </span>
+</div>
+</div>
+<!-- Visual Panel 2: Live Ingress & Real-time PM2 Log Terminal Preview -->
+<div class="p-space-lg rounded-xl bg-inverse-surface text-inverse-on-surface shadow-sm lg:col-span-2 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span class="font-code-sm text-code-sm text-inverse-on-surface/70 ml-2">global-pm2-stream.sock</span>
+</div>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-container-highest/20 text-inverse-on-surface">Live Tail · Stdout</span>
+</div>
+<div class="font-code-sm text-code-sm space-y-1.5 pt-2">
+<div class="text-inverse-on-surface/60"><span class="text-inverse-on-surface/40">[14:32:01.402]</span> <span class="text-primary-fixed">info:</span> [api-prod-cluster-01] PM2 cluster worker 2 alive on pid: 82941. Ingress port 3000 online.</div>
+<div class="text-inverse-on-surface/60"><span class="text-inverse-on-surface/40">[14:32:05.110]</span> <span class="text-tertiary-fixed">info:</span> [auth-identity-service] OAuth token exchange 200 OK · latency 18.2ms · payload 1.4kb</div>
+<div class="text-secondary-fixed"><span class="text-inverse-on-surface/40">[14:32:11.890]</span> <span class="text-secondary-fixed">warn:</span> [worker-queue-node] Heap limit warning: 462MB / 512MB utilized on Celery task runner.</div>
+<div class="text-error-container"><span class="text-inverse-on-surface/40">[14:32:19.004]</span> <span class="text-error font-semibold">crit:</span> [worker-queue-node] Process 33c890 (Analytics Ingestion Pipeline) terminated: Out of Memory (SIGKILL 9).</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded bg-inverse-on-surface/10 hover:bg-inverse-on-surface/20 text-inverse-on-surface font-code-sm text-code-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">pause</span>
+<span>Pause Stream</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-inverse-on-surface/10 hover:bg-inverse-on-surface/20 text-inverse-on-surface font-code-sm text-code-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">download</span>
+<span>Export Dump</span>
+</button>
+</div>
+<a class="font-label-md text-label-md text-primary-fixed hover:underline flex items-center gap-1" href="#">
+<span>Open Full Observability Console</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+</div></main></div></body></html>

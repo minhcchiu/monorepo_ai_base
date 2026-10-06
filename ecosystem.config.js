@@ -1,54 +1,85 @@
-// PM2 config cho pp09base (backend + web-admin) trên 1 server.
+// PM2 config cho pp09base (3 apps: backend, admin, web) trên 1 server.
 //
-// Dùng (chạy từ gốc repo):
-//   pm2 start ecosystem.config.js                      # khởi động cả 2 app
+// Cách dùng (chạy từ gốc repo):
+//   pm2 start ecosystem.config.js                      # khởi động cả 3 app
 //   pm2 start ecosystem.config.js --only pp09base-backend
-//   pm2 reload ecosystem.config.js                     # deploy lại sau khi build
+//   pm2 start ecosystem.config.js --only pp09base-web-admin
+//   pm2 start ecosystem.config.js --only pp09base-web
+//   pm2 reload ecosystem.config.js                     # deploy lại cả 3 app (zero-downtime)
 //
-// ⚠️ Tên PHẢI kết thúc bằng `.config.js` — nếu không PM2 sẽ chạy file này như một
-//    script Node thường thay vì đọc làm file config (khi đó `pm2 status` chỉ hiện 1
-//    process tên "ecosystem", không phải 2 app).
+// Cổng sản xuất nội bộ 3 app:
+//   1. apps/backend   : Port 22090 (NestJS API)
+//   2. apps/admin     : Port 32090 (Next.js Admin Dashboard)
+//   3. apps/web       : Port 42090 (Next.js Web User)
 //
-// Repo chỉ có 2 app chạy trên server: backend (NestJS) và web-admin (Next.js).
-// `apps/mobile` là Android (Kotlin) — build ra APK, KHÔNG chạy bằng PM2.
-//
-// Cổng nội bộ đặt ở dải x000 để tránh trùng với các dự án khác trên cùng server.
-// cwd dùng __dirname nên chạy đúng dù repo clone ở bất kỳ đâu.
+// ⚠️ Tên PHẢI kết thúc bằng `.config.js` để PM2 nhận diện đúng làm file config.
+
 const path = require("path");
+const fs = require("fs");
+
 const appsDir = path.join(__dirname, "apps");
+
+// Tự động tìm thư mục admin (apps/admin hoặc fallback apps/web-admin)
+const adminFolder = fs.existsSync(path.join(appsDir, "admin"))
+  ? "admin"
+  : fs.existsSync(path.join(appsDir, "web-admin"))
+  ? "web-admin"
+  : "admin";
+
+const adminDir = path.join(appsDir, adminFolder);
+const webDir = path.join(appsDir, "web");
+
+// Binary Next.js trong node_modules monorepo
+const nextBinPath = fs.existsSync(path.join(__dirname, "node_modules", "next", "dist", "bin", "next"))
+  ? path.join(__dirname, "node_modules", "next", "dist", "bin", "next")
+  : path.join(__dirname, "node_modules", ".bin", "next");
 
 module.exports = {
   apps: [
     {
       name: "pp09base-backend",
-      // cwd BẮT BUỘC là apps/backend: backend đọc `.env` và serve `/uploads`
-      // từ `process.cwd()/public/uploads`.
       cwd: path.join(appsDir, "backend"),
-      // `nest build` biên dịch cả prisma.config.ts nên entry nằm ở dist/src/main.js
-      // (KHÔNG phải dist/main.js).
       script: "dist/src/main.js",
-      // Giữ 1 instance: OTP đăng nhập lưu in-memory trong AuthService, chạy nhiều
-      // instance thì mã gửi ở process này không verify được ở process kia.
       instances: 1,
       exec_mode: "fork",
       autorestart: true,
       watch: false,
       max_memory_restart: "768M",
-      env: { NODE_ENV: "production", PORT: 22090 },
+      env: {
+        NODE_ENV: "production",
+        PORT: 22090,
+      },
     },
     {
       name: "pp09base-web-admin",
-      cwd: path.join(appsDir, "web-admin"),
-      // `.npmrc` đặt node-linker=hoisted → binary `next` chỉ nằm ở node_modules/.bin
-      // của GỐC repo, không có trong apps/web-admin/node_modules/.bin.
-      script: path.join(__dirname, "node_modules", ".bin", "next"),
+      cwd: adminDir,
+      script: nextBinPath,
       args: "start -p 32090",
       instances: 1,
       exec_mode: "fork",
       autorestart: true,
       watch: false,
       max_memory_restart: "512M",
-      env: { NODE_ENV: "production", PORT: 32090 },
+      env: {
+        NODE_ENV: "production",
+        PORT: 32090,
+      },
+    },
+    {
+      name: "pp09base-web",
+      cwd: webDir,
+      script: nextBinPath,
+      args: "start -p 42090",
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "512M",
+      env: {
+        NODE_ENV: "production",
+        PORT: 42090,
+      },
     },
   ],
 };
+

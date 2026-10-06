@@ -139,7 +139,7 @@ export class LoggingMiddleware implements NestMiddleware {
     const originalJson = res.json;
     const logger = this.logger;
     const self = this;
-    res.json = function (body) {
+    res.json = function (this: Response, body: any) {
       responsePayload = body;
       const duration = Date.now() - startTime;
 
