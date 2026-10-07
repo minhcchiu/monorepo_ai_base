@@ -645,6 +645,7 @@ function syncSubAppEnvText(
       }
 
       // 4. Poll SSH Deployment status in real-time
+      const targetDepId = deployRes?.id;
       let finalDeployStatus = deployRes?.status || 'RUNNING';
       let finalLogs = deployRes?.logs || 'Đang kết nối SSH & khởi chạy kịch bản trên VPS...';
       setDeployLogs(finalLogs);
@@ -655,9 +656,9 @@ function syncSubAppEnvText(
         try {
           const deps = await fetchProjectDeployments(id, targetProjId);
           if (Array.isArray(deps) && deps.length > 0) {
-            const latestDep = deps[0];
-            finalDeployStatus = latestDep.status || 'RUNNING';
-            finalLogs = latestDep.logs || finalLogs;
+            const currentDep = (targetDepId ? deps.find((d: any) => d.id === targetDepId) : null) || deps[0];
+            finalDeployStatus = currentDep.status || 'RUNNING';
+            finalLogs = currentDep.logs || finalLogs;
             setDeployLogs(finalLogs);
 
             if (finalLogs.includes('=== STEP 1:')) setProgressStep(1);
