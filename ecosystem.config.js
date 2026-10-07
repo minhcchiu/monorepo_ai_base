@@ -56,7 +56,7 @@ module.exports = {
       },
     },
     {
-      name: 'cloudpulse-web-admin',
+      name: 'cloudpulse-admin',
       cwd: adminDir,
       script: nextBinPath,
       args: `start -p ${ADMIN_PORT}`,

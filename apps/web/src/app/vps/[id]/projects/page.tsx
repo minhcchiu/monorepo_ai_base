@@ -77,22 +77,32 @@ export interface SubAppConfig {
 const DEFAULT_SUB_APPS: SubAppConfig[] = [
   {
     id: 'backend',
-    name: 'Backend API',
+    name: 'cloudpulse-backend',
     path: 'apps/backend',
     filter: '@calo_ai/backend',
-    port: 4117,
+    port: 22090,
     enabled: true,
-    envText: 'PORT=4117\nNODE_ENV=production\nDATABASE_URL=postgresql://postgres:pass_184920@103.56.162.77:5432/calo_prod\nJWT_SECRET=super_secret_jwt_key_9918237',
+    envText: 'PORT=22090\nNODE_ENV=production\nDATABASE_URL=postgresql://postgres:pass_184920@103.56.162.77:5432/calo_prod\nJWT_SECRET=super_secret_jwt_key_9918237',
     envMode: 'PASTE',
   },
   {
-    id: 'web-admin',
-    name: 'Web Admin',
-    path: 'apps/web-admin',
-    filter: '@calo_ai/web-admin',
-    port: 3000,
+    id: 'admin',
+    name: 'cloudpulse-web-admin',
+    path: 'apps/admin',
+    filter: '@calo_ai/admin',
+    port: 32090,
     enabled: true,
-    envText: 'PORT=3000\nNODE_ENV=production\nNEXT_PUBLIC_API_URL=http://localhost:4117',
+    envText: 'PORT=32090\nNODE_ENV=production\nNEXT_PUBLIC_API_URL=http://localhost:22090',
+    envMode: 'PASTE',
+  },
+  {
+    id: 'web',
+    name: 'cloudpulse-web',
+    path: 'apps/web',
+    filter: '@calo_ai/web',
+    port: 42090,
+    enabled: true,
+    envText: 'PORT=42090\nNODE_ENV=production\nNEXT_PUBLIC_API_URL=http://localhost:22090',
     envMode: 'PASTE',
   },
 ];
@@ -335,25 +345,21 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
               filter: app.filter,
               port: app.defaultPort || (app.id.includes('backend') ? 22090 : 32090),
               enabled: true,
-              envText: `PORT=${app.defaultPort || (app.id.includes('backend') ? 22090 : 32090)}\nNODE_ENV=production`,
+              envText: app.envExample || `PORT=${app.defaultPort || (app.id.includes('backend') ? 22090 : 32090)}\nNODE_ENV=production`,
               envMode: 'PASTE',
             })),
           );
         }
 
         setAutoDetected(true);
-        if (res.hasEcosystem) {
-          toast.success(
-            `✨ Đã đọc file ecosystem.config.js ở Root: Phát hiện ${res.detectedApps.length} Apps & đúng số Ports từ Repo!`,
-          );
-        } else {
-          toast.success(
-            `Đã nhận diện kiến trúc & cấu hình Port từ Branch "${targetBranch || res.gitBranch || gitBranch}" (${res.detectedApps?.length || 2} Sub-apps)!`,
-          );
-        }
+        toast.success(
+          `✨ Đã phân tích thành công file ecosystem.config.js ở gốc Repo (${res.detectedApps.length} Apps & đúng số Ports)!`,
+        );
       }
-    } catch (e) {
-      // Local fallback worked
+    } catch (e: any) {
+      setAutoDetected(false);
+      const errMessage = e?.response?.data?.message || e?.message || 'Không thể xác thực Git Repository hoặc không tìm thấy file ecosystem.config.js!';
+      toast.error(errMessage);
     } finally {
       setInspecting(false);
     }

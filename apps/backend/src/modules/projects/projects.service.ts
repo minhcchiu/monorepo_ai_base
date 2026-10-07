@@ -219,65 +219,57 @@ export class ProjectsService {
   async inspectRepo(vpsId: string, gitRepo: string, targetBranchOverride?: string) {
     const vps = await this.prisma.vps.findUnique({ where: { id: vpsId } });
     if (!vps) {
-      throw new NotFoundException(`VPS with ID '${vpsId}' not found`);
+      throw new NotFoundException(`VPS với ID '${vpsId}' không tồn tại trong hệ thống`);
     }
 
     if (!gitRepo || !gitRepo.trim()) {
-      throw new BadRequestException('Git Repository URL is required');
+      throw new BadRequestException('Vui lòng nhập đường dẫn Git Repository URL');
     }
 
     const cleanUrl = gitRepo.trim();
-    // Extract repository slug (e.g. git@gitlab.com:izisoftware2020/pa01calo.git -> pa01calo)
     const matches = cleanUrl.match(/[\/:]([^\/:]+?)(\.git)?$/);
     const repoSlug = matches && matches[1] ? matches[1] : 'my-app';
     const slug = repoSlug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-    // Calculate next available listening port
-    const existingProjects = await this.prisma.project.findMany({ where: { vpsId } });
-    const usedPorts = existingProjects.map((p) => p.port).filter(Boolean);
-    let suggestedPort = 3000;
-    while (usedPorts.includes(suggestedPort)) {
-      suggestedPort++;
-    }
-
-    let branches: string[] = ['main', 'master', 'staging', 'dev'];
+    // 1. STRICT CHECK: Verify Git Repository URL & SSH Access
+    let branches: string[] = [];
     let selectedBranch = targetBranchOverride || 'main';
-    let gitHash = 'head';
-    let sshAccessOk = false;
 
-    // Fetch branches using git ls-remote --heads over SSH
     try {
       const sshRes = await this.sshService.executeCommand(vps, `git ls-remote --heads ${cleanUrl}`);
-      if (sshRes.exitCode === 0 && sshRes.stdout) {
-        sshAccessOk = true;
-        const fetchedBranches: string[] = [];
-        const lines = sshRes.stdout.split('\n');
-
-        lines.forEach((line) => {
-          const match = line.match(/refs\/heads\/(.+)$/);
-          if (match && match[1]) {
-            fetchedBranches.push(match[1].trim());
-          }
-        });
-
-        if (fetchedBranches.length > 0) {
-          branches = fetchedBranches;
-          if (!targetBranchOverride) {
-            if (branches.includes('main')) {
-              selectedBranch = 'main';
-            } else if (branches.includes('master')) {
-              selectedBranch = 'master';
-            } else {
-              selectedBranch = branches[0];
-            }
-          }
-        }
+      if (sshRes.exitCode !== 0 || !sshRes.stdout || !sshRes.stdout.trim()) {
+        throw new BadRequestException(
+          `Không thể kết nối hoặc xác thực Repository '${cleanUrl}'. Vui lòng kiểm tra lại URL Git hoặc SSH Deploy Key trên VPS!`,
+        );
       }
-    } catch (e) {
-      // Fallback
+
+      const fetchedBranches: string[] = [];
+      const lines = sshRes.stdout.split('\n');
+      lines.forEach((line) => {
+        const match = line.match(/refs\/heads\/(.+)$/);
+        if (match && match[1]) {
+          fetchedBranches.push(match[1].trim());
+        }
+      });
+
+      if (fetchedBranches.length === 0) {
+        throw new BadRequestException(`Repository '${cleanUrl}' không chứa bất kỳ nhánh Git (Branch) nào.`);
+      }
+
+      branches = fetchedBranches;
+      if (!targetBranchOverride) {
+        if (branches.includes('main')) selectedBranch = 'main';
+        else if (branches.includes('master')) selectedBranch = 'master';
+        else selectedBranch = branches[0];
+      }
+    } catch (e: any) {
+      if (e instanceof BadRequestException) throw e;
+      throw new BadRequestException(
+        `Lỗi kết nối Git Repository: ${e.message || 'Không thể xác thực URL Git over SSH'}`,
+      );
     }
 
-    // Detect sub-applications & exact ports inside selected branch of repo over SSH
+    // 2. STRICT CHECK: Mandatory ecosystem.config.js inspection at root folder of repository
     let detectedApps: Array<{
       id: string;
       name: string;
@@ -289,127 +281,110 @@ export class ProjectsService {
       maxMemory?: string;
     }> = [];
 
-    let hasEcosystem = false;
     let rawEcosystemContent = '';
 
-    // 1. Try inspecting ecosystem.config.js on selectedBranch over SSH using VM JS execution
-    try {
-      const ecoRes = await this.sshService.executeCommand(
-        vps,
-        `git archive --remote=${cleanUrl} ${selectedBranch} ecosystem.config.js | tar -x -O 2>/dev/null`,
+    const ecoRes = await this.sshService.executeCommand(
+      vps,
+      `git archive --remote=${cleanUrl} ${selectedBranch} ecosystem.config.js | tar -x -O 2>/dev/null`,
+    );
+
+    if (ecoRes.exitCode !== 0 || !ecoRes.stdout || !ecoRes.stdout.trim()) {
+      throw new BadRequestException(
+        `Không tìm thấy file 'ecosystem.config.js' ở thư mục gốc (Root) của Repository trên nhánh '${selectedBranch}'. Dự án bắt buộc phải có file ecosystem.config.js ở Root để phân tích dịch vụ và số Port!`,
       );
-
-      if (ecoRes.exitCode === 0 && ecoRes.stdout.trim()) {
-        hasEcosystem = true;
-        rawEcosystemContent = ecoRes.stdout.trim();
-
-        try {
-          const sandbox = {
-            module: { exports: {} },
-            exports: {},
-            require: (mod: string) => {
-              if (mod === 'path') {
-                return {
-                  join: (...args: string[]) => args.join('/'),
-                  resolve: (...args: string[]) => args.join('/'),
-                };
-              }
-              return {};
-            },
-            __dirname: '/var/www',
-            process: { env: { PORT: 22090 } },
-          };
-
-          vm.createContext(sandbox);
-          vm.runInNewContext(rawEcosystemContent, sandbox, { timeout: 1000 });
-
-          const exported = sandbox.module.exports as any;
-          const rawApps = Array.isArray(exported?.apps) ? exported.apps : Array.isArray(exported) ? exported : [];
-
-          rawApps.forEach((app: any) => {
-            const appName = app.name || 'unnamed-app';
-            const cwdStr = app.cwd || app.path || '';
-            const folderName = cwdStr.split(/[\/\\]/).pop() || (appName.includes('backend') ? 'backend' : 'web-admin');
-
-            let portNum = app.env?.PORT ? Number(app.env.PORT) : 0;
-            if (!portNum && app.args) {
-              const portArgMatch = String(app.args).match(/-p\s*(\d+)/);
-              if (portArgMatch) portNum = parseInt(portArgMatch[1], 10);
-            }
-            if (!portNum) {
-              portNum = folderName.includes('backend') ? 22090 : 32090;
-            }
-
-            detectedApps.push({
-              id: folderName,
-              name: appName || (folderName === 'backend' ? 'Backend API' : folderName === 'web-admin' ? 'Web Admin' : folderName),
-              path: `apps/${folderName}`,
-              filter: `@calo_ai/${folderName}`,
-              defaultPort: portNum,
-              pm2Name: appName,
-              script: app.script || 'dist/src/main.js',
-              maxMemory: app.max_memory_restart || '512M',
-            });
-          });
-        } catch (parseErr) {
-          // VM parse fallback if required variables were missing
-        }
-      }
-    } catch (e) {
-      // Fallback to directory inspection
     }
 
-    // 2. Fallback: Inspect apps/ directory structure if ecosystem.config.js was absent
-    if (detectedApps.length === 0) {
-      try {
-        const archiveRes = await this.sshService.executeCommand(
-          vps,
-          `git archive --remote=${cleanUrl} ${selectedBranch} apps/ | tar -t 2>/dev/null | grep -E '^apps/[^/]+/$'`,
-        );
-        if (archiveRes.exitCode === 0 && archiveRes.stdout.trim()) {
-          const lines = archiveRes.stdout.split('\n');
-          const folderNames = new Set<string>();
-          lines.forEach((line) => {
-            const match = line.trim().match(/^apps\/([^\/]+)\/$/);
-            if (match && match[1]) {
-              folderNames.add(match[1]);
-            }
-          });
+    rawEcosystemContent = ecoRes.stdout.trim();
 
-          let portCounter = suggestedPort;
-          folderNames.forEach((folder) => {
-            detectedApps.push({
-              id: folder,
-              name: folder === 'backend' ? 'Backend API' : folder === 'web-admin' ? 'Web Admin' : folder === 'web' ? 'Web User App' : folder,
-              path: `apps/${folder}`,
-              filter: `@calo_ai/${folder}`,
-              defaultPort: folder === 'backend' ? 22090 : folder === 'web-admin' ? 32090 : portCounter++,
-            });
-          });
+    try {
+      const sandbox = {
+        module: { exports: {} },
+        exports: {},
+        require: (mod: string) => {
+          if (mod === 'path') {
+            return {
+              join: (...args: string[]) => args.filter(Boolean).join('/'),
+              resolve: (...args: string[]) => args.filter(Boolean).join('/'),
+            };
+          }
+          if (mod === 'fs') {
+            return {
+              existsSync: (p: string) => true,
+              statSync: () => ({ isDirectory: () => true }),
+            };
+          }
+          return {};
+        },
+        __dirname: '/var/www',
+        process: { env: { PORT: 22090 } },
+      };
+
+      vm.createContext(sandbox);
+      vm.runInNewContext(rawEcosystemContent, sandbox, { timeout: 1000 });
+
+      const exported = sandbox.module.exports as any;
+      const rawApps = Array.isArray(exported?.apps) ? exported.apps : Array.isArray(exported) ? exported : [];
+
+      rawApps.forEach((app: any) => {
+        const appName = app.name || 'unnamed-app';
+        const cwdStr = String(app.cwd || app.path || '');
+
+        let folderName = cwdStr.split(/[\\/]/).pop() || '';
+        if (!folderName || folderName === 'apps' || folderName === 'www' || folderName === 'var') {
+          folderName = appName.includes('backend')
+            ? 'backend'
+            : appName.includes('admin')
+            ? 'admin'
+            : appName.includes('web')
+            ? 'web'
+            : appName.replace(/[^a-z0-9_-]/gi, '');
+        }
+
+        let portNum = app.env?.PORT ? Number(app.env.PORT) : 0;
+        if (!portNum && app.args) {
+          const portArgMatch = String(app.args).match(/-p\s*(\d+)/);
+          if (portArgMatch) portNum = parseInt(portArgMatch[1], 10);
+        }
+        if (!portNum) {
+          portNum = appName.includes('backend') ? 22090 : appName.includes('admin') ? 32090 : 42090;
+        }
+
+        detectedApps.push({
+          id: folderName,
+          name: appName || (folderName === 'backend' ? 'Backend API' : folderName.includes('admin') ? 'Web Admin' : 'Web User App'),
+          path: cwdStr.includes('apps/') ? cwdStr.substring(cwdStr.indexOf('apps/')) : `apps/${folderName}`,
+          filter: `@calo_ai/${folderName}`,
+          defaultPort: portNum,
+          pm2Name: appName,
+          script: app.script || 'dist/src/main.js',
+          maxMemory: app.max_memory_restart || '512M',
+        });
+      });
+    } catch (parseErr: any) {
+      throw new BadRequestException(
+        `File 'ecosystem.config.js' ở gốc Repo bị lỗi cú pháp JavaScript: ${parseErr.message}`,
+      );
+    }
+
+    if (detectedApps.length === 0) {
+      throw new BadRequestException(
+        `File 'ecosystem.config.js' ở gốc Repository không chứa bất kỳ cấu hình ứng dụng nào trong mảng 'apps'!`,
+      );
+    }
+
+    // Attempt to fetch .env.example for each app over SSH
+    for (const app of detectedApps) {
+      try {
+        const envExRes = await this.sshService.executeCommand(
+          vps,
+          `git archive --remote=${cleanUrl} ${selectedBranch} ${app.path}/.env.example | tar -x -O 2>/dev/null`,
+        );
+        if (envExRes.exitCode === 0 && envExRes.stdout.trim()) {
+          (app as any).envExample = envExRes.stdout.trim();
         }
       } catch (e) {
-        //
+        // Optional
       }
-    }
-
-    // Fallback defaults: Only 2 real apps (apps/backend and apps/web-admin)
-    if (detectedApps.length === 0) {
-      detectedApps = [
-        {
-          id: 'backend',
-          name: 'Backend API',
-          path: 'apps/backend',
-          filter: '@calo_ai/backend',
-          defaultPort: 22090,
-        },
-        {
-          id: 'web-admin',
-          name: 'Web Admin',
-          path: 'apps/web-admin',
-          filter: '@calo_ai/web-admin',
-          defaultPort: 32090,
-        },
-      ];
     }
 
     return {
@@ -418,15 +393,15 @@ export class ProjectsService {
       slug,
       branches,
       gitBranch: selectedBranch,
-      gitHash,
+      gitHash: 'head',
       suggestedPort: detectedApps[0]?.defaultPort || 22090,
       deployDir: `/home/production-deploys/${slug}`,
       domainProxy: `${slug}.izisoft.io`,
       buildFilter: `@calo_ai/${slug}`,
       detectedApps,
-      hasEcosystem,
+      hasEcosystem: true,
       rawEcosystemContent,
-      sshAccessOk,
+      sshAccessOk: true,
     };
   }
 
