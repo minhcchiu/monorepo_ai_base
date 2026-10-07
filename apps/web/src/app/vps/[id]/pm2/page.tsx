@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 export default function VpsPm2Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id: rawId } = use(params);
+  const resolvedParams = params && typeof (params as any).then === 'function' ? use(params) : (params as any);
+  const rawId = resolvedParams?.id || '';
   const id = decodeURIComponent(rawId);
   const { data: cluster, isLoading } = useVpsDetail(id);
   const [processes, setProcesses] = useState<Pm2ProcessItem[]>([]);

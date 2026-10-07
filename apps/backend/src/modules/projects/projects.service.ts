@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import * as vm from 'vm';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SshService } from '../vps/ssh.service';
 
@@ -291,7 +292,7 @@ export class ProjectsService {
     let hasEcosystem = false;
     let rawEcosystemContent = '';
 
-    // 1. Try inspecting ecosystem.config.js on selectedBranch over SSH
+    // 1. Try inspecting ecosystem.config.js on selectedBranch over SSH using VM JS execution
     try {
       const ecoRes = await this.sshService.executeCommand(
         vps,
@@ -301,41 +302,58 @@ export class ProjectsService {
       if (ecoRes.exitCode === 0 && ecoRes.stdout.trim()) {
         hasEcosystem = true;
         rawEcosystemContent = ecoRes.stdout.trim();
-        const ecoContent = ecoRes.stdout;
 
-        const appBlocks = ecoContent.split(/{\s*name:/g).slice(1);
+        try {
+          const sandbox = {
+            module: { exports: {} },
+            exports: {},
+            require: (mod: string) => {
+              if (mod === 'path') {
+                return {
+                  join: (...args: string[]) => args.join('/'),
+                  resolve: (...args: string[]) => args.join('/'),
+                };
+              }
+              return {};
+            },
+            __dirname: '/var/www',
+            process: { env: { PORT: 22090 } },
+          };
 
-        appBlocks.forEach((block) => {
-          const nameMatch = block.match(/^\s*["']([^"']+)["']/);
-          const nameStr = nameMatch ? nameMatch[1] : '';
+          vm.createContext(sandbox);
+          vm.runInNewContext(rawEcosystemContent, sandbox, { timeout: 1000 });
 
-          const cwdMatch = block.match(/cwd:\s*.*["']([^"']+)["']/);
-          const folderName = cwdMatch ? cwdMatch[1].split(/[\\/]/).pop() || '' : nameStr.includes('backend') ? 'backend' : 'web-admin';
+          const exported = sandbox.module.exports as any;
+          const rawApps = Array.isArray(exported?.apps) ? exported.apps : Array.isArray(exported) ? exported : [];
 
-          const pathStr = `apps/${folderName}`;
+          rawApps.forEach((app: any) => {
+            const appName = app.name || 'unnamed-app';
+            const cwdStr = app.cwd || app.path || '';
+            const folderName = cwdStr.split(/[\/\\]/).pop() || (appName.includes('backend') ? 'backend' : 'web-admin');
 
-          const portMatch = block.match(/PORT:\s*(\d+)/i) || block.match(/-p\s*(\d+)/);
-          const portNum = portMatch ? parseInt(portMatch[1], 10) : folderName.includes('backend') ? 22090 : 32090;
+            let portNum = app.env?.PORT ? Number(app.env.PORT) : 0;
+            if (!portNum && app.args) {
+              const portArgMatch = String(app.args).match(/-p\s*(\d+)/);
+              if (portArgMatch) portNum = parseInt(portArgMatch[1], 10);
+            }
+            if (!portNum) {
+              portNum = folderName.includes('backend') ? 22090 : 32090;
+            }
 
-          const scriptMatch = block.match(/script:\s*.*["']([^"']+)["']/);
-          const scriptStr = scriptMatch ? scriptMatch[1] : 'dist/src/main.js';
-
-          const memMatch = block.match(/max_memory_restart:\s*["']([^"']+)["']/);
-          const memStr = memMatch ? memMatch[1] : '512M';
-
-          if (folderName) {
             detectedApps.push({
               id: folderName,
-              name: nameStr || (folderName === 'backend' ? 'Backend API' : folderName === 'web-admin' ? 'Web Admin' : folderName),
-              path: pathStr,
+              name: appName || (folderName === 'backend' ? 'Backend API' : folderName === 'web-admin' ? 'Web Admin' : folderName),
+              path: `apps/${folderName}`,
               filter: `@calo_ai/${folderName}`,
               defaultPort: portNum,
-              pm2Name: nameStr,
-              script: scriptStr,
-              maxMemory: memStr,
+              pm2Name: appName,
+              script: app.script || 'dist/src/main.js',
+              maxMemory: app.max_memory_restart || '512M',
             });
-          }
-        });
+          });
+        } catch (parseErr) {
+          // VM parse fallback if required variables were missing
+        }
       }
     } catch (e) {
       // Fallback to directory inspection

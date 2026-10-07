@@ -14,72 +14,76 @@
 //
 // ⚠️ Tên PHẢI kết thúc bằng `.config.js` để PM2 nhận diện đúng làm file config.
 
-const path = require("path");
-const fs = require("fs");
+const path = require('path');
+const fs = require('fs');
 
-const appsDir = path.join(__dirname, "apps");
+const appsDir = path.join(__dirname, 'apps');
 
 // Tự động tìm thư mục admin (apps/admin hoặc fallback apps/web-admin)
-const adminFolder = fs.existsSync(path.join(appsDir, "admin"))
-  ? "admin"
-  : fs.existsSync(path.join(appsDir, "web-admin"))
-  ? "web-admin"
-  : "admin";
+const backendFolder = fs.existsSync(path.join(appsDir, 'backend')) ? 'backend' : '';
+const adminFolder = fs.existsSync(path.join(appsDir, 'admin')) ? 'admin' : '';
+const webFolder = fs.existsSync(path.join(appsDir, 'web')) ? 'web' : '';
 
+const backendDir = path.join(appsDir, backendFolder);
 const adminDir = path.join(appsDir, adminFolder);
-const webDir = path.join(appsDir, "web");
+const webDir = path.join(appsDir, webFolder);
+
+const BACKEND_PORT = 22090;
+const ADMIN_PORT = 32090;
+const WEB_PORT = 42090;
 
 // Binary Next.js trong node_modules monorepo
-const nextBinPath = fs.existsSync(path.join(__dirname, "node_modules", "next", "dist", "bin", "next"))
-  ? path.join(__dirname, "node_modules", "next", "dist", "bin", "next")
-  : path.join(__dirname, "node_modules", ".bin", "next");
+const nextBinPath = fs.existsSync(
+  path.join(__dirname, 'node_modules', 'next', 'dist', 'bin', 'next'),
+)
+  ? path.join(__dirname, 'node_modules', 'next', 'dist', 'bin', 'next')
+  : path.join(__dirname, 'node_modules', '.bin', 'next');
 
 module.exports = {
   apps: [
     {
-      name: "cloudpulse-backend",
-      cwd: path.join(appsDir, "backend"),
-      script: "dist/src/main.js",
+      name: 'cloudpulse-backend',
+      cwd: backendDir,
+      script: 'dist/src/main.js',
       instances: 1,
-      exec_mode: "fork",
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: "768M",
+      max_memory_restart: '768M',
       env: {
-        NODE_ENV: "production",
-        PORT: 22090,
+        NODE_ENV: 'production',
+        PORT: BACKEND_PORT,
       },
     },
     {
-      name: "cloudpulse-web-admin",
+      name: 'cloudpulse-web-admin',
       cwd: adminDir,
       script: nextBinPath,
-      args: "start -p 32090",
+      args: `start -p ${ADMIN_PORT}`,
       instances: 1,
-      exec_mode: "fork",
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: "512M",
+      max_memory_restart: '512M',
       env: {
-        NODE_ENV: "production",
-        PORT: 32090,
+        NODE_ENV: 'production',
+        PORT: ADMIN_PORT,
       },
     },
     {
-      name: "cloudpulse-web",
+      name: 'cloudpulse-web',
       cwd: webDir,
       script: nextBinPath,
-      args: "start -p 42090",
+      args: `start -p ${WEB_PORT}`,
       instances: 1,
-      exec_mode: "fork",
+      exec_mode: 'fork',
       autorestart: true,
       watch: false,
-      max_memory_restart: "512M",
+      max_memory_restart: '512M',
       env: {
-        NODE_ENV: "production",
-        PORT: 42090,
+        NODE_ENV: 'production',
+        PORT: WEB_PORT,
       },
     },
   ],
 };
-

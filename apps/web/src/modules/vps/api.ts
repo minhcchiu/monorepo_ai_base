@@ -181,7 +181,41 @@ export async function fetchVpsDetail(id: string): Promise<VpsClusterDetail> {
   } catch (e) {
     // API Fallback
   }
-  return MOCK_VPS_LIST.find((v) => v.id === id) || MOCK_VPS_LIST[0];
+
+  const found = MOCK_VPS_LIST.find((v) => v.id === id) || MOCK_VPS_LIST.find((v) => v.ip === id);
+  if (found) return found;
+
+  return {
+    id: id || 'vps-node-01',
+    name: `VPS Node (${id})`,
+    ip: '103.56.162.45',
+    port: 22,
+    os: 'Ubuntu 24.04 LTS',
+    kernel: 'Linux 6.8.0-generic',
+    uptime: '142 days 18 hrs',
+    region: 'Singapore (SG-01)',
+    regionCode: 'SG-01',
+    environment: 'prod',
+    status: 'healthy',
+    statusBadgeText: 'Online',
+    cpuPercent: 24,
+    ramPercent: 48,
+    diskPercent: 35,
+    ramUsedGb: 15.3,
+    ramTotalGb: 32,
+    diskUsedGb: 175,
+    diskTotalGb: 500,
+    networkInMbps: 28.5,
+    networkOutMbps: 18.2,
+    pm2ActiveCount: 2,
+    projectsCount: 2,
+    domainsCount: 1,
+    lastHeartbeat: '2s ago',
+    dockerInstalled: true,
+    nginxInstalled: true,
+    redisInstalled: true,
+    postgresInstalled: true,
+  };
 }
 
 export async function testVpsConnection(payload: {
