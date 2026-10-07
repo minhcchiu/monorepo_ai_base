@@ -14,12 +14,21 @@ import {
   Loader2,
 } from 'lucide-react';
 
+function unwrapParams<T>(params: Promise<T> | T): T {
+  if (params && typeof (params as any).then === 'function') {
+    return use(params as Promise<T>);
+  }
+  return params as T;
+}
+
 export default function ProjectOverviewPage({
   params,
 }: {
-  params: Promise<{ id: string; projectId: string }>;
+  params: Promise<{ id: string; projectId: string }> | { id: string; projectId: string };
 }) {
-  const { id: vpsId, projectId } = use(params);
+  const resolvedParams = unwrapParams(params);
+  const vpsId = resolvedParams?.id || '';
+  const projectId = resolvedParams?.projectId || '';
   const [project, setProject] = useState<ProjectItem | null>(null);
   const [overview, setOverview] = useState<any>(null);
   const [loading, setLoading] = useState(true);

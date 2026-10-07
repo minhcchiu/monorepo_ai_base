@@ -374,6 +374,18 @@ export async function fetchProjectActivity(vpsId: string, projectId: string) {
   }
 }
 
+export async function checkPortsAvailabilityApi(vpsId: string, ports: number[], excludeProjectId?: string) {
+  try {
+    const { data } = await axiosInstance.post(`/vps/${vpsId}/projects/check-ports`, {
+      ports,
+      excludeProjectId,
+    });
+    return data;
+  } catch (e: any) {
+    return { success: false, hasConflicts: false, ports: [], usedPorts: [] };
+  }
+}
+
 export async function fetchProjectPortsApi(vpsId: string, projectId: string) {
   try {
     const { data } = await axiosInstance.get(`/vps/${vpsId}/projects/${projectId}/ports`);

@@ -17,12 +17,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
+function unwrapParams<T>(params: Promise<T> | T): T {
+  if (params && typeof (params as any).then === 'function') {
+    return use(params as Promise<T>);
+  }
+  return params as T;
+}
+
 export default function ProjectNginxPage({
   params,
 }: {
-  params: Promise<{ id: string; projectId: string }>;
+  params: Promise<{ id: string; projectId: string }> | { id: string; projectId: string };
 }) {
-  const { id: vpsId, projectId } = use(params);
+  const resolvedParams = unwrapParams(params);
+  const vpsId = resolvedParams?.id || '';
+  const projectId = resolvedParams?.projectId || '';
   const [project, setProject] = useState<ProjectItem | null>(null);
   const [nginxConf, setNginxConf] = useState<string>('');
   const [testOutput, setTestOutput] = useState<string | null>(null);
@@ -193,8 +202,10 @@ export default function ProjectNginxPage({
                 <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-mono">1 Domain / Path</span>
               </div>
               <p className="text-[11px] text-slate-600">
-                • <code className="font-mono text-indigo-700">{baseDomain}/</code> ➔ Web Admin / Web (Port {adminPort})
-                <br />• <code className="font-mono text-indigo-700">{baseDomain}/api/</code> ➔ Backend API (Port {backendPort})
+                • <code className="font-mono text-indigo-700">{baseDomain}/api/</code> ➔ Backend (Port {backendPort})
+                <br />
+                • <code className="font-mono text-indigo-700">{baseDomain}/admin/</code> ➔ Admin (Port {adminPort})
+                <br />• <code className="font-mono text-indigo-700">{baseDomain}/</code> ➔ Web (Port {webPort})
               </p>
             </button>
           </div>

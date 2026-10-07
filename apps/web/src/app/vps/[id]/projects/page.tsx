@@ -19,6 +19,7 @@ import {
   triggerGitlabPipelineApi,
   generateProjectNginxConfigApi,
   updateProjectPortsApi,
+  checkPortsAvailabilityApi,
 } from '@/modules/projects/api';
 import { ProjectItem } from '@/modules/projects/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -107,9 +108,17 @@ const DEFAULT_SUB_APPS: SubAppConfig[] = [
   },
 ];
 
-export default function VpsProjectsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: rawId } = use(params);
-  const id = decodeURIComponent(rawId);
+function unwrapParams<T>(params: Promise<T> | T): T {
+  if (params && typeof (params as any).then === 'function') {
+    return use(params as Promise<T>);
+  }
+  return params as T;
+}
+
+export default function VpsProjectsPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+  const resolvedParams = unwrapParams(params);
+  const rawId = resolvedParams?.id || '';
+  const id = rawId ? decodeURIComponent(rawId) : '';
   const router = useRouter();
 
   const { data: cluster, isLoading } = useVpsDetail(id);
@@ -144,7 +153,7 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
   const [environment, setEnvironment] = useState('prod');
   const [domainProxy, setDomainProxy] = useState('');
   const [gitBranch, setGitBranch] = useState('main');
-  const [availableBranches, setAvailableBranches] = useState<string[]>(['main', 'master', 'staging', 'dev']);
+  const [availableBranches, setAvailableBranches] = useState<string[]>(['main', 'dev', 'master', 'staging', 'production']);
   const [workingDir, setWorkingDir] = useState('');
   const [buildCmd, setBuildCmd] = useState('pnpm install && pnpm build');
 
@@ -167,6 +176,55 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
   const [inspecting, setInspecting] = useState(false);
   const [autoDetected, setAutoDetected] = useState(false);
 
+  // Port Conflict Checking State
+  const [conflictPorts, setConflictPorts] = useState<Record<number, string>>({});
+  const [checkingPorts, setCheckingPorts] = useState<boolean>(false);
+
+  const checkPortConflicts = useCallback(
+    async (appsToCheck = subApps) => {
+      const enabledList = appsToCheck.filter((a) => a.enabled);
+      const ports = enabledList.map((a) => Number(a.port)).filter((p) => p && !isNaN(p));
+
+      const newConflicts: Record<number, string> = {};
+
+      // 1. Local duplicate check
+      const portCount: Record<number, number> = {};
+      ports.forEach((p) => {
+        portCount[p] = (portCount[p] || 0) + 1;
+      });
+
+      ports.forEach((p) => {
+        if (portCount[p] > 1) {
+          newConflicts[p] = 'Trùng cổng giữa các Sub-App trong cùng dự án!';
+        }
+      });
+
+      if (ports.length === 0) {
+        setConflictPorts(newConflicts);
+        return newConflicts;
+      }
+
+      // 2. Remote VPS & DB check
+      try {
+        setCheckingPorts(true);
+        const res = await checkPortsAvailabilityApi(id, ports, createdProjectId || undefined);
+        if (res?.hasConflicts && Array.isArray(res.usedPorts)) {
+          res.usedPorts.forEach((item: any) => {
+            newConflicts[item.port] = item.reason || `Cổng ${item.port} đã tồn tại/đang chạy trên VPS!`;
+          });
+        }
+      } catch (e) {
+        //
+      } finally {
+        setCheckingPorts(false);
+      }
+
+      setConflictPorts(newConflicts);
+      return newConflicts;
+    },
+    [id, subApps, createdProjectId],
+  );
+
   const loadProjects = useCallback(async () => {
     try {
       const data = await fetchProjects(id);
@@ -188,10 +246,15 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
     if (workingDir) setCiDeployDir(workingDir);
   }, [cluster, workingDir]);
 
+  const [deployLogs, setDeployLogs] = useState<string>('');
+  const [deployError, setDeployError] = useState<string | null>(null);
+
   const resetModalState = () => {
     setWizardStep(1);
     setProgressStep(0);
     setWizardCompleted(false);
+    setDeployLogs('');
+    setDeployError(null);
     setCreatedProjectId(null);
     setAutoDetected(false);
     setCustomNginxConfig('');
@@ -201,9 +264,14 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
   const primaryPort = enabledApps.find((a) => a.id.includes('backend'))?.port || enabledApps[0]?.port || 4117;
 
   const getDefaultNginxConfig = useCallback(() => {
+    const backendApp = enabledApps.find((a) => a.id.includes('backend'));
     const adminApp = enabledApps.find((a) => a.id.includes('admin'));
-    const adminPort = adminApp?.port || 3000;
-    const domainName = domainProxy || `${name || 'p117qtship'}.izisoft.io`;
+    const webApp = enabledApps.find((a) => a.id.includes('web'));
+
+    const backendPortNum = backendApp?.port || primaryPort || 22090;
+    const adminPortNum = adminApp?.port || 32090;
+    const webPortNum = webApp?.port || 42090;
+    const domainName = domainProxy || `${name || 'cloudpulse'}.izisoft.io`;
 
     return `server {
   listen 80;
@@ -211,9 +279,9 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
   server_name ${domainName};
 
-  # 1. Định tuyến cho BACKEND (Port ${primaryPort})
+  # 1. Định tuyến cho BACKEND (Port ${backendPortNum})
   location /api/ {
-    proxy_pass http://localhost:${primaryPort};
+    proxy_pass http://localhost:${backendPortNum};
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
@@ -222,26 +290,40 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
   }
 
   location /docs {
-    proxy_pass http://localhost:${primaryPort};
+    proxy_pass http://localhost:${backendPortNum};
     proxy_http_version 1.1;
     proxy_set_header Host $host;
   }
 
   location /docs-json {
-    proxy_pass http://localhost:${primaryPort};
+    proxy_pass http://localhost:${backendPortNum};
   }
 
   location /uploads/ {
-    proxy_pass http://localhost:${primaryPort};
+    proxy_pass http://localhost:${backendPortNum};
   }
 
   location /images/ {
-    proxy_pass http://localhost:${primaryPort};
+    proxy_pass http://localhost:${backendPortNum};
   }
 
-  # 2. Định tuyến cho WEB ADMIN (Port ${adminPort})
+  # 2. Định tuyến cho WEB ADMIN (Port ${adminPortNum})
+  location /admin/ {
+    proxy_pass http://localhost:${adminPortNum}/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+
+  location = /admin {
+    return 301 $scheme://$host/admin/;
+  }
+
+  # 3. Định tuyến cho WEB APP (Port ${webPortNum})
   location / {
-    proxy_pass http://localhost:${adminPort};
+    proxy_pass http://localhost:${webPortNum};
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
@@ -251,6 +333,48 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 }`;
   }, [domainProxy, name, primaryPort, enabledApps]);
 
+function syncSubAppEnvText(
+  envText: string,
+  port: number,
+  nodeEnv: string,
+  apiUrl?: string,
+): string {
+  let lines = envText ? envText.split('\n') : [];
+  let hasPort = false;
+  let hasNodeEnv = false;
+  let hasApiUrl = false;
+
+  lines = lines.map((line) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('PORT=')) {
+      hasPort = true;
+      return `PORT=${port}`;
+    }
+    if (trimmed.startsWith('NODE_ENV=')) {
+      hasNodeEnv = true;
+      return `NODE_ENV=${nodeEnv}`;
+    }
+    if (trimmed.startsWith('NEXT_PUBLIC_API_URL=')) {
+      hasApiUrl = true;
+      return apiUrl ? `NEXT_PUBLIC_API_URL=${apiUrl}` : line;
+    }
+    return line;
+  });
+
+  if (!hasPort) {
+    lines.unshift(`PORT=${port}`);
+  }
+  if (!hasNodeEnv) {
+    const portIdx = lines.findIndex((l) => l.startsWith('PORT='));
+    lines.splice(portIdx !== -1 ? portIdx + 1 : 1, 0, `NODE_ENV=${nodeEnv}`);
+  }
+  if (apiUrl && !hasApiUrl) {
+    lines.push(`NEXT_PUBLIC_API_URL=${apiUrl}`);
+  }
+
+  return lines.join('\n');
+}
+
   const toggleSubApp = (appId: string) => {
     setSubApps((prev) =>
       prev.map((app) => (app.id === appId ? { ...app, enabled: !app.enabled } : app)),
@@ -258,9 +382,24 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
   };
 
   const updateSubAppPort = (appId: string, portNum: number) => {
-    setSubApps((prev) =>
-      prev.map((app) => (app.id === appId ? { ...app, port: portNum } : app)),
-    );
+    setSubApps((prev) => {
+      const isBackend = appId.includes('backend');
+      const backendPort = isBackend ? portNum : prev.find((a) => a.id.includes('backend'))?.port || 22090;
+      const currentEnv = environment === 'prod' ? 'production' : environment || 'production';
+
+      return prev.map((app) => {
+        if (app.id === appId) {
+          const apiUrl = !isBackend ? `http://localhost:${backendPort}` : undefined;
+          const newEnv = syncSubAppEnvText(app.envText, portNum, currentEnv, apiUrl);
+          return { ...app, port: portNum, envText: newEnv };
+        } else if (isBackend && !app.id.includes('backend')) {
+          const apiUrl = `http://localhost:${portNum}`;
+          const newEnv = syncSubAppEnvText(app.envText, app.port, currentEnv, apiUrl);
+          return { ...app, envText: newEnv };
+        }
+        return app;
+      });
+    });
   };
 
   const updateSubAppEnv = (appId: string, text: string) => {
@@ -308,28 +447,35 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
   const handleInspectRepo = async (urlToInspect?: string, targetBranch?: string) => {
     const url = urlToInspect || gitRepo;
-    if (!url || !url.trim()) return;
+    const branchToUse = targetBranch || gitBranch || 'main';
+
+    if (!url || !url.trim()) {
+      toast.error('Vui lòng nhập Link Git Repository');
+      return;
+    }
 
     const matches = url.trim().match(/[\/:]([^\/:]+?)(\.git)?$/);
     const slug = matches && matches[1] ? matches[1] : '';
     if (slug) {
-      setName(slug);
-      setWorkingDir(`/home/production-deploys/${slug}`);
-      setCiDeployDir(`/home/production-deploys/${slug}`);
-      setDomainProxy(`${slug}.izisoft.io`);
+      if (!name) setName(slug);
+      if (!workingDir) {
+        setWorkingDir(`/home/production-deploys/${slug}`);
+        setCiDeployDir(`/home/production-deploys/${slug}`);
+      }
+      if (!domainProxy) setDomainProxy(`${slug}.izisoft.io`);
       setAutoDetected(true);
     }
 
     try {
       setInspecting(true);
-      const res = await inspectProjectRepoApi(id, url, targetBranch || gitBranch);
+      const res = await inspectProjectRepoApi(id, url, branchToUse);
       if (res?.success) {
-        if (res.name) setName(res.name);
-        if (res.deployDir) {
+        if (res.name && !name) setName(res.name);
+        if (res.deployDir && !workingDir) {
           setWorkingDir(res.deployDir);
           setCiDeployDir(res.deployDir);
         }
-        if (res.domainProxy) setDomainProxy(res.domainProxy);
+        if (res.domainProxy && !domainProxy) setDomainProxy(res.domainProxy);
         if (res.gitBranch) setGitBranch(res.gitBranch);
 
         if (Array.isArray(res.branches) && res.branches.length > 0) {
@@ -343,7 +489,7 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
               name: app.name,
               path: app.path,
               filter: app.filter,
-              port: app.defaultPort || (app.id.includes('backend') ? 22090 : 32090),
+              port: app.defaultPort || (app.id.includes('backend') ? 22090 : app.id.includes('admin') ? 32090 : 42090),
               enabled: true,
               envText: app.envExample || `PORT=${app.defaultPort || (app.id.includes('backend') ? 22090 : 32090)}\nNODE_ENV=production`,
               envMode: 'PASTE',
@@ -353,7 +499,7 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
         setAutoDetected(true);
         toast.success(
-          `✨ Đã phân tích thành công file ecosystem.config.js ở gốc Repo (${res.detectedApps.length} Apps & đúng số Ports)!`,
+          `✨ Đã phân tích thành công Repo (${branchToUse}): Tìm thấy ${res.detectedApps?.length || 0} Sub-Apps & đúng số Ports!`,
         );
       }
     } catch (e: any) {
@@ -367,9 +513,31 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
   const handleGitRepoChange = (val: string) => {
     setGitRepo(val);
-    if (val.trim().length > 10) {
-      handleInspectRepo(val);
+    const matches = val.trim().match(/[\/:]([^\/:]+?)(\.git)?$/);
+    const slug = matches && matches[1] ? matches[1] : '';
+    if (slug) {
+      if (!name) setName(slug);
+      if (!workingDir) {
+        setWorkingDir(`/home/production-deploys/${slug}`);
+        setCiDeployDir(`/home/production-deploys/${slug}`);
+      }
+      if (!domainProxy) setDomainProxy(`${slug}.izisoft.io`);
     }
+  };
+
+  const handleGoToStep2 = async () => {
+    if (!gitRepo.trim()) {
+      toast.error('Vui lòng nhập Link Git Repository');
+      return;
+    }
+    if (!gitBranch.trim()) {
+      toast.error('Vui lòng chọn hoặc nhập Nhánh Git (Branch)');
+      return;
+    }
+    if (!autoDetected) {
+      await handleInspectRepo(gitRepo, gitBranch);
+    }
+    setWizardStep(2);
   };
 
   const handleStartWizardDeploy = async () => {
@@ -384,8 +552,18 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
       return;
     }
 
+    // Validate port conflicts on VPS & DB
+    const conflicts = await checkPortConflicts(enabledList);
+    if (Object.keys(conflicts).length > 0) {
+      const conflictMsg = Object.entries(conflicts)
+        .map(([p, reason]) => `• Cổng ${p}: ${reason}`)
+        .join('\n');
+      toast.error(`❌ Cổng đã tồn tại/đang sử dụng trên VPS:\n${conflictMsg}`);
+      return;
+    }
+
     const backendApp = enabledList.find((a) => a.id.includes('backend')) || enabledList[0];
-    const backendPort = backendApp?.port || 4117;
+    const backendPort = backendApp?.port || 22090;
 
     const appEnvsObj: Record<string, string> = {};
     enabledList.forEach((a) => {
@@ -394,6 +572,8 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
     try {
       setWizardStep(3);
+      setWizardCompleted(false);
+      setDeployError(null);
       setProgressStep(1); // 1. Registering Project DB
 
       const newProj = await createProjectApi(id, {
@@ -409,16 +589,8 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
       setCreatedProjectId(newProj?.id || name);
 
-      // 2. SSH Clone Repository
+      // 2. Auto-generate Nginx Proxy (/etc/nginx/conf.d/<domain>.conf)
       setProgressStep(2);
-      await new Promise((r) => setTimeout(r, 800));
-
-      // 3. Install Packages & .env
-      setProgressStep(3);
-      await new Promise((r) => setTimeout(r, 800));
-
-      // 4. Auto-generate Nginx Proxy (/etc/nginx/conf.d/<domain>.conf)
-      setProgressStep(4);
       try {
         await generateProjectNginxConfigApi(id, newProj?.id || name, {
           routingStrategy,
@@ -429,12 +601,14 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
         //
       }
 
-      // 5. Trigger SSH Deployment & PM2 startup (ecosystem.config.js)
-      setProgressStep(5);
-      await triggerProjectDeployment(id, newProj?.id || name, {
+      // 3. Trigger SSH Deployment Pipeline on VPS
+      setProgressStep(3);
+      const targetProjId = newProj?.id || name;
+      const deployRes = await triggerProjectDeployment(id, targetProjId, {
         deployMode: 'INITIAL',
         author: 'Zero-Tech 1-Click Pipeline',
-        deployDir: workingDir || `/home/production-deploys/${newProj?.id || name}`,
+        deployDir: workingDir || `/home/production-deploys/${targetProjId}`,
+        gitBranch,
         port: backendPort,
         domainName: domainProxy || `${name || 'p117qtship'}.izisoft.io`,
         buildCmd: buildCmd || 'pnpm install && pnpm build',
@@ -447,19 +621,51 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
         const adminApp = enabledList.find((a) => a.id.includes('admin'));
         const webApp = enabledList.find((a) => a.id.includes('web') && !a.id.includes('admin'));
 
-        await updateProjectPortsApi(id, newProj?.id || name, {
+        await updateProjectPortsApi(id, targetProjId, {
           backendPort,
-          adminPort: adminApp?.port || 3000,
-          webPort: webApp?.port || 3002,
+          adminPort: adminApp?.port || 32090,
+          webPort: webApp?.port || 42090,
         });
       } catch (err) {
         //
       }
 
-      // 6. Complete!
-      setProgressStep(6);
-      setWizardCompleted(true);
-      toast.success('🎉 DỰ ÁN ĐÃ DEPLOY THÀNH CÔNG HOÀN TÀN!');
+      // 4. Poll SSH Deployment status in real-time
+      let finalDeployStatus = deployRes?.status || 'RUNNING';
+      let finalLogs = deployRes?.logs || 'Đang khởi chạy kịch bản SSH trên VPS...';
+      setDeployLogs(finalLogs);
+
+      const startTime = Date.now();
+      while (finalDeployStatus === 'RUNNING' && Date.now() - startTime < 300000) {
+        await new Promise((r) => setTimeout(r, 2500));
+        try {
+          const deps = await fetchProjectDeployments(id, targetProjId);
+          if (Array.isArray(deps) && deps.length > 0) {
+            const latestDep = deps[0];
+            finalDeployStatus = latestDep.status || 'RUNNING';
+            finalLogs = latestDep.logs || finalLogs;
+            setDeployLogs(finalLogs);
+
+            if (finalLogs.includes('=== STEP 3:')) setProgressStep(3);
+            if (finalLogs.includes('=== STEP 4:')) setProgressStep(3);
+            if (finalLogs.includes('=== STEP 6:')) setProgressStep(4);
+            if (finalLogs.includes('=== STEP 7:')) setProgressStep(5);
+          }
+        } catch (pollErr) {
+          //
+        }
+      }
+
+      if (finalDeployStatus === 'FAILED' || finalLogs.includes('MODULE_NOT_FOUND')) {
+        setProgressStep(5);
+        setWizardCompleted(false);
+        setDeployError(finalLogs || 'Lỗi thực thi lệnh SSH trên VPS');
+        toast.error(`❌ Deploy thất bại! Vui lòng kiểm tra nhật ký lỗi bên dưới.`);
+      } else {
+        setProgressStep(5);
+        setWizardCompleted(true);
+        toast.success('🎉 DỰ ÁN ĐÃ DEPLOY THÀNH CÔNG HOÀN TÀN!');
+      }
       await loadProjects();
     } catch (e: any) {
       toast.error(e?.response?.data?.message || 'Có lỗi xảy ra trong quá trình deploy tự động');
@@ -604,6 +810,7 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
           deployMode: 'INITIAL',
           author: 'Admin User',
           deployDir: workingDir || `/home/production-deploys/${newProj.id}`,
+          gitBranch,
           port: backendPort,
           domainName: domainProxy || `${name}.izisoft.io`,
           buildCmd: buildCmd || 'pnpm install && pnpm build',
@@ -615,6 +822,7 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
         await triggerProjectDeployment(id, newProj.id, {
           deployMode: 'RE_DEPLOY',
           author: 'Admin User',
+          gitBranch,
           port: backendPort,
           domainName: domainProxy || `${name}.izisoft.io`,
           buildCmd: buildCmd || 'pnpm install && pnpm build',
@@ -951,48 +1159,65 @@ deploy_job:
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="md:col-span-2 space-y-1.5">
                         <Label className="text-xs font-semibold text-slate-700">Git Repository SSH/HTTPS URL</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={gitRepo}
-                            onChange={(e) => handleGitRepoChange(e.target.value)}
-                            placeholder="git@gitlab.com:izisoftware2020/p117qtship.git"
-                            className="h-10 text-xs font-mono bg-white flex-1"
-                          />
-                          <Button
-                            type="button"
-                            disabled={inspecting || !gitRepo.trim()}
-                            onClick={() => handleInspectRepo()}
-                            className="h-10 px-4 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold shrink-0"
-                          >
-                            {inspecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                            <span>Nhận diện</span>
-                          </Button>
-                        </div>
+                        <Input
+                          value={gitRepo}
+                          onChange={(e) => handleGitRepoChange(e.target.value)}
+                          placeholder="git@gitlab.com:izisoftware2020/p117qtship.git"
+                          className="h-10 text-xs font-mono bg-white"
+                        />
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-slate-700">Nhánh Git (Branch)</Label>
-                        <select
-                          value={gitBranch}
-                          onChange={(e) => {
-                            const selectedB = e.target.value;
-                            setGitBranch(selectedB);
-                            handleInspectRepo(gitRepo, selectedB);
-                          }}
-                          className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-mono font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        >
-                          {availableBranches.map((b) => (
-                            <option key={b} value={b}>
+                        <Label className="text-xs font-semibold text-slate-700">Nhánh Git</Label>
+                        <div className="relative">
+                          <Input
+                            value={gitBranch}
+                            onChange={(e) => setGitBranch(e.target.value)}
+                            placeholder="main"
+                            list="git-branches-datalist"
+                            className="h-10 text-xs font-mono font-semibold bg-white"
+                          />
+                          <datalist id="git-branches-datalist">
+                            {availableBranches.map((b) => (
+                              <option key={b} value={b} />
+                            ))}
+                          </datalist>
+                        </div>
+                        <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                          <span className="text-[11px] text-slate-500 font-sans">Gợi ý:</span>
+                          {['main', 'dev', 'master', 'staging', 'production'].map((b) => (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => setGitBranch(b)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all ${
+                                gitBranch === b
+                                  ? 'bg-blue-600 text-white shadow-2xs'
+                                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
                               {b}
-                            </option>
+                            </button>
                           ))}
-                        </select>
+                        </div>
                       </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <Button
+                        type="button"
+                        disabled={inspecting || !gitRepo.trim()}
+                        onClick={() => handleInspectRepo(gitRepo, gitBranch)}
+                        className="h-9 px-4 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                      >
+                        {inspecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                        <span>✨ Nhận diện Repo & Sub-Apps</span>
+                      </Button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-slate-700">Tên Dự Án (Project Slug)</Label>
+                        <Label className="text-xs font-semibold text-slate-700">Tên Dự Án</Label>
                         <Input
                           value={name}
                           onChange={(e) => setName(e.target.value)}
@@ -1002,7 +1227,7 @@ deploy_job:
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-slate-700">2. Nơi lưu trữ dự án trên VPS (DEPLOY_DIR)</Label>
+                        <Label className="text-xs font-semibold text-slate-700">Thư Mục Lưu Trữ Trên VPS</Label>
                         <Input
                           value={workingDir}
                           onChange={(e) => setWorkingDir(e.target.value)}
@@ -1019,12 +1244,18 @@ deploy_job:
                     </Button>
                     <Button
                       size="sm"
-                      disabled={!gitRepo.trim()}
-                      onClick={() => setWizardStep(2)}
+                      disabled={inspecting || !gitRepo.trim()}
+                      onClick={handleGoToStep2}
                       className="bg-blue-600 hover:bg-blue-700 text-xs px-6 h-9 gap-1.5 font-semibold"
                     >
-                      <span>Tiếp theo (Port & .env & Nginx)</span>
-                      <ArrowRight className="w-4 h-4" />
+                      {inspecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <span>Tiếp theo (Port & .env & Nginx)</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -1070,7 +1301,7 @@ deploy_job:
                     </Label>
 
                     {enabledApps.map((app) => (
-                      <div key={app.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
+                      <div key={app.id} className={`p-4 rounded-2xl border space-y-3 ${conflictPorts[app.port] ? 'bg-rose-50/60 border-rose-300' : 'bg-slate-50 border-slate-200/80'}`}>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-2">
                           <span className="text-xs font-bold text-slate-900 font-mono flex items-center gap-1.5">
                             <FileCode className="w-4 h-4 text-blue-600" />
@@ -1083,7 +1314,8 @@ deploy_job:
                               <Input
                                 value={app.port}
                                 onChange={(e) => updateSubAppPort(app.id, Number(e.target.value))}
-                                className="h-8 w-24 text-xs font-mono font-bold text-blue-600 bg-white"
+                                onBlur={() => checkPortConflicts()}
+                                className={`h-8 w-24 text-xs font-mono font-bold bg-white ${conflictPorts[app.port] ? 'border-rose-500 text-rose-600 ring-2 ring-rose-500/20' : 'text-blue-600'}`}
                               />
                             </div>
 
@@ -1120,6 +1352,13 @@ deploy_job:
                             </div>
                           </div>
                         </div>
+
+                        {conflictPorts[app.port] && (
+                          <div className="p-2.5 bg-rose-100/80 rounded-xl border border-rose-300 text-[11px] text-rose-800 font-semibold flex items-center gap-1.5 font-sans">
+                            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                            <span>❌ Cổng {app.port} đã tồn tại: {conflictPorts[app.port]}</span>
+                          </div>
+                        )}
 
                         {app.envMode === 'PASTE' ? (
                           <div className="relative">
@@ -1318,6 +1557,18 @@ deploy_job:
                       </div>
                     </div>
 
+                    {deployLogs && !wizardCompleted && !deployError && (
+                      <div className="space-y-1.5 pt-2 font-sans">
+                        <div className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                          <span>Nhật Ký Thực Thi SSH VPS Thời Gian Thực:</span>
+                        </div>
+                        <pre className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-slate-300 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap select-text">
+                          {deployLogs}
+                        </pre>
+                      </div>
+                    )}
+
                     {wizardCompleted && (
                       <div className="p-5 bg-emerald-950/90 rounded-2xl border border-emerald-800 font-sans space-y-3 pt-4">
                         <div className="font-bold text-emerald-300 text-base flex items-center gap-2">
@@ -1334,6 +1585,29 @@ deploy_job:
                               <ExternalLink className="w-4 h-4" />
                             </Button>
                           </Link>
+                          <Button size="sm" variant="outline" onClick={() => setIsModalOpen(false)} className="text-xs border-slate-700 text-slate-200 bg-slate-900 hover:bg-slate-800 h-9">
+                            Đóng cửa sổ
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {deployError && (
+                      <div className="p-5 bg-rose-950/90 rounded-2xl border border-rose-800 font-sans space-y-3 pt-4">
+                        <div className="font-bold text-rose-300 text-base flex items-center gap-2">
+                          <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
+                          <span>❌ DEPLOY THẤT BẠI TRÊN VPS (XEM LOG LỖI DƯỚI ĐÂY)</span>
+                        </div>
+                        <p className="text-xs text-rose-200 leading-relaxed">
+                          Kịch bản thực thi SSH trên VPS gặp lỗi. Chi tiết nhật ký lỗi bên dưới:
+                        </p>
+                        <pre className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-rose-300 font-mono text-[11px] leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap select-text">
+                          {deployError}
+                        </pre>
+                        <div className="pt-2 flex items-center gap-3">
+                          <Button size="sm" onClick={() => setWizardStep(2)} className="bg-rose-600 hover:bg-rose-700 text-white text-xs gap-1.5 px-5 h-9 font-semibold">
+                            <span>Quay lại Chỉnh sửa Config/Port</span>
+                          </Button>
                           <Button size="sm" variant="outline" onClick={() => setIsModalOpen(false)} className="text-xs border-slate-700 text-slate-200 bg-slate-900 hover:bg-slate-800 h-9">
                             Đóng cửa sổ
                           </Button>

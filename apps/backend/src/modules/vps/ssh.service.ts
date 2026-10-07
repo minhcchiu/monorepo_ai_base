@@ -66,8 +66,8 @@ export class SshService {
 
       timer = setTimeout(() => {
         finish({
-          stdout: '',
-          stderr: `SSH Connection Timeout (${timeoutMs}ms) to ${vps.ip}:${vps.port || 22}`,
+          stdout: stdout.trim(),
+          stderr: stderr.trim() || `[SSH ERROR] Execution Timeout (${timeoutMs}ms) on ${vps.ip}:${vps.port || 22}`,
           exitCode: 1,
         });
       }, timeoutMs);
@@ -100,10 +100,17 @@ export class SshService {
               });
           });
         })
+        .on('keyboard-interactive', (name, instructions, instructionsLang, prompts, finishAuth) => {
+          if (prompts.length > 0 && vps.password) {
+            finishAuth([vps.password]);
+          } else {
+            finishAuth([]);
+          }
+        })
         .on('error', (err) => {
           finish({
             stdout: '',
-            stderr: err.message || `SSH Error connecting to ${vps.ip}`,
+            stderr: `[SSH ERROR] Kết nối SSH tới VPS (${vps.ip}:${vps.port || 22}) thất bại: ${err.message || 'Lỗi xác thực hoặc không thể truy cập IP'}. Vui lòng kiểm tra Mật khẩu / SSH Key của VPS.`,
             exitCode: 1,
           });
         })
@@ -113,7 +120,8 @@ export class SshService {
           username: vps.username || 'root',
           password: vps.password || undefined,
           privateKey: vps.sshKey ? vps.sshKey : undefined,
-          readyTimeout: timeoutMs,
+          readyTimeout: 10000,
+          tryKeyboard: true,
         });
     });
   }
@@ -200,32 +208,51 @@ export class SshService {
    * Read Nginx VirtualHost config
    */
   async readNginxConfig(vps: VpsConnectionInfo, domainProxy: string, projectId: string): Promise<string> {
-    const configPath = `/etc/nginx/sites-available/${projectId}.conf`;
-    const res = await this.executeCommand(vps, `cat ${configPath}`);
+    const confdPath = `/etc/nginx/conf.d/${domainProxy}.conf`;
+    const sitesAvailPath = `/etc/nginx/sites-available/${projectId}.conf`;
+    const res = await this.executeCommand(vps, `cat ${confdPath} 2>/dev/null || cat ${sitesAvailPath} 2>/dev/null`);
     if (res.exitCode === 0 && res.stdout.trim()) {
-      return res.stdout;
+      return res.stdout.trim();
     }
     return `server {
-    listen 80;
-    server_name ${domainProxy};
-    return 301 https://$host$request_uri;
-}
+  listen 80;
+  listen [::]:80;
 
-server {
-    listen 443 ssl http2;
-    server_name ${domainProxy};
+  server_name ${domainProxy};
 
-    ssl_certificate /etc/letsencrypt/live/${domainProxy}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${domainProxy}/privkey.pem;
+  # 1. Định tuyến cho BACKEND (Port 22090)
+  location /api/ {
+    proxy_pass http://localhost:22090;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
 
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+  # 2. Định tuyến cho WEB ADMIN (Port 32090)
+  location /admin/ {
+    proxy_pass http://localhost:32090/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+
+  location = /admin {
+    return 301 $scheme://$host/admin/;
+  }
+
+  # 3. Định tuyến cho WEB APP (Port 42090)
+  location / {
+    proxy_pass http://localhost:42090;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
 }`;
   }
 
@@ -241,6 +268,34 @@ server {
    */
   async reloadNginx(vps: VpsConnectionInfo): Promise<ExecutionResult> {
     return this.executeCommand(vps, `systemctl reload nginx || nginx -s reload`);
+  }
+
+  /**
+   * Checks whether specific TCP ports are currently in use/listening on target VPS
+   */
+  async checkPortsInUse(
+    vps: VpsConnectionInfo,
+    ports: number[],
+  ): Promise<{ port: number; inUse: boolean; process?: string }[]> {
+    if (!ports || ports.length === 0) return [];
+
+    const results: { port: number; inUse: boolean; process?: string }[] = [];
+
+    for (const p of ports) {
+      if (!p || isNaN(p)) continue;
+      // Command checks if port is actively listening on TCP
+      const cmd = `(ss -tulpn 2>/dev/null | grep -E ':${p}\\b' || netstat -tlpn 2>/dev/null | grep -E ':${p}\\b' || lsof -i:${p} 2>/dev/null || true)`;
+      const res = await this.executeCommand(vps, cmd, 5000);
+      const output = res.stdout.trim();
+      const inUse = output.length > 0 && (output.includes('LISTEN') || output.includes(`:${p}`));
+      results.push({
+        port: p,
+        inUse,
+        process: inUse ? output : undefined,
+      });
+    }
+
+    return results;
   }
 
   /**

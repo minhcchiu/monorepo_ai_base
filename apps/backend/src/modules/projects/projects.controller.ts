@@ -7,6 +7,10 @@ import { ProjectsService } from './projects.service';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  // =========================================================================
+  // STATIC ROUTES (MUST BE DEFINED BEFORE PARAMETERIZED :projectId ROUTES)
+  // =========================================================================
+
   @Get()
   @ApiOperation({ summary: 'Get all projects for a specific VPS node' })
   findByVps(@Param('vpsId') vpsId: string) {
@@ -25,11 +29,50 @@ export class ProjectsController {
     return this.projectsService.inspectRepo(vpsId, gitRepo, branch);
   }
 
+  @Post('check-ports')
+  @ApiOperation({ summary: 'Check if ports are already in use on target VPS or in DB' })
+  checkPortsInUse(
+    @Param('vpsId') vpsId: string,
+    @Body() body: { ports: number[]; excludeProjectId?: string },
+  ) {
+    return this.projectsService.checkPortsAvailability(vpsId, body.ports, body.excludeProjectId);
+  }
+
+  @Post('sync-gitlab-variables')
+  @ApiOperation({ summary: 'Auto-create CI/CD Variables on GitLab repository via REST API' })
+  syncGitlabVariables(
+    @Param('vpsId') vpsId: string,
+    @Body() body: {
+      gitRepo: string;
+      gitlabToken?: string;
+      variables: Array<{ key: string; value: string; masked?: boolean }>;
+    },
+  ) {
+    return this.projectsService.syncGitlabVariables(vpsId, body);
+  }
+
+  @Post('trigger-gitlab-pipeline')
+  @ApiOperation({ summary: 'Trigger pipeline run on GitLab repository via REST API' })
+  triggerGitlabPipeline(
+    @Param('vpsId') vpsId: string,
+    @Body() body: {
+      gitRepo: string;
+      gitlabToken?: string;
+      branch?: string;
+    },
+  ) {
+    return this.projectsService.triggerGitlabPipeline(vpsId, body);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create a new project on target VPS' })
   createProject(@Param('vpsId') vpsId: string, @Body() body: any) {
     return this.projectsService.createProject(vpsId, body);
   }
+
+  // =========================================================================
+  // PARAMETERIZED ROUTES (:projectId)
+  // =========================================================================
 
   @Get(':projectId')
   @ApiOperation({ summary: 'Get details for a single project (validates VPS relation)' })
@@ -116,32 +159,6 @@ export class ProjectsController {
     @Param('projectId') projectId: string,
   ) {
     return this.projectsService.getGitlabCiTemplate(vpsId, projectId);
-  }
-
-  @Post('sync-gitlab-variables')
-  @ApiOperation({ summary: 'Auto-create CI/CD Variables on GitLab repository via REST API' })
-  syncGitlabVariables(
-    @Param('vpsId') vpsId: string,
-    @Body() body: {
-      gitRepo: string;
-      gitlabToken?: string;
-      variables: Array<{ key: string; value: string; masked?: boolean }>;
-    },
-  ) {
-    return this.projectsService.syncGitlabVariables(vpsId, body);
-  }
-
-  @Post('trigger-gitlab-pipeline')
-  @ApiOperation({ summary: 'Trigger pipeline run on GitLab repository via REST API' })
-  triggerGitlabPipeline(
-    @Param('vpsId') vpsId: string,
-    @Body() body: {
-      gitRepo: string;
-      gitlabToken?: string;
-      branch?: string;
-    },
-  ) {
-    return this.projectsService.triggerGitlabPipeline(vpsId, body);
   }
 
   @Post(':projectId/deployments/:deploymentId/rollback')
@@ -256,8 +273,18 @@ export class ProjectsController {
 
   @Post(':projectId/nginx/generate')
   @ApiOperation({ summary: 'Auto-generate Nginx virtualhost configuration template' })
-  generateNginxConfig(@Param('vpsId') vpsId: string, @Param('projectId') projectId: string) {
-    return this.projectsService.generateNginxConfig(vpsId, projectId);
+  generateNginxConfig(
+    @Param('vpsId') vpsId: string,
+    @Param('projectId') projectId: string,
+    @Body() body?: {
+      routingStrategy?: 'SUBDOMAIN' | 'PATH_PREFIX';
+      baseDomain?: string;
+      backendPort?: number;
+      adminPort?: number;
+      webPort?: number;
+    },
+  ) {
+    return this.projectsService.generateNginxConfig(vpsId, projectId, body);
   }
 
   @Post(':projectId/nginx/test')
