@@ -761,13 +761,18 @@ export class ProjectsService {
 
     const appFilter = `@calo_ai/${project.id.replace('calo-', '')}`;
 
-    const backendPort = port || 22090;
-    const adminPort = 32090;
-    const webPort = 42090;
+    const backendPort = port || (body as any).backendPort || project.port || 22090;
+    const adminPort = (body as any).adminPort || 32090;
+    const webPort = (body as any).webPort || 42090;
     const nodeEnv = project.environment === 'prod' ? 'production' : project.environment || 'production';
 
     const defaultDbUrl = 'postgresql://cloud_pulse_user:cloud_pulse_password@36.50.176.26:5432/cloud_pulse?schema=public';
     const defaultJwtSecret = 'super_secret_jwt_key_9918237';
+
+    const cleanDomain = (domainName || 'domain.izisoft.io')
+      .split('\n')[0]
+      .trim()
+      .replace(/[^a-zA-Z0-9.-]/g, '') || `${project.id}.izisoft.io`;
 
     // 1. Root .env or App .env Write Commands
     let envWriteCmds = '';
@@ -776,8 +781,8 @@ export class ProjectsService {
       if (!cleanEnv.includes('DATABASE_URL=')) {
         cleanEnv += `\nDATABASE_URL="${defaultDbUrl}"\nJWT_SECRET="${defaultJwtSecret}"`;
       }
-      const escapedEnv = cleanEnv.replace(/'/g, "'\\''");
-      envWriteCmds += ` && printf '%s\\n' '${escapedEnv}' > .env`;
+      const b64 = Buffer.from(cleanEnv).toString('base64');
+      envWriteCmds += ` && echo "${b64}" | base64 -d > .env`;
     }
 
     if (body.appEnvs && Object.keys(body.appEnvs).length > 0) {
@@ -787,24 +792,27 @@ export class ProjectsService {
           if (appKey.includes('backend') && !envContent.includes('DATABASE_URL=')) {
             envContent += `\nDATABASE_URL="${defaultDbUrl}"\nJWT_SECRET="${defaultJwtSecret}"`;
           }
-          const cleanEnv = envContent.replace(/'/g, "'\\''");
+          const b64 = Buffer.from(envContent).toString('base64');
           if (appKey.includes('backend')) {
-            envWriteCmds += ` && mkdir -p apps/backend && printf '%s\\n' '${cleanEnv}' > apps/backend/.env`;
+            envWriteCmds += ` && mkdir -p apps/backend && echo "${b64}" | base64 -d > apps/backend/.env`;
           } else if (appKey.includes('admin')) {
-            envWriteCmds += ` && mkdir -p apps/web-admin apps/admin && printf '%s\\n' '${cleanEnv}' > apps/web-admin/.env && printf '%s\\n' '${cleanEnv}' > apps/admin/.env`;
+            envWriteCmds += ` && mkdir -p apps/web-admin apps/admin && echo "${b64}" | base64 -d > apps/web-admin/.env && echo "${b64}" | base64 -d > apps/admin/.env`;
           } else if (appKey.includes('web')) {
-            envWriteCmds += ` && mkdir -p apps/web && printf '%s\\n' '${cleanEnv}' > apps/web/.env`;
+            envWriteCmds += ` && mkdir -p apps/web && echo "${b64}" | base64 -d > apps/web/.env`;
           } else {
-            envWriteCmds += ` && mkdir -p apps/${appKey} && printf '%s\\n' '${cleanEnv}' > apps/${appKey}/.env`;
+            envWriteCmds += ` && mkdir -p apps/${appKey} && echo "${b64}" | base64 -d > apps/${appKey}/.env`;
           }
         }
       });
     } else {
-      // Auto-create .env for each subApp directory if no explicit appEnvs provided
-      envWriteCmds += ` && (if [ -d apps/backend ]; then printf '%s\\n' 'PORT=${backendPort}\nNODE_ENV=${nodeEnv}\nDATABASE_URL=${defaultDbUrl}\nJWT_SECRET=${defaultJwtSecret}' > apps/backend/.env; fi)`;
-      envWriteCmds += ` && (if [ -d apps/web-admin ]; then printf '%s\\n' 'PORT=${adminPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}' > apps/web-admin/.env; fi)`;
-      envWriteCmds += ` && (if [ -d apps/admin ]; then printf '%s\\n' 'PORT=${adminPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}' > apps/admin/.env; fi)`;
-      envWriteCmds += ` && (if [ -d apps/web ]; then printf '%s\\n' 'PORT=${webPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}' > apps/web/.env; fi)`;
+      const b64Backend = Buffer.from(`PORT=${backendPort}\nNODE_ENV=${nodeEnv}\nDATABASE_URL=${defaultDbUrl}\nJWT_SECRET=${defaultJwtSecret}`).toString('base64');
+      const b64Admin = Buffer.from(`PORT=${adminPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}`).toString('base64');
+      const b64Web = Buffer.from(`PORT=${webPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}`).toString('base64');
+
+      envWriteCmds += ` && (if [ -d apps/backend ]; then mkdir -p apps/backend && echo "${b64Backend}" | base64 -d > apps/backend/.env; fi)`;
+      envWriteCmds += ` && (if [ -d apps/web-admin ]; then mkdir -p apps/web-admin && echo "${b64Admin}" | base64 -d > apps/web-admin/.env; fi)`;
+      envWriteCmds += ` && (if [ -d apps/admin ]; then mkdir -p apps/admin && echo "${b64Admin}" | base64 -d > apps/admin/.env; fi)`;
+      envWriteCmds += ` && (if [ -d apps/web ]; then mkdir -p apps/web && echo "${b64Web}" | base64 -d > apps/web/.env; fi)`;
     }
 
     // 2. Nginx VirtualHost File Content (/etc/nginx/conf.d/<domain>.conf)
@@ -812,7 +820,7 @@ export class ProjectsService {
   listen 80;
   listen [::]:80;
 
-  server_name ${domainName};
+  server_name ${cleanDomain};
 
   # 1. Định tuyến cho BACKEND (Port ${backendPort})
   location /api/ {
@@ -867,8 +875,8 @@ export class ProjectsService {
     proxy_cache_bypass $http_upgrade;
   }
 }`;
-    const cleanNginx = nginxConfContent.replace(/'/g, "'\\''");
-    const nginxCmd = `mkdir -p /etc/nginx/conf.d && printf '%s\\n' '${cleanNginx}' > /etc/nginx/conf.d/${domainName}.conf && nginx -t && (systemctl reload nginx || service nginx reload || true)`;
+    const b64Nginx = Buffer.from(nginxConfContent).toString('base64');
+    const nginxCmd = `mkdir -p /etc/nginx/conf.d && echo "${b64Nginx}" | base64 -d > /etc/nginx/conf.d/${cleanDomain}.conf && nginx -t && (systemctl reload nginx || service nginx reload || true)`;
 
     // 2a. Execute Nginx creation first so /etc/nginx/conf.d/<domain>.conf is always created on VPS
     try {
@@ -931,7 +939,8 @@ ${nginxCmd}
 
 echo "=== STEP 7: STARTING PM2 PROCESSES ==="
 cd "${deployDir}"
-BACKEND_PORT=${backendPort} ADMIN_PORT=${adminPort} WEB_PORT=${webPort} pm2 start ecosystem.config.js --update-env || BACKEND_PORT=${backendPort} ADMIN_PORT=${adminPort} WEB_PORT=${webPort} pm2 reload ecosystem.config.js --update-env || pm2 restart all
+pm2 delete cloudpulse-backend cloudpulse-admin cloudpulse-web 2>/dev/null || true
+BACKEND_PORT=${backendPort} ADMIN_PORT=${adminPort} WEB_PORT=${webPort} pm2 start ecosystem.config.js --update-env || pm2 restart all
 pm2 status
 `.trim();
 
@@ -956,7 +965,7 @@ pm2 status
     let lastSaveTime = 0;
     const onLogChunk = async (_chunk: string, cumulativeLogs: string) => {
       const now = Date.now();
-      if (now - lastSaveTime > 1500) {
+      if (now - lastSaveTime > 500) {
         lastSaveTime = now;
         try {
           await this.prisma.deployment.update({

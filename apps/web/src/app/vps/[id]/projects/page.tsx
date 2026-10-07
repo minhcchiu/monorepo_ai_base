@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState, useCallback } from 'react';
+import { use, useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DashboardShell } from '@/components/common/dashboard-shell';
@@ -248,6 +248,13 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
 
   const [deployLogs, setDeployLogs] = useState<string>('');
   const [deployError, setDeployError] = useState<string | null>(null);
+  const logsEndRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    if (logsEndRef.current) {
+      logsEndRef.current.scrollTop = logsEndRef.current.scrollHeight;
+    }
+  }, [deployLogs]);
 
   const resetModalState = () => {
     setWizardStep(1);
@@ -604,12 +611,19 @@ function syncSubAppEnvText(
       // 3. Trigger SSH Deployment Pipeline on VPS
       setProgressStep(3);
       const targetProjId = newProj?.id || name;
+      const adminApp = enabledList.find((a) => a.id.includes('admin'));
+      const webApp = enabledList.find((a) => a.id.includes('web') && !a.id.includes('admin'));
+      const adminPort = adminApp?.port || 32090;
+      const webPort = webApp?.port || 42090;
+
       const deployRes = await triggerProjectDeployment(id, targetProjId, {
         deployMode: 'INITIAL',
         author: 'Zero-Tech 1-Click Pipeline',
         deployDir: workingDir || `/home/production-deploys/${targetProjId}`,
         gitBranch,
         port: backendPort,
+        adminPort,
+        webPort,
         domainName: domainProxy || `${name || 'p117qtship'}.izisoft.io`,
         buildCmd: buildCmd || 'pnpm install && pnpm build',
         envText: backendApp?.envText || `PORT=${backendPort}\nNODE_ENV=production`,
@@ -632,12 +646,12 @@ function syncSubAppEnvText(
 
       // 4. Poll SSH Deployment status in real-time
       let finalDeployStatus = deployRes?.status || 'RUNNING';
-      let finalLogs = deployRes?.logs || 'Đang khởi chạy kịch bản SSH trên VPS...';
+      let finalLogs = deployRes?.logs || 'Đang kết nối SSH & khởi chạy kịch bản trên VPS...';
       setDeployLogs(finalLogs);
 
       const startTime = Date.now();
       while (finalDeployStatus === 'RUNNING' && Date.now() - startTime < 300000) {
-        await new Promise((r) => setTimeout(r, 2500));
+        await new Promise((r) => setTimeout(r, 1000));
         try {
           const deps = await fetchProjectDeployments(id, targetProjId);
           if (Array.isArray(deps) && deps.length > 0) {
@@ -646,7 +660,8 @@ function syncSubAppEnvText(
             finalLogs = latestDep.logs || finalLogs;
             setDeployLogs(finalLogs);
 
-            if (finalLogs.includes('=== STEP 3:')) setProgressStep(3);
+            if (finalLogs.includes('=== STEP 1:')) setProgressStep(1);
+            if (finalLogs.includes('=== STEP 3:')) setProgressStep(2);
             if (finalLogs.includes('=== STEP 4:')) setProgressStep(3);
             if (finalLogs.includes('=== STEP 6:')) setProgressStep(4);
             if (finalLogs.includes('=== STEP 7:')) setProgressStep(5);
@@ -1557,13 +1572,24 @@ deploy_job:
                       </div>
                     </div>
 
-                    {deployLogs && !wizardCompleted && !deployError && (
+                    {deployLogs && (
                       <div className="space-y-1.5 pt-2 font-sans">
-                        <div className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                          <Terminal className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                          <span>Nhật Ký Thực Thi SSH VPS Thời Gian Thực:</span>
+                        <div className="text-[11px] font-semibold text-slate-300 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <Terminal className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                            <span>GitLab CI/CD Live Stream Terminal (VPS SSH Output):</span>
+                          </div>
+                          {!wizardCompleted && !deployError && (
+                            <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1 font-bold">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                              ● LIVE STREAMING
+                            </span>
+                          )}
                         </div>
-                        <pre className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-slate-300 font-mono text-[11px] leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap select-text">
+                        <pre
+                          ref={logsEndRef}
+                          className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 text-emerald-400 font-mono text-[11px] leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap select-text shadow-inner"
+                        >
                           {deployLogs}
                         </pre>
                       </div>
