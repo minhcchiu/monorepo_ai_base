@@ -83,7 +83,7 @@ const DEFAULT_SUB_APPS: SubAppConfig[] = [
     filter: '@calo_ai/backend',
     port: 22090,
     enabled: true,
-    envText: 'PORT=22090\nNODE_ENV=production\nDATABASE_URL=postgresql://postgres:pass_184920@103.56.162.77:5432/calo_prod\nJWT_SECRET=super_secret_jwt_key_9918237',
+    envText: 'PORT=22090\nNODE_ENV=production\nDATABASE_URL=postgresql://cloud_pulse_user:cloud_pulse_password@36.50.176.26:5432/cloud_pulse?schema=public\nJWT_SECRET=super_secret_jwt_key_9918237',
     envMode: 'PASTE',
   },
   {

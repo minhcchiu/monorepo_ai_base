@@ -766,16 +766,27 @@ export class ProjectsService {
     const webPort = 42090;
     const nodeEnv = project.environment === 'prod' ? 'production' : project.environment || 'production';
 
+    const defaultDbUrl = 'postgresql://cloud_pulse_user:cloud_pulse_password@36.50.176.26:5432/cloud_pulse?schema=public';
+    const defaultJwtSecret = 'super_secret_jwt_key_9918237';
+
     // 1. Root .env or App .env Write Commands
     let envWriteCmds = '';
     if (body.envText) {
-      const cleanEnv = body.envText.replace(/'/g, "'\\''");
-      envWriteCmds += ` && printf '%s\\n' '${cleanEnv}' > .env`;
+      let cleanEnv = body.envText;
+      if (!cleanEnv.includes('DATABASE_URL=')) {
+        cleanEnv += `\nDATABASE_URL="${defaultDbUrl}"\nJWT_SECRET="${defaultJwtSecret}"`;
+      }
+      const escapedEnv = cleanEnv.replace(/'/g, "'\\''");
+      envWriteCmds += ` && printf '%s\\n' '${escapedEnv}' > .env`;
     }
 
     if (body.appEnvs && Object.keys(body.appEnvs).length > 0) {
-      Object.entries(body.appEnvs).forEach(([appKey, envContent]) => {
-        if (typeof envContent === 'string' && envContent.trim()) {
+      Object.entries(body.appEnvs).forEach(([appKey, rawContent]) => {
+        if (typeof rawContent === 'string' && rawContent.trim()) {
+          let envContent = rawContent;
+          if (appKey.includes('backend') && !envContent.includes('DATABASE_URL=')) {
+            envContent += `\nDATABASE_URL="${defaultDbUrl}"\nJWT_SECRET="${defaultJwtSecret}"`;
+          }
           const cleanEnv = envContent.replace(/'/g, "'\\''");
           if (appKey.includes('backend')) {
             envWriteCmds += ` && mkdir -p apps/backend && printf '%s\\n' '${cleanEnv}' > apps/backend/.env`;
@@ -790,7 +801,7 @@ export class ProjectsService {
       });
     } else {
       // Auto-create .env for each subApp directory if no explicit appEnvs provided
-      envWriteCmds += ` && (if [ -d apps/backend ]; then printf '%s\\n' 'PORT=${backendPort}\nNODE_ENV=${nodeEnv}' > apps/backend/.env; fi)`;
+      envWriteCmds += ` && (if [ -d apps/backend ]; then printf '%s\\n' 'PORT=${backendPort}\nNODE_ENV=${nodeEnv}\nDATABASE_URL=${defaultDbUrl}\nJWT_SECRET=${defaultJwtSecret}' > apps/backend/.env; fi)`;
       envWriteCmds += ` && (if [ -d apps/web-admin ]; then printf '%s\\n' 'PORT=${adminPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}' > apps/web-admin/.env; fi)`;
       envWriteCmds += ` && (if [ -d apps/admin ]; then printf '%s\\n' 'PORT=${adminPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}' > apps/admin/.env; fi)`;
       envWriteCmds += ` && (if [ -d apps/web ]; then printf '%s\\n' 'PORT=${webPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}' > apps/web/.env; fi)`;
@@ -899,11 +910,15 @@ fi
 echo "=== STEP 4: BUILDING MONOREPO APPS ==="
 rm -f /home/production-deploys/pnpm-lock.yaml 2>/dev/null || true
 rm -rf apps/*/.next/lock 2>/dev/null || true
-NODE_OPTIONS="--max-old-space-size=2048" pnpm turbo run build --concurrency=1 || (
-  if [ -d "apps/backend" ]; then cd apps/backend && pnpm build && cd "${deployDir}"; fi;
-  if [ -d "apps/admin" ]; then cd apps/admin && pnpm build && cd "${deployDir}"; fi;
-  if [ -d "apps/web" ]; then cd apps/web && pnpm build && cd "${deployDir}"; fi;
-) || true
+
+echo "--- Building Backend App ---"
+if [ -d "apps/backend" ]; then cd apps/backend && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
+
+echo "--- Building Admin App ---"
+if [ -d "apps/admin" ]; then cd apps/admin && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
+
+echo "--- Building Web App ---"
+if [ -d "apps/web" ]; then cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
 
 echo "=== STEP 5: PRISMA DATABASE SYNC ==="
 if [ -d "apps/backend" ]; then
@@ -937,11 +952,27 @@ pm2 status
       },
     });
 
-    // 4. Run SSH execution pipeline asynchronously in background
+    // 4. Run SSH execution pipeline asynchronously in background with real-time DB log updates
+    let lastSaveTime = 0;
+    const onLogChunk = async (_chunk: string, cumulativeLogs: string) => {
+      const now = Date.now();
+      if (now - lastSaveTime > 1500) {
+        lastSaveTime = now;
+        try {
+          await this.prisma.deployment.update({
+            where: { id: deployment.id },
+            data: { logs: `${initialLogs}\n${cumulativeLogs}` },
+          });
+        } catch (e) {
+          //
+        }
+      }
+    };
+
     const runSshPipeline = async () => {
       let sshRes = { exitCode: 0, stdout: '', stderr: '' };
       try {
-        sshRes = await this.sshService.executeCommand(project.vps, cmd, 300000);
+        sshRes = await this.sshService.executeCommand(project.vps, cmd, 300000, onLogChunk);
       } catch (e: any) {
         sshRes = { exitCode: 1, stdout: '', stderr: e.message || 'SSH execution error' };
       }

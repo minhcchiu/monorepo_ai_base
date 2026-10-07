@@ -33,17 +33,22 @@ export class SshService {
     vps: VpsConnectionInfo,
     command: string,
     timeoutMs = 15000,
+    onLogChunk?: (chunk: string, cumulativeLogs: string) => void,
   ): Promise<ExecutionResult> {
     const isLocal = !vps.ip || vps.ip === '127.0.0.1' || vps.ip === 'localhost';
 
     if (isLocal) {
       try {
         const { stdout, stderr } = await execAsync(command, { timeout: timeoutMs });
+        if (onLogChunk) onLogChunk(stdout + stderr, stdout + stderr);
         return { stdout, stderr, exitCode: 0 };
       } catch (error: any) {
+        const errOut = error.stdout || '';
+        const errErr = error.stderr || error.message || 'Execution error';
+        if (onLogChunk) onLogChunk(errOut + errErr, errOut + errErr);
         return {
-          stdout: error.stdout || '',
-          stderr: error.stderr || error.message || 'Execution error',
+          stdout: errOut,
+          stderr: errErr,
           exitCode: error.code || 1,
         };
       }
@@ -93,10 +98,18 @@ export class SshService {
                 });
               })
               .on('data', (data: Buffer) => {
-                stdout += data.toString();
+                const chunk = data.toString();
+                stdout += chunk;
+                if (onLogChunk) {
+                  onLogChunk(chunk, stdout + (stderr ? `\n--- STDERR ---\n${stderr}` : ''));
+                }
               })
               .stderr.on('data', (data: Buffer) => {
-                stderr += data.toString();
+                const chunk = data.toString();
+                stderr += chunk;
+                if (onLogChunk) {
+                  onLogChunk(chunk, stdout + (stderr ? `\n--- STDERR ---\n${stderr}` : ''));
+                }
               });
           });
         })
