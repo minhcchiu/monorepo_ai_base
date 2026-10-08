@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, MessageEvent } from '@nestjs/common';
+import { Observable, Subject, map } from 'rxjs';
 import * as vm from 'vm';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SshService } from '../vps/ssh.service';
 
 @Injectable()
 export class ProjectsService {
+  private activeDeploymentStreams = new Map<string, Subject<string>>();
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly sshService: SshService,
@@ -488,6 +491,13 @@ done
       }
     }
 
+    // Check if target storage directory already exists on VPS
+    const dirCheckRes = await this.sshService.executeCommand(
+      vps,
+      `[ -d "${targetDeployDir}" ] && echo "EXISTS" || echo "NOT_EXISTS"`,
+    );
+    const dirExistsOnVps = dirCheckRes.stdout.trim() === 'EXISTS';
+
     // Clean up temporary shallow clone directory
     await this.sshService.executeCommand(vps, `rm -rf ${tmpDir}`);
 
@@ -499,7 +509,8 @@ done
       gitBranch: selectedBranch,
       gitHash: 'head',
       suggestedPort: detectedApps[0]?.defaultPort || 22090,
-      deployDir: `/home/production-deploys/${slug}`,
+      deployDir: targetDeployDir,
+      dirExistsOnVps,
       domainProxy: `${slug}.izisoft.io`,
       buildFilter: `@calo_ai/${slug}`,
       detectedApps,
@@ -1011,21 +1022,40 @@ pm2 status
       },
     });
 
-    // 4. Run SSH execution pipeline asynchronously in background with real-time DB log updates
-    let lastSaveTime = 0;
-    const onLogChunk = async (_chunk: string, cumulativeLogs: string) => {
-      const now = Date.now();
-      if (lastSaveTime === 0 || now - lastSaveTime > 300) {
-        lastSaveTime = now;
-        try {
-          await this.prisma.deployment.update({
-            where: { id: deployment.id },
-            data: { logs: `${initialLogs}\n${cumulativeLogs}` },
-          });
-        } catch (e) {
-          //
+    // 4. Register real-time SSE stream subject for this deployment
+    const streamSubject = new Subject<string>();
+    this.activeDeploymentStreams.set(deployment.id, streamSubject);
+
+    // Run SSH execution pipeline asynchronously in background with sequential race-condition-free DB log updates & SSE streaming
+    let isSaving = false;
+    let pendingLog: string | null = null;
+
+    const saveLatestLog = async () => {
+      if (isSaving || !pendingLog) return;
+      isSaving = true;
+      const logToWrite = pendingLog;
+      pendingLog = null;
+      try {
+        await this.prisma.deployment.update({
+          where: { id: deployment.id },
+          data: { logs: logToWrite },
+        });
+      } catch (e) {
+        //
+      } finally {
+        isSaving = false;
+        if (pendingLog) {
+          saveLatestLog();
         }
       }
+    };
+
+    const onLogChunk = (chunk: string, cumulativeLogs: string) => {
+      // Stream real-time chunk directly to SSE subscribers!
+      streamSubject.next(chunk);
+
+      pendingLog = `${initialLogs}\n${cumulativeLogs}`;
+      saveLatestLog();
     };
 
     const runSshPipeline = async () => {
@@ -1057,6 +1087,11 @@ pm2 status
         },
       });
 
+      // Complete real-time SSE stream
+      streamSubject.next(`\n=== DEPLOYMENT COMPLETED (${isSuccess ? 'SUCCESS' : 'FAILED'}) ===\n`);
+      streamSubject.complete();
+      this.activeDeploymentStreams.delete(deployment.id);
+
       if (isSuccess) {
         try {
           await this.prisma.project.update({
@@ -1084,6 +1119,28 @@ pm2 status
     runSshPipeline();
 
     return deployment;
+  }
+
+  streamDeploymentLogs(vpsId: string, projectId: string, deploymentId: string): Observable<MessageEvent> {
+    const existingSubject = this.activeDeploymentStreams.get(deploymentId);
+
+    if (!existingSubject) {
+      // If deployment is already completed or not active in memory, fetch current DB logs and complete
+      return new Observable<MessageEvent>((observer) => {
+        this.prisma.deployment.findUnique({ where: { id: deploymentId } }).then((dep) => {
+          if (dep?.logs) {
+            observer.next({ data: dep.logs } as MessageEvent);
+          }
+          observer.complete();
+        }).catch(() => {
+          observer.complete();
+        });
+      });
+    }
+
+    return existingSubject.asObservable().pipe(
+      map((chunk) => ({ data: chunk } as MessageEvent)),
+    );
   }
 
   async getGitlabCiTemplate(vpsId: string, projectId: string) {

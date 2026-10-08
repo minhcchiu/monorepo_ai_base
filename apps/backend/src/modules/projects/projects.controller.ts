@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Sse, MessageEvent } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProjectsService } from './projects.service';
 
@@ -156,6 +157,16 @@ export class ProjectsController {
     },
   ) {
     return this.projectsService.createDeployment(vpsId, projectId, body);
+  }
+
+  @Sse(':projectId/deployments/:deploymentId/stream')
+  @ApiOperation({ summary: 'Stream real-time SSH deployment logs via Server-Sent Events (SSE)' })
+  streamDeploymentLogs(
+    @Param('vpsId') vpsId: string,
+    @Param('projectId') projectId: string,
+    @Param('deploymentId') deploymentId: string,
+  ): Observable<MessageEvent> {
+    return this.projectsService.streamDeploymentLogs(vpsId, projectId, deploymentId);
   }
 
   @Get(':projectId/gitlab-ci')

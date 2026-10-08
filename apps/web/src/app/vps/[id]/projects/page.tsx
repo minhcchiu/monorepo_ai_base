@@ -350,24 +350,62 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
         envText: redeployEnvText,
       });
 
+      const targetDepId = deployRes?.id;
       const startTime = Date.now();
       let finalStatus = deployRes?.status || 'RUNNING';
       let currentLogs = deployRes?.logs || 'Đang thực thi script Re-deploy trên VPS...';
-      setRedeployLogs(currentLogs);
+
+      // Connect to Real-time SSE Stream directly from VPS
+      let eventSource: EventSource | null = null;
+      if (targetDepId) {
+        try {
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+          const cleanBaseUrl = apiBaseUrl.replace(/\/$/, '');
+          const sseUrl = `${cleanBaseUrl}/vps/${id}/projects/${redeployProject.id}/deployments/${targetDepId}/stream`;
+
+          eventSource = new EventSource(sseUrl);
+          eventSource.onmessage = (event) => {
+            if (event.data) {
+              setRedeployLogs((prev) => prev + event.data);
+            }
+          };
+          eventSource.onerror = () => {
+            if (eventSource) eventSource.close();
+          };
+        } catch (e) {
+          // Fallback to polling
+        }
+      }
 
       while (finalStatus === 'RUNNING' && Date.now() - startTime < 300000) {
-        await new Promise((r) => setTimeout(r, 1500));
+        await new Promise((r) => setTimeout(r, 800));
+
+        setRedeployLogs((logs) => {
+          if (logs.includes('=== DEPLOYMENT COMPLETED')) {
+            finalStatus = logs.includes('SUCCESS') ? 'SUCCESS' : 'FAILED';
+          }
+          return logs;
+        });
+
+        if (finalStatus !== 'RUNNING') break;
+
         try {
           const deps = await fetchProjectDeployments(id, redeployProject.id);
           if (Array.isArray(deps) && deps.length > 0) {
-            const latestDep = deps[0];
-            finalStatus = latestDep.status || 'RUNNING';
-            currentLogs = latestDep.logs || currentLogs;
-            setRedeployLogs(currentLogs);
+            const currentDep = deps.find((d: any) => d.id === targetDepId) || deps[0];
+            finalStatus = currentDep.status || 'RUNNING';
+            if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
+              currentLogs = currentDep.logs || currentLogs;
+              setRedeployLogs(currentLogs);
+            }
           }
         } catch (err) {
           // Keep polling
         }
+      }
+
+      if (eventSource) {
+        eventSource.close();
       }
 
       if (finalStatus === 'FAILED' || currentLogs.includes('MODULE_NOT_FOUND')) {
@@ -402,6 +440,22 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
     setCreatedProjectId(null);
     setAutoDetected(false);
     setCustomNginxConfig('');
+
+    // Pre-fill Git Repo & Branch from existing VPS DB projects
+    const existingProj = projects.find((p) => p.gitRepo) || projects[0];
+    if (existingProj?.gitRepo) {
+      setGitRepo(existingProj.gitRepo);
+      if (existingProj.gitBranch) {
+        setGitBranch(existingProj.gitBranch);
+      }
+      const matches = existingProj.gitRepo.trim().match(/[\/:]([^\/:]+?)(\.git)?$/);
+      const slug = matches && matches[1] ? matches[1] : '';
+      if (slug) {
+        setName(existingProj.name || slug);
+        setWorkingDir(existingProj.workingDir || `/home/production-deploys/${slug}`);
+        setCiDeployDir(existingProj.workingDir || `/home/production-deploys/${slug}`);
+      }
+    }
   };
 
   const enabledApps = subApps.filter((a) => a.enabled);
@@ -612,7 +666,7 @@ function syncSubAppEnvText(
 
     try {
       setInspecting(true);
-      const res = await inspectProjectRepoApi(id, url, branchToUse);
+      const res = await inspectProjectRepoApi(id, url, branchToUse, undefined, workingDir);
       if (res?.success) {
         if (res.name && !name) setName(res.name);
         if (res.deployDir && !workingDir) {
@@ -642,9 +696,15 @@ function syncSubAppEnvText(
         }
 
         setAutoDetected(true);
-        toast.success(
-          `✨ Đã phân tích thành công Repo (${branchToUse}): Tìm thấy ${res.detectedApps?.length || 0} Sub-Apps & đúng số Ports!`,
-        );
+        if (res.dirExistsOnVps) {
+          toast.success(
+            `✨ Phát hiện thư mục '${res.deployDir}' đã tồn tại trên VPS: Đã trích xuất .env thực tế từ VPS cho các Sub-App!`,
+          );
+        } else {
+          toast.success(
+            `✨ Đã phân tích thành công Repo (${branchToUse}): Tìm thấy ${res.detectedApps?.length || 0} Sub-Apps & đúng số Ports!`,
+          );
+        }
       }
     } catch (e: any) {
       setAutoDetected(false);

@@ -137,24 +137,62 @@ export function ProjectNavHeader({ project, vpsId, onRefresh }: ProjectNavHeader
         deployDir: project.workingDir || `/home/production-deploys/${project.id}`,
       });
 
+      const targetDepId = res?.id;
       const startTime = Date.now();
       let finalStatus = res?.status || 'RUNNING';
       let currentLogs = res?.logs || 'Đang thực thi script Re-deploy trên VPS...';
-      setRedeployLogs(currentLogs);
+
+      // Connect to Real-time SSE Stream directly from VPS
+      let eventSource: EventSource | null = null;
+      if (targetDepId) {
+        try {
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+          const cleanBaseUrl = apiBaseUrl.replace(/\/$/, '');
+          const sseUrl = `${cleanBaseUrl}/vps/${vpsId}/projects/${project.id}/deployments/${targetDepId}/stream`;
+
+          eventSource = new EventSource(sseUrl);
+          eventSource.onmessage = (event) => {
+            if (event.data) {
+              setRedeployLogs((prev) => prev + event.data);
+            }
+          };
+          eventSource.onerror = () => {
+            if (eventSource) eventSource.close();
+          };
+        } catch (e) {
+          // Fallback to polling
+        }
+      }
 
       while (finalStatus === 'RUNNING' && Date.now() - startTime < 300000) {
-        await new Promise((r) => setTimeout(r, 1500));
+        await new Promise((r) => setTimeout(r, 800));
+
+        setRedeployLogs((logs) => {
+          if (logs.includes('=== DEPLOYMENT COMPLETED')) {
+            finalStatus = logs.includes('SUCCESS') ? 'SUCCESS' : 'FAILED';
+          }
+          return logs;
+        });
+
+        if (finalStatus !== 'RUNNING') break;
+
         try {
           const deps = await fetchProjectDeployments(vpsId, project.id);
           if (Array.isArray(deps) && deps.length > 0) {
-            const latestDep = deps[0];
-            finalStatus = latestDep.status || 'RUNNING';
-            currentLogs = latestDep.logs || currentLogs;
-            setRedeployLogs(currentLogs);
+            const currentDep = deps.find((d: any) => d.id === targetDepId) || deps[0];
+            finalStatus = currentDep.status || 'RUNNING';
+            if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
+              currentLogs = currentDep.logs || currentLogs;
+              setRedeployLogs(currentLogs);
+            }
           }
         } catch (err) {
           // Keep polling
         }
+      }
+
+      if (eventSource) {
+        eventSource.close();
       }
 
       if (finalStatus === 'FAILED' || currentLogs.includes('MODULE_NOT_FOUND')) {
