@@ -466,6 +466,9 @@ model Vps {
   updatedAt          DateTime   @updatedAt
 
   projects           Project[]
+  metrics            VpsMetricHistory[]
+  cronJobs           VpsCronJob[]
+  backups            VpsBackup[]
 
   @@index([ip])
   @@index([status])
@@ -499,6 +502,8 @@ model Project {
   deployments  Deployment[]
   domains      ProjectDomain[]
   activities   ProjectActivity[]
+  webhooks     ProjectWebhook[]
+  backups      VpsBackup[]
 
   @@index([vpsId])
   @@index([status])
@@ -506,39 +511,48 @@ model Project {
 }
 
 model Deployment {
-  id          String           @id @default(uuid())
-  projectId   String
-  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id                   String           @id @default(uuid())
+  projectId            String
+  project              Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  buildNumber String
-  commitHash  String
-  branch      String
-  author      String
-  status      DeploymentStatus @default(SUCCESS)
-  logs        String?
-  timeAgo     String?
-  triggeredBy String?
-  startedAt   DateTime         @default(now())
-  finishedAt  DateTime?
+  buildNumber          String
+  commitHash           String
+  branch               String
+  author               String
+  status               DeploymentStatus @default(SUCCESS)
+  logs                 String?
+  timeAgo              String?
+  triggeredBy          String?
+  commitMessage        String?
+  releaseTag           String?
+  deploymentDurationMs Int?
+  rollbackFromId       String?
+  startedAt            DateTime         @default(now())
+  finishedAt           DateTime?
 
-  createdAt   DateTime         @default(now())
+  createdAt            DateTime         @default(now())
 
   @@index([projectId])
   @@index([status])
 }
 
 model ProjectDomain {
-  id          String    @id @default(uuid())
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  domainName  String
-  targetPort  Int
-  sslStatus   SslStatus @default(VALID)
-  sslExpiryDays Int     @default(90)
-  httpPort    Int       @default(443)
+  domainName    String
+  targetPort    Int
+  sslStatus     SslStatus @default(VALID)
+  sslExpiryDays Int       @default(90)
+  sslIssuer     String?   @default("Let's Encrypt Authority X3")
+  sslValidFrom  DateTime?
+  sslValidTo    DateTime?
+  dnsStatus     String    @default("VERIFIED")
+  autoRenew     Boolean   @default(true)
+  httpPort      Int       @default(443)
 
-  createdAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
 
   @@index([projectId])
   @@index([domainName])
@@ -559,5 +573,77 @@ model ProjectActivity {
 
   @@index([projectId])
   @@index([createdAt])
+}
+
+model VpsMetricHistory {
+  id             String   @id @default(uuid())
+  vpsId          String
+  vps            Vps      @relation(fields: [vpsId], references: [id], onDelete: Cascade)
+
+  cpuPercent     Float    @default(0)
+  ramPercent     Float    @default(0)
+  diskPercent    Float    @default(0)
+  networkInMbps  Float    @default(0)
+  networkOutMbps Float    @default(0)
+
+  createdAt      DateTime @default(now())
+
+  @@index([vpsId])
+  @@index([createdAt])
+}
+
+model VpsCronJob {
+  id          String    @id @default(uuid())
+  vpsId       String
+  vps         Vps       @relation(fields: [vpsId], references: [id], onDelete: Cascade)
+
+  schedule    String
+  command     String
+  comment     String?
+  active      Boolean   @default(true)
+  lastRunAt   DateTime?
+  lastStatus  String?   @default("SUCCESS")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([vpsId])
+}
+
+model VpsBackup {
+  id          String   @id @default(uuid())
+  vpsId       String
+  vps         Vps      @relation(fields: [vpsId], references: [id], onDelete: Cascade)
+
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  filename    String
+  backupType  String   @default("database") // database, filesystem, full
+  sizeBytes   BigInt   @default(0)
+  location    String   @default("local")    // local, s3
+  status      String   @default("COMPLETED")
+  checksum    String?
+  filePath    String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([vpsId])
+  @@index([projectId])
+}
+
+model ProjectWebhook {
+  id              String    @id @default(uuid())
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  secret          String
+  active          Boolean   @default(true)
+  events          String[]  @default(["push", "merge_request"])
+  lastTriggeredAt DateTime?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([projectId])
 }
 

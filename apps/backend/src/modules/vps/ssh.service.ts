@@ -139,9 +139,10 @@ export class SshService {
     });
   }
 
-  /**
-   * Reads real PM2 process list
-   */
+  // =========================================================================
+  // PM2 PROCESS MANAGEMENT
+  // =========================================================================
+
   async getPm2Processes(vps: VpsConnectionInfo, targetName?: string): Promise<any[]> {
     const res = await this.executeCommand(vps, 'pm2 jlist');
     if (res.exitCode === 0 && res.stdout.trim().startsWith('[')) {
@@ -158,30 +159,39 @@ export class SshService {
     return [];
   }
 
-  /**
-   * Restarts PM2 process
-   */
   async restartPm2Process(vps: VpsConnectionInfo, pm2Name: string): Promise<ExecutionResult> {
     return this.executeCommand(vps, `pm2 restart ${pm2Name}`);
   }
 
-  /**
-   * Stops PM2 process
-   */
+  async reloadPm2Process(vps: VpsConnectionInfo, pm2Name = 'all'): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `pm2 reload ${pm2Name}`);
+  }
+
   async stopPm2Process(vps: VpsConnectionInfo, pm2Name: string): Promise<ExecutionResult> {
     return this.executeCommand(vps, `pm2 stop ${pm2Name}`);
   }
 
-  /**
-   * Starts PM2 process
-   */
   async startPm2Process(vps: VpsConnectionInfo, pm2Name: string): Promise<ExecutionResult> {
     return this.executeCommand(vps, `pm2 start ${pm2Name}`);
   }
 
-  /**
-   * Reads PM2/App logs
-   */
+  async scalePm2Process(vps: VpsConnectionInfo, pm2Name: string, instances: number): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `pm2 scale ${pm2Name} ${instances}`);
+  }
+
+  async flushPm2Logs(vps: VpsConnectionInfo, pm2Name?: string): Promise<ExecutionResult> {
+    const cmd = pm2Name ? `pm2 flush ${pm2Name}` : `pm2 flush`;
+    return this.executeCommand(vps, cmd);
+  }
+
+  async savePm2State(vps: VpsConnectionInfo): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `pm2 save`);
+  }
+
+  async deletePm2Process(vps: VpsConnectionInfo, pm2Name: string): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `pm2 delete ${pm2Name}`);
+  }
+
   async getLogs(vps: VpsConnectionInfo, pm2Name: string, lines = 100): Promise<string[]> {
     const res = await this.executeCommand(vps, `pm2 logs ${pm2Name} --raw --lines ${lines} --nostream`);
     if (res.stdout) {
@@ -193,33 +203,106 @@ export class SshService {
     ];
   }
 
-  /**
-   * Git pull latest code
-   */
-  async gitPull(vps: VpsConnectionInfo, workingDir?: string): Promise<ExecutionResult> {
-    const dir = workingDir || `/var/www/apps`;
-    return this.executeCommand(vps, `cd ${dir} && git pull`);
-  }
+  // =========================================================================
+  // FILE MANAGER & SFTP OPS
+  // =========================================================================
 
-  /**
-   * Git log & branch info
-   */
-  async getGitInfo(vps: VpsConnectionInfo, workingDir?: string): Promise<{ branch: string; hash: string }> {
-    const dir = workingDir || `/var/www/apps`;
-    const res = await this.executeCommand(vps, `cd ${dir} && git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD`);
+  async listFiles(vps: VpsConnectionInfo, dirPath = '/var/www/apps'): Promise<any[]> {
+    const cmd = `ls -la --time-style=iso "${dirPath}"`;
+    const res = await this.executeCommand(vps, cmd);
     if (res.exitCode === 0 && res.stdout) {
-      const parts = res.stdout.trim().split('\n');
-      return {
-        branch: parts[0] || 'main',
-        hash: parts[1] || 'head',
-      };
+      const lines = res.stdout.split('\n').filter((l) => l.trim().length > 0 && !l.startsWith('total'));
+      return lines.map((line, idx) => {
+        const parts = line.trim().split(/\s+/);
+        const permissions = parts[0] || '-rw-r--r--';
+        const isDir = permissions.startsWith('d');
+        const owner = parts[2] || 'root';
+        const group = parts[3] || 'root';
+        const sizeBytes = parseInt(parts[4] || '0', 10);
+        const dateStr = `${parts[5] || ''} ${parts[6] || ''}`;
+        const name = parts.slice(7).join(' ') || `item-${idx}`;
+        const size = isDir ? '-' : sizeBytes > 1024 * 1024 ? `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(sizeBytes / 1024)} KB`;
+
+        return {
+          id: `f-${idx}`,
+          name,
+          path: `${dirPath.replace(/\/$/, '')}/${name}`,
+          size,
+          sizeBytes,
+          type: isDir ? 'directory' : 'file',
+          permissions,
+          owner,
+          group,
+          lastModified: dateStr || 'Recently',
+        };
+      }).filter((item) => item.name !== '.' && item.name !== '..');
     }
-    return { branch: 'main', hash: 'c9f82a1' };
+    return [];
   }
 
-  /**
-   * Read Nginx VirtualHost config
-   */
+  async readFileContent(vps: VpsConnectionInfo, filePath: string): Promise<string> {
+    const res = await this.executeCommand(vps, `cat "${filePath}"`);
+    if (res.exitCode === 0) {
+      return res.stdout;
+    }
+    throw new Error(res.stderr || `Could not read file ${filePath}`);
+  }
+
+  async writeFileContent(vps: VpsConnectionInfo, filePath: string, content: string): Promise<ExecutionResult> {
+    const base64Content = Buffer.from(content, 'utf8').toString('base64');
+    const cmd = `echo "${base64Content}" | base64 -d > "${filePath}"`;
+    return this.executeCommand(vps, cmd);
+  }
+
+  async deletePath(vps: VpsConnectionInfo, targetPath: string): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `rm -rf "${targetPath}"`);
+  }
+
+  async chmodPath(vps: VpsConnectionInfo, targetPath: string, mode: string): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `chmod ${mode} "${targetPath}"`);
+  }
+
+  async createDirectory(vps: VpsConnectionInfo, dirPath: string): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `mkdir -p "${dirPath}"`);
+  }
+
+  // =========================================================================
+  // CRONTAB SCHEDULER
+  // =========================================================================
+
+  async getCrontab(vps: VpsConnectionInfo): Promise<string> {
+    const res = await this.executeCommand(vps, 'crontab -l 2>/dev/null || true');
+    return res.stdout || '';
+  }
+
+  async saveCrontab(vps: VpsConnectionInfo, crontabContent: string): Promise<ExecutionResult> {
+    const base64Content = Buffer.from(crontabContent, 'utf8').toString('base64');
+    const cmd = `echo "${base64Content}" | base64 -d | crontab -`;
+    return this.executeCommand(vps, cmd);
+  }
+
+  async runCronCommand(vps: VpsConnectionInfo, command: string): Promise<ExecutionResult> {
+    return this.executeCommand(vps, command, 60000);
+  }
+
+  // =========================================================================
+  // DOMAINS, NGINX & CERTBOT SSL
+  // =========================================================================
+
+  async checkDnsRecord(vps: VpsConnectionInfo, domainName: string): Promise<{ matchesIp: boolean; resolvedIp: string }> {
+    const res = await this.executeCommand(vps, `dig +short A ${domainName} || nslookup ${domainName} | grep Address | tail -n 1 | awk '{print $2}'`);
+    const resolvedIp = res.stdout.trim().split('\n')[0] || '';
+    return {
+      matchesIp: resolvedIp === vps.ip,
+      resolvedIp,
+    };
+  }
+
+  async issueCertbotSsl(vps: VpsConnectionInfo, domainName: string, email = 'admin@example.com'): Promise<ExecutionResult> {
+    const cmd = `certbot --nginx -d ${domainName} --non-interactive --agree-tos -m ${email} --redirect || certbot certonly --standalone -d ${domainName} --non-interactive --agree-tos -m ${email}`;
+    return this.executeCommand(vps, cmd, 120000);
+  }
+
   async readNginxConfig(vps: VpsConnectionInfo, domainProxy: string, projectId: string): Promise<string> {
     const confdPath = `/etc/nginx/conf.d/${domainProxy}.conf`;
     const sitesAvailPath = `/etc/nginx/sites-available/${projectId}.conf`;
@@ -233,7 +316,7 @@ export class SshService {
 
   server_name ${domainProxy};
 
-  # 1. Định tuyến cho BACKEND (Port 22090)
+  # 1. Định tuyến cho BACKEND
   location /api/ {
     proxy_pass http://localhost:22090;
     proxy_http_version 1.1;
@@ -243,21 +326,7 @@ export class SshService {
     proxy_cache_bypass $http_upgrade;
   }
 
-  # 2. Định tuyến cho WEB ADMIN (Port 32090)
-  location /admin/ {
-    proxy_pass http://localhost:32090/;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-  }
-
-  location = /admin {
-    return 301 $scheme://$host/admin/;
-  }
-
-  # 3. Định tuyến cho WEB APP (Port 42090)
+  # 2. Định tuyến cho WEB APP
   location / {
     proxy_pass http://localhost:42090;
     proxy_http_version 1.1;
@@ -269,34 +338,85 @@ export class SshService {
 }`;
   }
 
-  /**
-   * Test Nginx config
-   */
   async testNginxConfig(vps: VpsConnectionInfo): Promise<ExecutionResult> {
     return this.executeCommand(vps, `nginx -t`);
   }
 
-  /**
-   * Reload Nginx
-   */
   async reloadNginx(vps: VpsConnectionInfo): Promise<ExecutionResult> {
     return this.executeCommand(vps, `systemctl reload nginx || nginx -s reload`);
   }
 
-  /**
-   * Checks whether specific TCP ports are currently in use/listening on target VPS
-   */
+  // =========================================================================
+  // BACKUPS ENGINE
+  // =========================================================================
+
+  async dumpDatabase(
+    vps: VpsConnectionInfo,
+    dbType: 'postgres' | 'mysql',
+    dbName: string,
+    outputFile: string,
+    user = 'postgres',
+    password?: string,
+  ): Promise<ExecutionResult> {
+    let cmd = '';
+    if (dbType === 'postgres') {
+      const passEnv = password ? `PGPASSWORD="${password}" ` : '';
+      cmd = `${passEnv}pg_dump -U ${user} -d ${dbName} | gzip > "${outputFile}"`;
+    } else {
+      const passFlag = password ? `-p"${password}"` : '';
+      cmd = `mysqldump -u ${user} ${passFlag} ${dbName} | gzip > "${outputFile}"`;
+    }
+    return this.executeCommand(vps, cmd, 180000);
+  }
+
+  async tarDirectory(vps: VpsConnectionInfo, targetDir: string, outputFile: string): Promise<ExecutionResult> {
+    const cmd = `tar -czf "${outputFile}" -C "${targetDir}" .`;
+    return this.executeCommand(vps, cmd, 300000);
+  }
+
+  // =========================================================================
+  // UFW FIREWALL & UTILITIES
+  // =========================================================================
+
+  async getUfwStatus(vps: VpsConnectionInfo): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `ufw status verbose || iptables -L -n`);
+  }
+
+  async allowUfwPort(vps: VpsConnectionInfo, port: number, protocol = 'tcp'): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `ufw allow ${port}/${protocol}`);
+  }
+
+  async denyUfwPort(vps: VpsConnectionInfo, port: number, protocol = 'tcp'): Promise<ExecutionResult> {
+    return this.executeCommand(vps, `ufw delete allow ${port}/${protocol}`);
+  }
+
+  async gitPull(vps: VpsConnectionInfo, workingDir?: string): Promise<ExecutionResult> {
+    const dir = workingDir || `/var/www/apps`;
+    return this.executeCommand(vps, `cd ${dir} && git pull`);
+  }
+
+  async getGitInfo(vps: VpsConnectionInfo, workingDir?: string): Promise<{ branch: string; hash: string }> {
+    const dir = workingDir || `/var/www/apps`;
+    const res = await this.executeCommand(vps, `cd ${dir} && git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD`);
+    if (res.exitCode === 0 && res.stdout) {
+      const parts = res.stdout.trim().split('\n');
+      return {
+        branch: parts[0] || 'main',
+        hash: parts[1] || 'head',
+      };
+    }
+    return { branch: 'main', hash: 'head' };
+  }
+
   async checkPortsInUse(
     vps: VpsConnectionInfo,
     ports: number[],
   ): Promise<{ port: number; inUse: boolean; process?: string }[]> {
     if (!ports || ports.length === 0) return [];
-
     const results: { port: number; inUse: boolean; process?: string }[] = [];
 
     for (const p of ports) {
       if (!p || isNaN(p)) continue;
-      // Command checks if port is actively listening on TCP
       const cmd = `(ss -tulpn 2>/dev/null | grep -E ':${p}\\b' || netstat -tlpn 2>/dev/null | grep -E ':${p}\\b' || lsof -i:${p} 2>/dev/null || true)`;
       const res = await this.executeCommand(vps, cmd, 5000);
       const output = res.stdout.trim();
@@ -311,9 +431,6 @@ export class SshService {
     return results;
   }
 
-  /**
-   * Storage footprint
-   */
   async getStorageFootprint(vps: VpsConnectionInfo, workingDir?: string): Promise<{ workingDirSize: string; totalDisk: string }> {
     const dir = workingDir || `/var/www/apps`;
     const resDu = await this.executeCommand(vps, `du -sh ${dir}`);

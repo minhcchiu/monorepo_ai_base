@@ -110,4 +110,27 @@ export class InfrastructureService {
       })),
     };
   }
+
+  async getMetricsHistory(vpsId?: string, range = '24h') {
+    const hours = range === '7d' ? 168 : range === '30d' ? 720 : 24;
+    const sinceDate = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+    const history = await this.prisma.vpsMetricHistory.findMany({
+      where: {
+        vpsId: vpsId || undefined,
+        createdAt: { gte: sinceDate },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+    });
+
+    return history.map((m) => ({
+      timestamp: m.createdAt.toISOString(),
+      cpuPercent: m.cpuPercent,
+      ramPercent: m.ramPercent,
+      diskPercent: m.diskPercent,
+      networkInMbps: m.networkInMbps,
+      networkOutMbps: m.networkOutMbps,
+    }));
+  }
 }

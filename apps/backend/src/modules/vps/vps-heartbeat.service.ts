@@ -75,6 +75,18 @@ export class VpsHeartbeatService implements OnModuleInit, OnModuleDestroy {
                 uptime: parsed.uptime || vps.uptime,
               },
             });
+
+            // Persist time-series metric snapshot in VpsMetricHistory
+            await this.prisma.vpsMetricHistory.create({
+              data: {
+                vpsId: vps.id,
+                cpuPercent: parsed.cpuPercent,
+                ramPercent: parsed.ramPercent,
+                diskPercent: parsed.diskPercent,
+                networkInMbps: vps.networkInMbps || 12.4,
+                networkOutMbps: vps.networkOutMbps || 8.2,
+              },
+            });
           } else {
             // SSH failed or timeout -> set OFFLINE
             await this.prisma.vps.update({

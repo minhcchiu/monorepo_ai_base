@@ -6,7 +6,7 @@ import { SshService } from '../vps/ssh.service';
 
 @Injectable()
 export class ProjectsService {
-  private activeDeploymentStreams = new Map<string, Subject<string>>();
+  private activeDeploymentStreams = new Map<string, { subject: Subject<string>; getLogs: () => string }>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -596,7 +596,21 @@ done
       'Just now',
     );
 
-    return project;
+    let initialDeployment: any = null;
+    if (payload.gitRepo || payload.autoDeploy || payload.triggerDeploy) {
+      initialDeployment = await this.createDeployment(vps.id, project.id, {
+        deployMode: 'INITIAL',
+        author: payload.author || 'System Admin',
+        deployDir: project.workingDir || undefined,
+        runPrismaDbPush: true,
+      });
+    }
+
+    return {
+      ...project,
+      initialDeployment,
+      deploymentId: initialDeployment?.id,
+    };
   }
 
   async findOne(vpsId: string, projectId: string) {
@@ -1007,6 +1021,7 @@ pm2 status
 
     // 3. Create Deployment record in DB immediately
     const initialLogs = `=== DEPLOYMENT INITIATED (${buildNumber}) ===\nTarget Branch: ${branch}\nDeploy Directory: ${deployDir}\nConnecting to VPS ${project.vps.ip}...`;
+    let currentCumulativeLogs = initialLogs;
 
     const deployment = await this.prisma.deployment.create({
       data: {
@@ -1022,9 +1037,12 @@ pm2 status
       },
     });
 
-    // 4. Register real-time SSE stream subject for this deployment
+    // 4. Register real-time SSE stream subject & log provider for this deployment
     const streamSubject = new Subject<string>();
-    this.activeDeploymentStreams.set(deployment.id, streamSubject);
+    this.activeDeploymentStreams.set(deployment.id, {
+      subject: streamSubject,
+      getLogs: () => currentCumulativeLogs,
+    });
 
     // Run SSH execution pipeline asynchronously in background with sequential race-condition-free DB log updates & SSE streaming
     let isSaving = false;
@@ -1051,10 +1069,12 @@ pm2 status
     };
 
     const onLogChunk = (chunk: string, cumulativeLogs: string) => {
+      currentCumulativeLogs = `${initialLogs}\n${cumulativeLogs}`;
+
       // Stream real-time chunk directly to SSE subscribers!
       streamSubject.next(chunk);
 
-      pendingLog = `${initialLogs}\n${cumulativeLogs}`;
+      pendingLog = currentCumulativeLogs;
       saveLatestLog();
     };
 
@@ -1071,6 +1091,8 @@ pm2 status
         sshRes.stdout,
         sshRes.stderr ? `\n--- STDERR / WARNINGS ---\n${sshRes.stderr}` : '',
       ].filter(Boolean).join('\n');
+
+      currentCumulativeLogs = fullLogs;
 
       const hasErrorInLogs = fullLogs.includes('MODULE_NOT_FOUND') || fullLogs.includes('Could not find a production build');
       const isSuccess = sshRes.exitCode === 0 && !hasErrorInLogs;
@@ -1122,9 +1144,9 @@ pm2 status
   }
 
   streamDeploymentLogs(vpsId: string, projectId: string, deploymentId: string): Observable<MessageEvent> {
-    const existingSubject = this.activeDeploymentStreams.get(deploymentId);
+    const activeStream = this.activeDeploymentStreams.get(deploymentId);
 
-    if (!existingSubject) {
+    if (!activeStream) {
       // If deployment is already completed or not active in memory, fetch current DB logs and complete
       return new Observable<MessageEvent>((observer) => {
         this.prisma.deployment.findUnique({ where: { id: deploymentId } }).then((dep) => {
@@ -1138,9 +1160,25 @@ pm2 status
       });
     }
 
-    return existingSubject.asObservable().pipe(
-      map((chunk) => ({ data: chunk } as MessageEvent)),
-    );
+    // Active stream: Send initial cumulative log snapshot first so terminal populates instantly, then stream new incoming chunks
+    return new Observable<MessageEvent>((observer) => {
+      const initialContent = activeStream.getLogs();
+      if (initialContent) {
+        observer.next({ data: initialContent } as MessageEvent);
+      }
+
+      const sub = activeStream.subject.subscribe({
+        next: (chunk) => {
+          observer.next({ data: chunk } as MessageEvent);
+        },
+        error: (err) => observer.error(err),
+        complete: () => observer.complete(),
+      });
+
+      return () => {
+        sub.unsubscribe();
+      };
+    });
   }
 
   async getGitlabCiTemplate(vpsId: string, projectId: string) {
@@ -2038,6 +2076,50 @@ server {
     return this.prisma.project.delete({
       where: { id: projectId },
     });
+  }
+
+  async handleGitWebhook(vpsId: string, projectId: string, body: any) {
+    const project = await this.validateProjectVpsRelation(vpsId, projectId);
+    this.logger.log(`Received Git Webhook for Project ${project.name} (${projectId})`);
+
+    const author = body?.pusher?.name || body?.user_name || body?.sender?.login || 'Git Webhook';
+    const commitMsg = body?.head_commit?.message || body?.commits?.[0]?.message || 'Auto-deploy triggered by Git Webhook';
+
+    // Trigger deployment
+    const deployment = await this.createDeployment(vpsId, projectId, {
+      deployMode: 'RE_DEPLOY',
+      author,
+      runPrismaDbPush: true,
+    });
+
+    await this.logActivity(
+      projectId,
+      'DEPLOY',
+      'Webhook Auto-Deploy Triggered',
+      `Auto deployment triggered by ${author}: ${commitMsg}`,
+      'Just now',
+    );
+
+    return {
+      success: true,
+      message: 'Git Webhook received, automated deployment initiated.',
+      deployment,
+    };
+  }
+
+  async checkDomainDns(vpsId: string, projectId: string, domainName: string) {
+    const project = await this.validateProjectVpsRelation(vpsId, projectId);
+    const dnsResult = await this.sshService.checkDnsRecord(project.vps, domainName);
+
+    return {
+      domainName,
+      targetVpsIp: project.vps.ip,
+      resolvedIp: dnsResult.resolvedIp,
+      isPointingCorrectly: dnsResult.matchesIp,
+      message: dnsResult.matchesIp
+        ? `Domain ${domainName} is pointing correctly to VPS IP ${project.vps.ip}`
+        : `Domain ${domainName} resolves to ${dnsResult.resolvedIp || 'Unknown'}, expected ${project.vps.ip}`,
+    };
   }
 
   private async logActivity(

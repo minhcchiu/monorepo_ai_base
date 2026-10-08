@@ -348,6 +348,26 @@ export class ProjectsController {
     return this.projectsService.updateSettings(vpsId, projectId, body);
   }
 
+  @Post(':projectId/webhooks/deploy')
+  @ApiOperation({ summary: 'Auto-trigger deployment via Git Webhook (GitHub/GitLab)' })
+  handleGitWebhook(
+    @Param('vpsId') vpsId: string,
+    @Param('projectId') projectId: string,
+    @Body() body: any,
+  ) {
+    return this.projectsService.handleGitWebhook(vpsId, projectId, body);
+  }
+
+  @Post(':projectId/domains/dns-check')
+  @ApiOperation({ summary: 'Check if domain A-record/CNAME matches target VPS IP' })
+  checkDomainDns(
+    @Param('vpsId') vpsId: string,
+    @Param('projectId') projectId: string,
+    @Body('domainName') domainName: string,
+  ) {
+    return this.projectsService.checkDomainDns(vpsId, projectId, domainName);
+  }
+
   @Delete(':projectId')
   @ApiOperation({ summary: 'Stop PM2 process and remove project management scope' })
   removeProject(@Param('vpsId') vpsId: string, @Param('projectId') projectId: string) {

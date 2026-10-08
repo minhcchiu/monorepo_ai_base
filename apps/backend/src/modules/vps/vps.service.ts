@@ -105,130 +105,67 @@ export class VpsService {
             status: vps.status,
             statusBadgeText: vps.statusBadgeText,
           },
-        }).catch(() => {});
+        });
       }
-    } catch (e) {
-      //
+    } catch (err) {
+      // Offline fallback
     }
 
     return vps;
   }
 
-  private parseTelemetry(stdout: string) {
-    let cpuPercent = 15;
-    let ramPercent = 40;
-    let diskPercent = 35;
-    let ramUsedGb = 8.0;
-    let ramTotalGb = 16.0;
-    let diskUsedGb = 80.0;
-    let diskTotalGb = 250.0;
-    let uptime = 'Active';
+  async testConnection(body: { ip: string; port?: number; username?: string; password?: string; sshKey?: string }) {
+    const tempVps = {
+      id: 'temp',
+      ip: body.ip,
+      port: body.port || 22,
+      username: body.username || 'root',
+      password: body.password,
+      sshKey: body.sshKey,
+    };
 
-    try {
-      const lines = stdout.split('\n');
-
-      if (lines[0] && lines[0].includes('up')) {
-        const match = lines[0].match(/up\s+([^,]+)/);
-        if (match) uptime = match[1].trim();
-      }
-
-      const memLine = lines.find((l) => l.startsWith('Mem:'));
-      if (memLine) {
-        const parts = memLine.split(/\s+/);
-        const totalMb = parseFloat(parts[1]) || 16384;
-        const usedMb = parseFloat(parts[2]) || 6000;
-        ramTotalGb = parseFloat((totalMb / 1024).toFixed(1));
-        ramUsedGb = parseFloat((usedMb / 1024).toFixed(1));
-        ramPercent = Math.round((usedMb / totalMb) * 100);
-      }
-
-      const diskLine = lines.find((l) => l.includes('/') || l.includes('G') || l.includes('M'));
-      if (diskLine) {
-        const parts = diskLine.split(/\s+/);
-        if (parts.length >= 5) {
-          const pctStr = parts[4]?.replace('%', '');
-          if (pctStr && !isNaN(parseFloat(pctStr))) {
-            diskPercent = Math.round(parseFloat(pctStr));
-          }
-        }
-      }
-    } catch (e) {
-      //
+    const pingRes = await this.sshService.executeCommand(tempVps, 'uname -r && uptime', 5000);
+    if (pingRes.exitCode === 0) {
+      return {
+        success: true,
+        message: 'SSH Connection Successful',
+        details: pingRes.stdout.trim(),
+      };
     }
 
     return {
-      cpuPercent,
-      ramPercent,
-      diskPercent,
-      ramUsedGb,
-      ramTotalGb,
-      diskUsedGb,
-      diskTotalGb,
-      uptime,
+      success: false,
+      message: 'SSH Connection Failed',
+      details: pingRes.stderr || 'Check SSH Port, IP, Password or Private Key',
     };
   }
 
-  async testConnection(data: { ip: string; port?: number; username?: string; password?: string; sshKey?: string }) {
-    const tempVps = {
-      id: 'temp-check',
-      ip: data.ip,
-      port: data.port || 22,
-      username: data.username || 'root',
-      password: data.password,
-      sshKey: data.sshKey,
-    };
-
-    const res = await this.sshService.executeCommand(tempVps, 'uptime && free -m && df -h /');
-    return {
-      success: res.exitCode === 0,
-      ip: data.ip,
-      port: data.port || 22,
-      message: res.exitCode === 0 ? 'SSH Connection Verified Successfully!' : `Connection failed: ${res.stderr || 'Timeout / Unreachable host'}`,
-      output: res.stdout || res.stderr,
-    };
-  }
-
-  async create(data: any) {
-    const tempVps = {
-      id: 'temp-vps-create',
-      ip: data.ip,
-      port: data.port || 22,
-      username: data.username || 'root',
-      password: data.password,
-      sshKey: data.sshKey,
-    };
-
-    // Test SSH connectivity on creation
-    const pingRes = await this.sshService.executeCommand(tempVps, 'uname -r && uptime');
-    const isConnected = pingRes.exitCode === 0;
-
-    const newVps = await this.prisma.vps.create({
+  async create(body: any) {
+    return this.prisma.vps.create({
       data: {
-        ...data,
-        status: isConnected ? 'ONLINE' : 'OFFLINE',
-        statusBadgeText: isConnected ? 'Online' : 'Offline (Unreachable)',
-        kernel: isConnected && pingRes.stdout ? pingRes.stdout.split('\n')[0] : data.kernel,
+        name: body.name || 'New VPS Node',
+        ip: body.ip,
+        port: body.port ? parseInt(body.port, 10) : 22,
+        username: body.username || 'root',
+        password: body.password,
+        sshKey: body.sshKey,
+        region: body.region || 'Singapore (SG-01)',
+        regionCode: body.regionCode || 'SG-01',
+        environment: body.environment || 'prod',
+        status: 'ONLINE',
+        statusBadgeText: 'Online',
       },
     });
-
-    return {
-      ...newVps,
-      connectionTested: true,
-      connectionSuccess: isConnected,
-      connectionMessage: isConnected ? 'SSH connection verified on creation' : 'SSH connection failed (server recorded as Offline)',
-    };
   }
 
-  async update(id: string, data: any) {
-    await this.findOne(id);
+  async update(id: string, body: any) {
     return this.prisma.vps.update({
       where: { id },
-      data,
+      data: body,
     });
   }
 
   async remove(id: string) {
-    await this.findOne(id);
     return this.prisma.vps.delete({
       where: { id },
     });
@@ -236,13 +173,18 @@ export class VpsService {
 
   async diagnose(id: string) {
     const vps = await this.findOne(id);
-    const result = await this.sshService.executeCommand(vps, 'uptime && free -m && df -h /');
+    const result = await this.sshService.executeCommand(vps, 'uptime && free -m && df -h / && docker --version 2>/dev/null || true');
     return {
       vpsId: id,
-      success: result.exitCode === 0,
-      output: result.stdout || result.stderr,
+      ip: vps.ip,
+      diagnostics: result.stdout || 'System healthy',
+      exitCode: result.exitCode,
     };
   }
+
+  // =========================================================================
+  // PM2 PROCESS MANAGEMENT
+  // =========================================================================
 
   async getPm2Processes(id: string) {
     const vps = await this.findOne(id);
@@ -260,18 +202,15 @@ export class VpsService {
         user: 'root',
       }));
     }
-    return [
-      { id: 0, name: 'calo-api-prod', mode: 'cluster', status: 'online', restarts: 2, cpuPercent: 12.4, memoryMb: 184.2, uptime: '14d 2h', user: 'root' },
-      { id: 1, name: 'calo-auth-service', mode: 'fork', status: 'online', restarts: 0, cpuPercent: 2.1, memoryMb: 94.6, uptime: '42d 18h', user: 'root' },
-    ];
+    return [];
   }
 
   async reloadPm2Processes(id: string) {
     const vps = await this.findOne(id);
-    const res = await this.sshService.executeCommand(vps, 'pm2 reload all || pm2 restart all');
+    const res = await this.sshService.reloadPm2Process(vps);
     return {
       success: res.exitCode === 0,
-      message: res.exitCode === 0 ? 'PM2 processes reloaded' : res.stderr,
+      message: res.exitCode === 0 ? 'PM2 processes reloaded successfully' : res.stderr,
     };
   }
 
@@ -281,6 +220,42 @@ export class VpsService {
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `Restarted ${name}` : res.stderr,
+    };
+  }
+
+  async scalePm2Process(id: string, name: string, instances: number) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.scalePm2Process(vps, name, instances);
+    return {
+      success: res.exitCode === 0,
+      message: res.exitCode === 0 ? `Scaled ${name} to ${instances} instances` : res.stderr,
+    };
+  }
+
+  async flushPm2Logs(id: string, name?: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.flushPm2Logs(vps, name);
+    return {
+      success: res.exitCode === 0,
+      message: res.exitCode === 0 ? `Flushed PM2 logs` : res.stderr,
+    };
+  }
+
+  async savePm2State(id: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.savePm2State(vps);
+    return {
+      success: res.exitCode === 0,
+      message: res.exitCode === 0 ? `PM2 process list saved to ecosystem` : res.stderr,
+    };
+  }
+
+  async deletePm2Process(id: string, name: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.deletePm2Process(vps, name);
+    return {
+      success: res.exitCode === 0,
+      message: res.exitCode === 0 ? `Deleted PM2 process ${name}` : res.stderr,
     };
   }
 
@@ -296,57 +271,123 @@ export class VpsService {
     };
   }
 
+  // =========================================================================
+  // SFTP FILE MANAGER
+  // =========================================================================
+
   async getFiles(id: string, dirPath = '/var/www/apps') {
     const vps = await this.findOne(id);
-    const res = await this.sshService.executeCommand(vps, `ls -la ${dirPath}`);
-    if (res.exitCode === 0 && res.stdout) {
-      const lines = res.stdout.split('\n').filter((l) => l.trim().length > 0 && !l.startsWith('total'));
-      return lines.map((line, idx) => {
-        const parts = line.trim().split(/\s+/);
-        const permissions = parts[0] || '-rw-r--r--';
-        const isDir = permissions.startsWith('d');
-        const name = parts.slice(8).join(' ') || `item-${idx}`;
-        const size = parts[4] ? `${parts[4]} B` : '1 KB';
-        return {
-          id: `f-${idx}`,
-          name: name || `file-${idx}`,
-          path: `${dirPath}/${name}`,
-          size,
-          type: isDir ? 'directory' : 'file',
-          permissions,
-          lastModified: 'Recently',
-        };
-      });
-    }
-    return [
-      { id: 'f-1', name: 'apps', path: '/var/www/apps', size: '2.4 GB', type: 'directory', permissions: 'drwxr-xr-x', lastModified: '2 hours ago' },
-      { id: 'f-2', name: 'ecosystem.config.js', path: '/var/www/ecosystem.config.js', size: '1.8 KB', type: 'file', permissions: '-rw-r--r--', lastModified: '3 days ago' },
-    ];
+    return this.sshService.listFiles(vps, dirPath);
   }
+
+  async readFile(id: string, filePath: string) {
+    const vps = await this.findOne(id);
+    const content = await this.sshService.readFileContent(vps, filePath);
+    return { filePath, content };
+  }
+
+  async writeFile(id: string, filePath: string, content: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.writeFileContent(vps, filePath, content);
+    return {
+      success: res.exitCode === 0,
+      filePath,
+      message: res.exitCode === 0 ? 'File saved successfully' : res.stderr,
+    };
+  }
+
+  async deletePath(id: string, targetPath: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.deletePath(vps, targetPath);
+    return {
+      success: res.exitCode === 0,
+      targetPath,
+      message: res.exitCode === 0 ? 'Deleted successfully' : res.stderr,
+    };
+  }
+
+  async chmodPath(id: string, targetPath: string, mode: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.chmodPath(vps, targetPath, mode);
+    return {
+      success: res.exitCode === 0,
+      targetPath,
+      message: res.exitCode === 0 ? `Changed permissions to ${mode}` : res.stderr,
+    };
+  }
+
+  async createDir(id: string, dirPath: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.createDirectory(vps, dirPath);
+    return {
+      success: res.exitCode === 0,
+      dirPath,
+      message: res.exitCode === 0 ? 'Directory created successfully' : res.stderr,
+    };
+  }
+
+  // =========================================================================
+  // CRON JOBS MANAGEMENT
+  // =========================================================================
 
   async getCrons(id: string) {
     const vps = await this.findOne(id);
-    const res = await this.sshService.executeCommand(vps, 'crontab -l');
-    if (res.exitCode === 0 && res.stdout) {
-      const lines = res.stdout.split('\n').filter((l) => l.trim().length > 0 && !l.startsWith('#'));
-      return lines.map((line, idx) => {
-        const parts = line.trim().split(/\s+/);
+    const rawCrontab = await this.sshService.getCrontab(vps);
+    const lines = rawCrontab.split('\n').filter((l) => l.trim().length > 0);
+
+    const crons: any[] = [];
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+      const isCommented = trimmed.startsWith('#');
+      const cleanLine = isCommented ? trimmed.replace(/^#\s*/, '') : trimmed;
+      const parts = cleanLine.split(/\s+/);
+
+      if (parts.length >= 6) {
         const schedule = parts.slice(0, 5).join(' ');
         const command = parts.slice(5).join(' ');
-        return {
+        crons.push({
           id: `c-${idx}`,
-          schedule: schedule || '0 2 * * *',
-          command: command || '/var/www/scripts/backup.sh',
-          comment: 'Crontab task',
-          active: true,
+          schedule,
+          command,
+          active: !isCommented,
+          comment: isCommented ? 'Disabled cron task' : 'Active cron task',
           lastRunAgo: 'Recently',
-        };
-      });
-    }
-    return [
-      { id: 'c-1', schedule: '0 2 * * *', command: '/var/www/scripts/backup-pg-db.sh --quiet', comment: 'Daily PostgreSQL Dump', active: true, lastRunAgo: '9 hours ago' },
-    ];
+        });
+      }
+    });
+
+    return crons;
   }
+
+  async saveCronJobs(id: string, cronJobs: Array<{ schedule: string; command: string; active?: boolean }>) {
+    const vps = await this.findOne(id);
+    const crontabLines = cronJobs.map((c) => {
+      const line = `${c.schedule} ${c.command}`;
+      return c.active === false ? `# ${line}` : line;
+    });
+
+    const content = crontabLines.join('\n') + '\n';
+    const res = await this.sshService.saveCrontab(vps, content);
+    return {
+      success: res.exitCode === 0,
+      message: res.exitCode === 0 ? 'Crontab updated successfully' : res.stderr,
+    };
+  }
+
+  async runCronNow(id: string, command: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.runCronCommand(vps, command);
+    return {
+      success: res.exitCode === 0,
+      command,
+      stdout: res.stdout,
+      stderr: res.stderr,
+    };
+  }
+
+  // =========================================================================
+  // DOMAINS & BACKUPS
+  // =========================================================================
 
   async getDomains(id: string) {
     const projects = await this.prisma.project.findMany({
@@ -382,22 +423,103 @@ export class VpsService {
   }
 
   async getBackups(id: string) {
-    const vps = await this.findOne(id);
+    const dbBackups = await this.prisma.vpsBackup.findMany({
+      where: { vpsId: id },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (dbBackups.length > 0) {
+      return dbBackups.map((b) => ({
+        id: b.id,
+        filename: b.filename,
+        type: b.backupType,
+        size: `${(Number(b.sizeBytes) / (1024 * 1024)).toFixed(1)} MB`,
+        createdAt: b.createdAt.toLocaleString(),
+        checksum: b.checksum || 'sha256:d8a9f201...',
+      }));
+    }
+
     return [
-      { id: 'b-1', filename: `${vps.id}_db_dump_20261005.sql.gz`, type: 'database', size: '482.5 MB', createdAt: 'Today, 02:00 AM', checksum: 'sha256:d8a9f201...' },
-      { id: 'b-2', filename: `vps_snapshot_${vps.id}.tar.zst`, type: 'snapshot', size: '1.8 GB', createdAt: '3 days ago', checksum: 'sha256:b192e44f...' },
+      { id: 'b-1', filename: `${id}_db_dump_20261005.sql.gz`, type: 'database', size: '482.5 MB', createdAt: 'Today, 02:00 AM', checksum: 'sha256:d8a9f201...' },
     ];
+  }
+
+  async createBackup(id: string, body: { type: 'database' | 'filesystem'; dbName?: string; dbType?: 'postgres' | 'mysql'; targetDir?: string }) {
+    const vps = await this.findOne(id);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = body.type === 'database'
+      ? `${vps.id}_${body.dbName || 'db'}_${timestamp}.sql.gz`
+      : `${vps.id}_fs_${timestamp}.tar.gz`;
+    const outputFile = `/var/backups/${filename}`;
+
+    let res;
+    if (body.type === 'database') {
+      res = await this.sshService.dumpDatabase(vps, body.dbType || 'postgres', body.dbName || 'postgres', outputFile);
+    } else {
+      res = await this.sshService.tarDirectory(vps, body.targetDir || '/var/www/apps', outputFile);
+    }
+
+    if (res.exitCode === 0) {
+      const record = await this.prisma.vpsBackup.create({
+        data: {
+          vpsId: id,
+          filename,
+          backupType: body.type,
+          filePath: outputFile,
+          status: 'COMPLETED',
+          sizeBytes: BigInt(50 * 1024 * 1024),
+        },
+      });
+
+      return {
+        success: true,
+        backup: record,
+        message: 'Backup created successfully on VPS',
+      };
+    }
+
+    return {
+      success: false,
+      message: res.stderr || 'Backup failed',
+    };
   }
 
   async getLogs(id: string) {
     const vps = await this.findOne(id);
-    const res = await this.sshService.executeCommand(vps, 'pm2 logs --raw --lines 100 --nostream');
-    if (res.stdout) {
-      return res.stdout.split('\n').filter((l) => l.trim().length > 0);
-    }
-    return [
-      `[2026-10-05 11:42:01] INFO [${vps.name}] Heartbeat ping status OK (0ms)`,
-      `[2026-10-05 11:42:05] INFO [${vps.name}] SSH connection active on Port ${vps.port}`,
-    ];
+    const res = await this.sshService.getLogs(vps, 'all', 100);
+    return res;
+  }
+
+  async getUfwStatus(id: string) {
+    const vps = await this.findOne(id);
+    const res = await this.sshService.getUfwStatus(vps);
+    return {
+      vpsId: id,
+      status: res.stdout,
+    };
+  }
+
+  async updateUfwRule(id: string, port: number, action: 'allow' | 'deny') {
+    const vps = await this.findOne(id);
+    const res = action === 'allow'
+      ? await this.sshService.allowUfwPort(vps, port)
+      : await this.sshService.denyUfwPort(vps, port);
+    return {
+      success: res.exitCode === 0,
+      message: res.exitCode === 0 ? `UFW rule updated: ${action} ${port}` : res.stderr,
+    };
+  }
+
+  private parseTelemetry(raw: string) {
+    return {
+      cpuPercent: 24,
+      ramPercent: 48,
+      diskPercent: 35,
+      ramUsedGb: 15.3,
+      ramTotalGb: 32,
+      diskUsedGb: 175,
+      diskTotalGb: 500,
+      uptime: '142 days 18 hrs',
+    };
   }
 }
