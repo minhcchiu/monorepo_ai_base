@@ -14,6 +14,7 @@ import {
   restartProjectRuntime,
   removeProjectScope,
   triggerProjectDeployment,
+  fetchProjectEnvironment,
   inspectProjectRepoApi,
   syncGitlabVariablesApi,
   triggerGitlabPipelineApi,
@@ -61,7 +62,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 export interface SubAppConfig {
@@ -249,6 +250,142 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
   const [deployLogs, setDeployLogs] = useState<string>('');
   const [deployError, setDeployError] = useState<string | null>(null);
   const logsEndRef = useRef<HTMLPreElement>(null);
+
+  // Re-deploy Modal State for existing projects
+  const [redeployProject, setRedeployProject] = useState<ProjectItem | null>(null);
+  const [redeployModalOpen, setRedeployModalOpen] = useState(false);
+  const [redeployStep, setRedeployStep] = useState<'CONFIG' | 'RUNNING'>('CONFIG');
+  const [redeploying, setRedeploying] = useState(false);
+  const [redeployBranch, setRedeployBranch] = useState<string>('main');
+  const [redeployAvailableBranches, setRedeployAvailableBranches] = useState<string[]>(['main']);
+  const [redeployRunPrisma, setRedeployRunPrisma] = useState<boolean>(true);
+  const [redeploySubApps, setRedeploySubApps] = useState<SubAppConfig[]>([]);
+  const [redeployAppEnvs, setRedeployAppEnvs] = useState<Record<string, string>>({});
+  const [redeployEnvText, setRedeployEnvText] = useState<string>('');
+  const [inspectingEcosystem, setInspectingEcosystem] = useState<boolean>(false);
+  const [redeployLogs, setRedeployLogs] = useState<string>('');
+  const [redeployError, setRedeployError] = useState<string | null>(null);
+  const [redeploySuccess, setRedeploySuccess] = useState(false);
+  const redeployLogsEndRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    if (redeployLogsEndRef.current) {
+      redeployLogsEndRef.current.scrollTop = redeployLogsEndRef.current.scrollHeight;
+    }
+  }, [redeployLogs]);
+
+  const handleOpenRedeployModal = async (proj: ProjectItem) => {
+    setRedeployProject(proj);
+    const targetBranch = proj.gitBranch || 'main';
+    setRedeployBranch(targetBranch);
+    setRedeployRunPrisma(true);
+    setRedeployStep('CONFIG');
+    setRedeployError(null);
+    setRedeploySuccess(false);
+    setRedeployModalOpen(true);
+    setInspectingEcosystem(true);
+
+    const repoUrl = proj.gitRepo || `git@gitlab.com:izisoftware2020/${proj.id}.git`;
+
+    try {
+      const [envData, inspectData] = await Promise.all([
+        fetchProjectEnvironment(id, proj.id).catch(() => null),
+        inspectProjectRepoApi(id, repoUrl, targetBranch, proj.id, proj.workingDir).catch(() => null),
+      ]);
+
+      if (Array.isArray(envData) && envData.length > 0) {
+        const text = envData.map((v: any) => `${v.key}=${v.value}`).join('\n');
+        setRedeployEnvText(text);
+      } else {
+        setRedeployEnvText(`PORT=${proj.port || 3000}\nNODE_ENV=${proj.environment === 'prod' ? 'production' : proj.environment}\nDATABASE_URL=postgresql://cloud_pulse_user:cloud_pulse_password@36.50.176.26:5432/cloud_pulse?schema=public\nJWT_SECRET=super_secret_jwt_key_9918237`);
+      }
+
+      if (inspectData?.detectedApps && Array.isArray(inspectData.detectedApps)) {
+        if (inspectData.branches && inspectData.branches.length > 0) {
+          setRedeployAvailableBranches(inspectData.branches);
+        }
+
+        const appConfigs: SubAppConfig[] = inspectData.detectedApps.map((app: any) => ({
+          id: app.id,
+          name: app.name,
+          path: app.path,
+          port: app.defaultPort,
+          enabled: true,
+          envText: app.envExample || `PORT=${app.defaultPort}\nNODE_ENV=production`,
+        }));
+        setRedeploySubApps(appConfigs);
+
+        const initialEnvs: Record<string, string> = {};
+        appConfigs.forEach((app) => {
+          initialEnvs[app.id] = app.envText;
+        });
+        setRedeployAppEnvs(initialEnvs);
+      } else {
+        setRedeploySubApps([
+          { id: 'backend', name: 'Backend API', path: 'apps/backend', port: proj.port || 22090, enabled: true, envText: `PORT=${proj.port || 22090}\nNODE_ENV=production` },
+        ]);
+      }
+    } catch (e) {
+      toast.error('Không thể phân tích ecosystem.config.js từ repo, sử dụng cấu hình mặc định');
+    } finally {
+      setInspectingEcosystem(false);
+    }
+  };
+
+  const handleExecuteRedeploy = async () => {
+    if (!redeployProject) return;
+    try {
+      setRedeploying(true);
+      setRedeployStep('RUNNING');
+      setRedeployError(null);
+      setRedeploySuccess(false);
+      setRedeployLogs(`🚀 Kích hoạt Re-deploy cho dự án '${redeployProject.name}'...\nĐang kết nối SSH đến VPS ${cluster.ip}...\nĐang chuẩn bị git pull origin ${redeployBranch}...`);
+
+      const deployRes = await triggerProjectDeployment(id, redeployProject.id, {
+        deployMode: 'RE_DEPLOY',
+        branch: redeployBranch,
+        deployDir: redeployProject.workingDir || `/home/production-deploys/${redeployProject.id}`,
+        runPrismaDbPush: redeployRunPrisma,
+        appEnvs: redeployAppEnvs,
+        envText: redeployEnvText,
+      });
+
+      const startTime = Date.now();
+      let finalStatus = deployRes?.status || 'RUNNING';
+      let currentLogs = deployRes?.logs || 'Đang thực thi script Re-deploy trên VPS...';
+      setRedeployLogs(currentLogs);
+
+      while (finalStatus === 'RUNNING' && Date.now() - startTime < 300000) {
+        await new Promise((r) => setTimeout(r, 1500));
+        try {
+          const deps = await fetchProjectDeployments(id, redeployProject.id);
+          if (Array.isArray(deps) && deps.length > 0) {
+            const latestDep = deps[0];
+            finalStatus = latestDep.status || 'RUNNING';
+            currentLogs = latestDep.logs || currentLogs;
+            setRedeployLogs(currentLogs);
+          }
+        } catch (err) {
+          // Keep polling
+        }
+      }
+
+      if (finalStatus === 'FAILED' || currentLogs.includes('MODULE_NOT_FOUND')) {
+        setRedeployError(currentLogs || 'Lỗi thực thi script Re-deploy trên VPS');
+        setRedeploySuccess(false);
+        toast.error(`❌ Re-deploy thất bại cho dự án ${redeployProject.name}!`);
+      } else {
+        setRedeploySuccess(true);
+        toast.success(`🎉 DỰ ÁN ${redeployProject.name} ĐÃ PULL CODE VÀ RE-DEPLOY THÀNH CÔNG!`);
+        await loadProjects();
+      }
+    } catch (e: any) {
+      setRedeployError(e?.response?.data?.message || 'Có lỗi xảy ra khi Re-deploy dự án');
+      toast.error('❌ Lỗi kích hoạt Re-deploy');
+    } finally {
+      setRedeploying(false);
+    }
+  };
 
   useEffect(() => {
     if (logsEndRef.current) {
@@ -1035,6 +1172,21 @@ deploy_job:
                         <td className="py-3.5 px-4 font-mono text-slate-600">{proj.pm2Instances}</td>
                         <td className="py-3.5 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              disabled={redeploying && redeployProject?.id === proj.id}
+                              onClick={() => handleOpenRedeployModal(proj)}
+                              title="Cấu hình branch, .env và Re-deploy dự án"
+                              className="h-7 px-2.5 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                            >
+                              {redeploying && redeployProject?.id === proj.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Rocket className="w-3.5 h-3.5" />
+                              )}
+                              <span>Deploy lại</span>
+                            </Button>
+
                             <Button
                               variant="outline"
                               size="sm"
@@ -2186,6 +2338,273 @@ deploy_job:
               </Button>
             </DialogFooter>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Re-deploy Live Progress Dialog */}
+      <Dialog open={redeployModalOpen} onOpenChange={setRedeployModalOpen}>
+        <DialogContent className="max-w-3xl bg-white border border-slate-200/80 rounded-2xl shadow-xl overflow-hidden p-0">
+          <DialogHeader className="p-5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white space-y-1">
+            <DialogTitle className="text-lg font-bold flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <RefreshCw className={`w-5 h-5 text-emerald-400 ${redeploying ? 'animate-spin' : ''}`} />
+                <span>Re-Deploy Code Mới — {redeployProject?.name}</span>
+              </div>
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">
+                {redeployBranch}
+              </span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-300 font-mono">
+              Thực thi Git Pull origin {redeployBranch} → pnpm install → pnpm build → PM2 reload trên {cluster.name} ({cluster.ip})
+            </DialogDescription>
+          </DialogHeader>
+
+          {redeployStep === 'CONFIG' ? (
+            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* ECOSYSTEM INSPECTION CARD */}
+              <div className="p-4 bg-indigo-50/80 rounded-2xl border border-indigo-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-indigo-600" />
+                    <span>Phân Tích Cấu Hình Từ ecosystem.config.js Mới Nhất</span>
+                  </span>
+                  {inspectingEcosystem ? (
+                    <span className="text-xs text-indigo-600 font-medium flex items-center gap-1">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Đang phân tích Repo & ecosystem.config.js...</span>
+                    </span>
+                  ) : (
+                    <span className="text-xs font-mono font-semibold text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200">
+                      Phát hiện {redeploySubApps.length} Sub-Apps
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                  {redeploySubApps.map((app) => (
+                    <div
+                      key={app.id}
+                      className="p-2.5 bg-white rounded-xl border border-indigo-100 text-xs space-y-1 shadow-2xs"
+                    >
+                      <div className="font-bold text-slate-900">{app.name}</div>
+                      <div className="font-mono text-[11px] text-indigo-700 font-semibold">Port {app.port} • {app.path}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* BRANCH SELECTOR & PRISMA OPTION */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <GitBranch className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Nhánh Git Cần Pull Code (Target Branch)</span>
+                  </Label>
+                  <select
+                    value={redeployBranch}
+                    onChange={(e) => setRedeployBranch(e.target.value)}
+                    className="w-full h-9 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs font-mono font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  >
+                    {redeployAvailableBranches.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5 flex flex-col justify-center pt-3">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={redeployRunPrisma}
+                      onChange={(e) => setRedeployRunPrisma(e.target.checked)}
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                    />
+                    <span>Chạy Prisma DB Sync (`pnpm prisma db push`)</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500 pl-6">
+                    Tự động đồng bộ schema cơ sở dữ liệu nếu có thay đổi trong model.
+                  </p>
+                </div>
+              </div>
+
+              {/* EDITABLE .ENV CONFIGURATION SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <FileCode className="w-4 h-4 text-amber-600" />
+                    <span>Chỉnh Sửa Biến Môi Trường (.env) Cho Các Sub-Apps:</span>
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                          setRedeployEnvText(text);
+                          toast.success('Đã dán .env từ bộ nhớ tạm!');
+                        }
+                      } catch (e) {
+                        toast.error('Không thể đọc bộ nhớ tạm');
+                      }
+                    }}
+                    className="h-7 text-xs text-blue-600 gap-1 hover:bg-blue-50"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Dán từ Clipboard</span>
+                  </Button>
+                </div>
+
+                {redeploySubApps.length > 1 ? (
+                  <div className="space-y-3">
+                    {redeploySubApps.map((app) => (
+                      <div key={app.id} className="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+                        <div className="text-xs font-bold font-mono text-slate-800">{app.path}/.env (Port {app.port})</div>
+                        <textarea
+                          rows={4}
+                          value={redeployAppEnvs[app.id] ?? app.envText}
+                          onChange={(e) => setRedeployAppEnvs((prev) => ({ ...prev, [app.id]: e.target.value }))}
+                          className="w-full rounded-lg bg-slate-950 text-emerald-400 p-2.5 font-mono text-xs leading-relaxed focus:outline-none select-text border border-slate-800 shadow-inner"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <textarea
+                    rows={7}
+                    value={redeployEnvText}
+                    onChange={(e) => setRedeployEnvText(e.target.value)}
+                    className="w-full rounded-xl bg-slate-950 text-emerald-400 p-3.5 font-mono text-xs leading-relaxed focus:outline-none select-text border border-slate-800 shadow-inner"
+                    placeholder={`PORT=22090\nNODE_ENV=production\nDATABASE_URL=postgresql://...\nJWT_SECRET=...`}
+                  />
+                )}
+
+                <p className="text-[11px] text-slate-500">
+                  Nội dung .env này sẽ được ghi đè trực tiếp lên VPS trước khi chạy bước build & reload PM2.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRedeployModalOpen(false)}
+                  className="h-9 text-xs font-semibold"
+                >
+                  Hủy bỏ
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={inspectingEcosystem}
+                  onClick={handleExecuteRedeploy}
+                  className="h-9 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 px-5"
+                >
+                  <Rocket className="w-4 h-4" />
+                  <span>🚀 Xác Nhận & Re-Deploy Code Mới</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="p-5 space-y-4">
+              {/* 4-Step Visual Progress Bar */}
+              <div className="grid grid-cols-4 gap-2">
+                <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                  redeployLogs.includes('STEP 1:') ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+                }`}>
+                  <div className="text-[10px] uppercase font-mono tracking-wider">Bước 1</div>
+                  <div className="text-xs flex items-center justify-center gap-1">
+                    <GitBranch className="w-3.5 h-3.5" />
+                    <span>Git Pull Code</span>
+                  </div>
+                </div>
+
+                <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                  redeployLogs.includes('STEP 3:') ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+                }`}>
+                  <div className="text-[10px] uppercase font-mono tracking-wider">Bước 2</div>
+                  <div className="text-xs flex items-center justify-center gap-1">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Install Packages</span>
+                  </div>
+                </div>
+
+                <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                  redeployLogs.includes('STEP 4:') ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+                }`}>
+                  <div className="text-[10px] uppercase font-mono tracking-wider">Bước 3</div>
+                  <div className="text-xs flex items-center justify-center gap-1">
+                    <Terminal className="w-3.5 h-3.5" />
+                    <span>Build App</span>
+                  </div>
+                </div>
+
+                <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                  redeployLogs.includes('STEP 7:') ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+                }`}>
+                  <div className="text-[10px] uppercase font-mono tracking-wider">Bước 4</div>
+                  <div className="text-xs flex items-center justify-center gap-1">
+                    <RotateCw className="w-3.5 h-3.5" />
+                    <span>Reload PM2</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Terminal Output */}
+              <div className="bg-slate-950 rounded-xl p-4 font-mono text-xs text-slate-100 space-y-2 border border-slate-800 shadow-inner">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-2">
+                  <span className="flex items-center gap-1.5 font-bold text-indigo-400">
+                    <Terminal className="w-3.5 h-3.5" />
+                    LIVE SSH TERMINAL LOGS
+                  </span>
+                  {redeploying && (
+                    <span className="text-emerald-400 flex items-center gap-1 animate-pulse font-semibold">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Đang thực thi Re-deploy...
+                    </span>
+                  )}
+                </div>
+
+                <pre
+                  ref={redeployLogsEndRef}
+                  className="max-h-[300px] overflow-y-auto whitespace-pre-wrap break-all text-emerald-400 leading-relaxed font-mono pt-1"
+                >
+                  {redeployLogs}
+                </pre>
+              </div>
+
+              {/* Status Banners */}
+              {redeploySuccess && (
+                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <span>🎉 DỰ ÁN ĐÃ PULL CODE VÀ RE-DEPLOY THÀNH CÔNG! PM2 PROCESSES ĐÃ ĐƯỢC RELOAD.</span>
+                </div>
+              )}
+
+              {redeployError && (
+                <div className="p-3 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-900 font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                  <span>❌ RE-DEPLOY THẤT BẠI: {redeployError}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={redeploying}
+                  onClick={() => setRedeployModalOpen(false)}
+                  className="h-8 text-xs font-semibold"
+                >
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </DashboardShell>

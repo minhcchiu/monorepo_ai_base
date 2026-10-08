@@ -8,6 +8,7 @@ import {
   triggerProjectDeployment,
   rollbackProjectDeployment,
   fetchProjectGitlabCiConfigApi,
+  fetchProjectEnvironment,
   syncGitlabVariablesApi,
   triggerGitlabPipelineApi,
 } from '@/modules/projects/api';
@@ -41,6 +42,7 @@ export default function ProjectDeploymentsPage({
   const [buildFilter, setBuildFilter] = useState('');
   const [runPrismaDbPush, setRunPrismaDbPush] = useState(true);
   const [authorName, setAuthorName] = useState('Admin User');
+  const [envText, setEnvText] = useState('');
 
   // GitLab CI Config & Variables State
   const [gitlabCiConfig, setGitlabCiConfig] = useState<string>('');
@@ -105,12 +107,39 @@ export default function ProjectDeploymentsPage({
     loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    if (!selectedLogDeployment || selectedLogDeployment.status !== 'RUNNING') return;
+
+    const interval = setInterval(async () => {
+      try {
+        const deps = await fetchProjectDeployments(vpsId, projectId);
+        if (Array.isArray(deps) && deps.length > 0) {
+          setDeployments(deps);
+          const updated = deps.find((d: any) => d.id === selectedLogDeployment.id);
+          if (updated) {
+            setSelectedLogDeployment(updated);
+          }
+        }
+      } catch (e) {
+        //
+      }
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [selectedLogDeployment, vpsId, projectId]);
+
   const handleOpenDeployModal = async () => {
     setIsDeployModalOpen(true);
     try {
-      const res = await fetchProjectGitlabCiConfigApi(vpsId, projectId);
+      const [res, envData] = await Promise.all([
+        fetchProjectGitlabCiConfigApi(vpsId, projectId),
+        fetchProjectEnvironment(vpsId, projectId),
+      ]);
       if (res?.config) {
         setGitlabCiConfig(res.config);
+      }
+      if (Array.isArray(envData) && envData.length > 0) {
+        setEnvText(envData.map((v: any) => `${v.key}=${v.value}`).join('\n'));
       }
     } catch (e) {
       //
@@ -165,6 +194,7 @@ export default function ProjectDeploymentsPage({
         deployDir,
         buildFilter,
         runPrismaDbPush,
+        envText,
       });
 
       toast.success(
@@ -173,6 +203,9 @@ export default function ProjectDeploymentsPage({
           : `Re-deployment build ${res?.buildNumber || '#211'} started!`,
       );
       setIsDeployModalOpen(false);
+      if (res) {
+        setSelectedLogDeployment(res);
+      }
       await loadData();
     } catch (e: any) {
       toast.error('Deployment execution failed');
@@ -436,6 +469,20 @@ export default function ProjectDeploymentsPage({
                   />
                   <span>Run Prisma DB Push (`pnpm prisma db push`)</span>
                 </label>
+
+                <div className="space-y-1.5 pt-1">
+                  <Label className="text-xs font-semibold text-slate-700">Chỉnh sửa biến môi trường .env (Tùy chọn)</Label>
+                  <textarea
+                    rows={6}
+                    value={envText}
+                    onChange={(e) => setEnvText(e.target.value)}
+                    className="w-full rounded-lg bg-slate-950 text-emerald-400 p-3 font-mono text-xs leading-relaxed focus:outline-none border border-slate-800"
+                    placeholder={`PORT=22090\nNODE_ENV=production\nDATABASE_URL=...`}
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Nội dung .env này sẽ được cập nhật lên VPS trước khi chạy build. Nếu để trống, hệ thống giữ nguyên file `.env` sẵn có trên VPS.
+                  </p>
+                </div>
 
                 <DialogFooter className="pt-2">
                   <Button variant="outline" size="sm" onClick={() => setIsDeployModalOpen(false)}>

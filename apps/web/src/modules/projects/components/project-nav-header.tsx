@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -22,14 +22,27 @@ import {
   Sliders,
   ShieldAlert,
   Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Terminal,
+  Layers,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { ProjectItem } from '../types';
 import { toast } from 'sonner';
 import {
   restartProjectRuntime,
   stopProjectRuntime,
   triggerProjectDeployment,
+  fetchProjectDeployments,
 } from '../api';
 
 interface ProjectNavHeaderProps {
@@ -59,6 +72,19 @@ export function ProjectNavHeader({ project, vpsId, onRefresh }: ProjectNavHeader
     { label: 'Activity', href: `${basePath}/activity`, icon: History },
     { label: 'Settings', href: `${basePath}/settings`, icon: Sliders },
   ];
+
+  const [redeployModalOpen, setRedeployModalOpen] = useState(false);
+  const [redeploying, setRedeploying] = useState(false);
+  const [redeployLogs, setRedeployLogs] = useState<string>('');
+  const [redeployError, setRedeployError] = useState<string | null>(null);
+  const [redeploySuccess, setRedeploySuccess] = useState(false);
+  const redeployLogsEndRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    if (redeployLogsEndRef.current) {
+      redeployLogsEndRef.current.scrollTop = redeployLogsEndRef.current.scrollHeight;
+    }
+  }, [redeployLogs]);
 
   const handleRestart = async () => {
     try {
@@ -99,16 +125,54 @@ export function ProjectNavHeader({ project, vpsId, onRefresh }: ProjectNavHeader
   const handleDeploy = async () => {
     try {
       setLoadingAction('deploy');
-      const res = await triggerProjectDeployment(vpsId, project.id, 'User Trigger');
-      if (res) {
-        toast.success(`Deployment build ${res.buildNumber || '#211'} started!`);
+      setRedeployModalOpen(true);
+      setRedeploying(true);
+      setRedeployError(null);
+      setRedeploySuccess(false);
+      setRedeployLogs(`🚀 Kích hoạt Re-deploy cho dự án '${project.name}'...\nĐang kết nối SSH đến VPS ${project.hostVpsIp}...\nĐang chuẩn bị git pull origin ${project.gitBranch || 'main'}...`);
+
+      const res = await triggerProjectDeployment(vpsId, project.id, {
+        deployMode: 'RE_DEPLOY',
+        branch: project.gitBranch || 'main',
+        deployDir: project.workingDir || `/home/production-deploys/${project.id}`,
+      });
+
+      const startTime = Date.now();
+      let finalStatus = res?.status || 'RUNNING';
+      let currentLogs = res?.logs || 'Đang thực thi script Re-deploy trên VPS...';
+      setRedeployLogs(currentLogs);
+
+      while (finalStatus === 'RUNNING' && Date.now() - startTime < 300000) {
+        await new Promise((r) => setTimeout(r, 1500));
+        try {
+          const deps = await fetchProjectDeployments(vpsId, project.id);
+          if (Array.isArray(deps) && deps.length > 0) {
+            const latestDep = deps[0];
+            finalStatus = latestDep.status || 'RUNNING';
+            currentLogs = latestDep.logs || currentLogs;
+            setRedeployLogs(currentLogs);
+          }
+        } catch (err) {
+          // Keep polling
+        }
+      }
+
+      if (finalStatus === 'FAILED' || currentLogs.includes('MODULE_NOT_FOUND')) {
+        setRedeployError(currentLogs || 'Lỗi thực thi script Re-deploy trên VPS');
+        setRedeploySuccess(false);
+        toast.error(`❌ Re-deploy thất bại cho dự án ${project.name}!`);
+      } else {
+        setRedeploySuccess(true);
+        toast.success(`🎉 DỰ ÁN ${project.name} ĐÃ PULL CODE VÀ RE-DEPLOY THÀNH CÔNG!`);
         if (onRefresh) onRefresh();
         else router.refresh();
       }
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Error starting deployment');
+      setRedeployError(e?.response?.data?.message || 'Error starting deployment');
+      toast.error('❌ Lỗi kích hoạt Re-deploy');
     } finally {
       setLoadingAction(null);
+      setRedeploying(false);
     }
   };
 
@@ -201,14 +265,14 @@ export function ProjectNavHeader({ project, vpsId, onRefresh }: ProjectNavHeader
               size="sm"
               disabled={loadingAction === 'deploy'}
               onClick={handleDeploy}
-              className="h-8 px-3 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+              className="h-8 px-3 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
             >
               {loadingAction === 'deploy' ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <Rocket className="w-3.5 h-3.5" />
               )}
-              <span>Deploy Now</span>
+              <span>Deploy lại (Git Pull)</span>
             </Button>
           </div>
         </div>
@@ -238,6 +302,121 @@ export function ProjectNavHeader({ project, vpsId, onRefresh }: ProjectNavHeader
           })}
         </div>
       </div>
+
+      {/* Re-deploy Live Progress Dialog */}
+      <Dialog open={redeployModalOpen} onOpenChange={setRedeployModalOpen}>
+        <DialogContent className="max-w-3xl bg-white border border-slate-200/80 rounded-2xl shadow-xl overflow-hidden p-0">
+          <DialogHeader className="p-5 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white space-y-1">
+            <DialogTitle className="text-lg font-bold flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <RefreshCw className={`w-5 h-5 text-emerald-400 ${redeploying ? 'animate-spin' : ''}`} />
+                <span>Re-Deploy Code Mới — {project.name}</span>
+              </div>
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">
+                {project.gitBranch || 'main'}
+              </span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-300 font-mono">
+              Thực thi Git Pull origin {project.gitBranch || 'main'} → pnpm install → pnpm build → PM2 reload trên {project.hostVpsName} ({project.hostVpsIp})
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="p-5 space-y-4">
+            {/* 4-Step Visual Progress Bar */}
+            <div className="grid grid-cols-4 gap-2">
+              <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                redeployLogs.includes('STEP 1:') ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}>
+                <div className="text-[10px] uppercase font-mono tracking-wider">Bước 1</div>
+                <div className="text-xs flex items-center justify-center gap-1">
+                  <GitBranch className="w-3.5 h-3.5" />
+                  <span>Git Pull Code</span>
+                </div>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                redeployLogs.includes('STEP 3:') ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}>
+                <div className="text-[10px] uppercase font-mono tracking-wider">Bước 2</div>
+                <div className="text-xs flex items-center justify-center gap-1">
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Install Packages</span>
+                </div>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                redeployLogs.includes('STEP 4:') ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}>
+                <div className="text-[10px] uppercase font-mono tracking-wider">Bước 3</div>
+                <div className="text-xs flex items-center justify-center gap-1">
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>Build App</span>
+                </div>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border text-center space-y-1 ${
+                redeployLogs.includes('STEP 7:') ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}>
+                <div className="text-[10px] uppercase font-mono tracking-wider">Bước 4</div>
+                <div className="text-xs flex items-center justify-center gap-1">
+                  <RotateCw className="w-3.5 h-3.5" />
+                  <span>Reload PM2</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Terminal Output */}
+            <div className="bg-slate-950 rounded-xl p-4 font-mono text-xs text-slate-100 space-y-2 border border-slate-800 shadow-inner">
+              <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-2">
+                <span className="flex items-center gap-1.5 font-bold text-indigo-400">
+                  <Terminal className="w-3.5 h-3.5" />
+                  LIVE SSH TERMINAL LOGS
+                </span>
+                {redeploying && (
+                  <span className="text-emerald-400 flex items-center gap-1 animate-pulse font-semibold">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Đang thực thi Re-deploy...
+                  </span>
+                )}
+              </div>
+
+              <pre
+                ref={redeployLogsEndRef}
+                className="max-h-[300px] overflow-y-auto whitespace-pre-wrap break-all text-emerald-400 leading-relaxed font-mono pt-1"
+              >
+                {redeployLogs}
+              </pre>
+            </div>
+
+            {/* Status Banners */}
+            {redeploySuccess && (
+              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>🎉 DỰ ÁN ĐÃ PULL CODE VÀ RE-DEPLOY THÀNH CÔNG! PM2 PROCESSES ĐÃ ĐƯỢC RELOAD.</span>
+              </div>
+            )}
+
+            {redeployError && (
+              <div className="p-3 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-900 font-semibold flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                <span>❌ RE-DEPLOY THẤT BẠI: {redeployError}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={redeploying}
+                onClick={() => setRedeployModalOpen(false)}
+                className="h-8 text-xs font-semibold"
+              >
+                Đóng
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

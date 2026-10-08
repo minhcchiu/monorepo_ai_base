@@ -43,8 +43,19 @@ export async function syncPm2ProjectsApi(vpsId: string) {
   return data;
 }
 
-export async function inspectProjectRepoApi(vpsId: string, gitRepo: string, branch?: string) {
-  const { data } = await axiosInstance.post(`/vps/${vpsId}/projects/inspect-repo`, { gitRepo, branch });
+export async function inspectProjectRepoApi(
+  vpsId: string,
+  gitRepo: string,
+  branch?: string,
+  projectId?: string,
+  workingDir?: string,
+) {
+  const { data } = await axiosInstance.post(`/vps/${vpsId}/projects/inspect-repo`, {
+    gitRepo,
+    branch,
+    projectId,
+    workingDir,
+  });
   return data;
 }
 

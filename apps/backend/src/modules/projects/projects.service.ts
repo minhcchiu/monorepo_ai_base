@@ -249,7 +249,13 @@ export class ProjectsService {
     };
   }
 
-  async inspectRepo(vpsId: string, gitRepo: string, targetBranchOverride?: string) {
+  async inspectRepo(
+    vpsId: string,
+    gitRepo: string,
+    targetBranchOverride?: string,
+    projectId?: string,
+    workingDirOverride?: string,
+  ) {
     const vps = await this.resolveVps(vpsId);
 
     if (!gitRepo || !gitRepo.trim()) {
@@ -411,33 +417,69 @@ export class ProjectsService {
 
     const primaryBackendPort = detectedApps.find((a) => a.id.includes('backend'))?.defaultPort || 22090;
 
-    // Attempt to fetch .env.example for each app from shallow clone
+    // Attempt to fetch real .env from VPS first, fallback to .env.example in shallow clone
+    let targetDeployDir = workingDirOverride || '';
+    if (!targetDeployDir && projectId) {
+      try {
+        const existingProj = await this.prisma.project.findUnique({ where: { id: projectId } });
+        if (existingProj?.workingDir) {
+          targetDeployDir = existingProj.workingDir;
+        }
+      } catch (e) {}
+    }
+    if (!targetDeployDir) {
+      targetDeployDir = `/home/production-deploys/${slug}`;
+    }
+
     for (const app of detectedApps) {
       try {
-        const envExRes = await this.sshService.executeCommand(
-          vps,
-          `cat ${tmpDir}/${app.path}/.env.example 2>/dev/null || cat ${tmpDir}/${app.path}/.env.template 2>/dev/null || cat ${tmpDir}/${app.path}/.env 2>/dev/null`,
-        );
-        let envContent = envExRes.exitCode === 0 && envExRes.stdout.trim() ? envExRes.stdout.trim() : '';
+        // 1. First priority: Read actual live non-empty .env from existing VPS deployment directory
+        const readVpsEnvCmd = `
+if [ -n "${targetDeployDir}" ] && [ -f "${targetDeployDir}/${app.path}/.env" ] && [ -s "${targetDeployDir}/${app.path}/.env" ]; then
+  cat "${targetDeployDir}/${app.path}/.env"
+  exit 0
+elif [ -n "${targetDeployDir}" ] && [ -f "${targetDeployDir}/.env" ] && [ -s "${targetDeployDir}/.env" ]; then
+  cat "${targetDeployDir}/.env"
+  exit 0
+fi
+
+vpsFile=$(find /home/production-deploys /home/deploy/apps /var/www -type f -path "*/${app.path}/.env" -size +0c 2>/dev/null | head -n 1)
+if [ -n "$vpsFile" ]; then
+  cat "$vpsFile"
+  exit 0
+fi
+
+for d in "${targetDeployDir}" "/home/production-deploys/${slug}" "/home/deploy/apps/${slug}" "/var/www/apps/${slug}"; do
+  if [ -f "$d/${app.path}/.env" ] && [ -s "$d/${app.path}/.env" ]; then
+    cat "$d/${app.path}/.env"
+    exit 0
+  elif [ -f "$d/.env" ] && [ -s "$d/.env" ]; then
+    cat "$d/.env"
+    exit 0
+  fi
+done
+`.trim();
+
+        const vpsEnvRes = await this.sshService.executeCommand(vps, readVpsEnvCmd);
+        let envContent = vpsEnvRes.exitCode === 0 && vpsEnvRes.stdout.trim() ? vpsEnvRes.stdout.trim() : '';
+
+        // 2. Second priority: If no VPS .env file exists yet, read .env.example / .env from git repo
+        if (!envContent) {
+          const envExRes = await this.sshService.executeCommand(
+            vps,
+            `cat ${tmpDir}/${app.path}/.env.example 2>/dev/null || cat ${tmpDir}/${app.path}/.env.template 2>/dev/null || cat ${tmpDir}/${app.path}/.env 2>/dev/null`,
+          );
+          envContent = envExRes.exitCode === 0 && envExRes.stdout.trim() ? envExRes.stdout.trim() : '';
+        }
 
         const isBackend = app.id.includes('backend');
         const defaultPort = app.defaultPort || (isBackend ? 22090 : app.id.includes('admin') ? 32090 : 42090);
 
         if (!envContent) {
           if (isBackend) {
-            envContent = `PORT=${defaultPort}\nNODE_ENV=production\nDATABASE_URL=postgresql://postgres:pass_184920@103.56.162.77:5432/calo_prod\nJWT_SECRET=super_secret_jwt_key_9918237`;
+            envContent = `PORT=${defaultPort}\nNODE_ENV=production\nDATABASE_URL=postgresql://cloud_pulse_user:cloud_pulse_password@127.0.0.1:5432/cloud_pulse?schema=public\nJWT_SECRET=super_secret_jwt_key_9918237`;
           } else {
             envContent = `PORT=${defaultPort}\nNODE_ENV=production\nNEXT_PUBLIC_API_URL=http://localhost:${primaryBackendPort}`;
-          }
-        } else {
-          if (!envContent.includes('PORT=')) {
-            envContent = `PORT=${defaultPort}\n` + envContent;
-          }
-          if (!envContent.includes('NODE_ENV=')) {
-            envContent = `NODE_ENV=production\n` + envContent;
-          }
-          if (!isBackend && !envContent.includes('NEXT_PUBLIC_API_URL=')) {
-            envContent += `\nNEXT_PUBLIC_API_URL=http://localhost:${primaryBackendPort}`;
           }
         }
         (app as any).envExample = envContent;
@@ -778,9 +820,6 @@ export class ProjectsService {
     let envWriteCmds = '';
     if (body.envText) {
       let cleanEnv = body.envText;
-      if (!cleanEnv.includes('DATABASE_URL=')) {
-        cleanEnv += `\nDATABASE_URL="${defaultDbUrl}"\nJWT_SECRET="${defaultJwtSecret}"`;
-      }
       const b64 = Buffer.from(cleanEnv).toString('base64');
       envWriteCmds += ` && echo "${b64}" | base64 -d > .env`;
     }
@@ -789,9 +828,6 @@ export class ProjectsService {
       Object.entries(body.appEnvs).forEach(([appKey, rawContent]) => {
         if (typeof rawContent === 'string' && rawContent.trim()) {
           let envContent = rawContent;
-          if (appKey.includes('backend') && !envContent.includes('DATABASE_URL=')) {
-            envContent += `\nDATABASE_URL="${defaultDbUrl}"\nJWT_SECRET="${defaultJwtSecret}"`;
-          }
           const b64 = Buffer.from(envContent).toString('base64');
           if (appKey.includes('backend')) {
             envWriteCmds += ` && mkdir -p apps/backend && echo "${b64}" | base64 -d > apps/backend/.env`;
@@ -804,7 +840,7 @@ export class ProjectsService {
           }
         }
       });
-    } else {
+    } else if (deployMode === 'INITIAL') {
       const b64Backend = Buffer.from(`PORT=${backendPort}\nNODE_ENV=${nodeEnv}\nDATABASE_URL=${defaultDbUrl}\nJWT_SECRET=${defaultJwtSecret}`).toString('base64');
       const b64Admin = Buffer.from(`PORT=${adminPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}`).toString('base64');
       const b64Web = Buffer.from(`PORT=${webPort}\nNODE_ENV=${nodeEnv}\nNEXT_PUBLIC_API_URL=http://localhost:${backendPort}`).toString('base64');
@@ -813,6 +849,8 @@ export class ProjectsService {
       envWriteCmds += ` && (if [ -d apps/web-admin ]; then mkdir -p apps/web-admin && echo "${b64Admin}" | base64 -d > apps/web-admin/.env; fi)`;
       envWriteCmds += ` && (if [ -d apps/admin ]; then mkdir -p apps/admin && echo "${b64Admin}" | base64 -d > apps/admin/.env; fi)`;
       envWriteCmds += ` && (if [ -d apps/web ]; then mkdir -p apps/web && echo "${b64Web}" | base64 -d > apps/web/.env; fi)`;
+    } else {
+      envWriteCmds += ` && echo "Preserving existing .env files on VPS"`;
     }
 
     // 2. Nginx VirtualHost File Content (/etc/nginx/conf.d/<domain>.conf)
@@ -892,55 +930,67 @@ export class ProjectsService {
 
     const cmd = `
 ${pathExport}
-echo "=== STEP 1: PREPARING REPOSITORY ==="
+echo "=== STEP 1: PREPARING REPOSITORY & GIT PULL ==="
 if [ ! -d "${deployDir}" ]; then
   echo "Cloning ${repoUrl} (branch ${branch})..."
   mkdir -p /home/production-deploys && git clone -b ${branch} "${repoUrl}" "${deployDir}"
 else
-  echo "Directory exists. Fetching and pulling branch ${branch}..."
+  echo "Directory exists. Fetching and pulling latest code on branch '${branch}'..."
   cd "${deployDir}" && git fetch origin && (git checkout -B ${branch} origin/${branch} 2>/dev/null || git checkout ${branch} 2>/dev/null || true) && (git reset --hard origin/${branch} 2>/dev/null || git pull origin ${branch} 2>/dev/null || true)
 fi
 
 cd "${deployDir}"
 echo "Current Dir: $(pwd)"
 echo "Git Branch: $(git branch --show-current 2>/dev/null || echo '${branch}')"
+echo "Git Commit: $(git log -1 --format="%h - %s (%cr)" 2>/dev/null || echo 'head')"
 
 echo "=== STEP 2: WRITING ENVIRONMENT VARIABLES ==="
 ${cleanEnvCmds}
 
 echo "=== STEP 3: INSTALLING DEPENDENCIES & PRISMA GENERATE ==="
 pnpm install
-if [ -d "apps/backend" ]; then
+if [ -f "apps/backend/prisma/schema.prisma" ] || [ -d "apps/backend/prisma" ]; then
+  echo "Generating Prisma Client in apps/backend..."
   cd apps/backend && (pnpm prisma generate || npx prisma generate || true) && cd "${deployDir}"
+elif [ -f "prisma/schema.prisma" ] || [ -d "prisma" ]; then
+  echo "Generating Prisma Client in Root..."
+  (pnpm prisma generate || npx prisma generate || true)
+elif [ -f "packages/db/prisma/schema.prisma" ] || [ -d "packages/db/prisma" ]; then
+  echo "Generating Prisma Client in packages/db..."
+  cd packages/db && (pnpm prisma generate || npx prisma generate || true) && cd "${deployDir}"
 fi
-(pnpm prisma generate || npx prisma generate || true)
 
-echo "=== STEP 4: BUILDING MONOREPO APPS ==="
+echo "=== STEP 4: BUILDING MONOREPO APPS (PARALLEL TURBO BUILD) ==="
 rm -f /home/production-deploys/pnpm-lock.yaml 2>/dev/null || true
 rm -rf apps/*/.next/lock 2>/dev/null || true
 
-echo "--- Building Backend App ---"
-if [ -d "apps/backend" ]; then cd apps/backend && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
-
-echo "--- Building Admin App ---"
-if [ -d "apps/admin" ]; then cd apps/admin && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
-
-echo "--- Building Web App ---"
-if [ -d "apps/web" ]; then cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
+NODE_OPTIONS="--max-old-space-size=2048" pnpm build || (
+  echo "Fallback: Building sub-apps sequentially..."
+  if [ -d "apps/backend" ]; then cd apps/backend && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
+  if [ -d "apps/admin" ]; then cd apps/admin && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
+  if [ -d "apps/web" ]; then cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm build && cd "${deployDir}"; fi
+)
 
 echo "=== STEP 5: PRISMA DATABASE SYNC ==="
-if [ -d "apps/backend" ]; then
+if [ -f "apps/backend/prisma/schema.prisma" ] || [ -d "apps/backend/prisma" ]; then
   cd apps/backend && set -a && ( [ -f .env ] && source .env ) && set +a && ${runPrisma ? '(pnpm prisma db push --accept-data-loss || npx prisma db push --accept-data-loss || true)' : 'echo "Prisma DB push skipped"'}
   cd "${deployDir}"
+elif [ -f "prisma/schema.prisma" ] || [ -d "prisma" ]; then
+  set -a && ( [ -f .env ] && source .env ) && set +a && ${runPrisma ? '(pnpm prisma db push --accept-data-loss || npx prisma db push --accept-data-loss || true)' : 'echo "Prisma DB push skipped"'}
 fi
 
 echo "=== STEP 6: NGINX REVERSE PROXY SETUP ==="
 ${nginxCmd}
 
-echo "=== STEP 7: STARTING PM2 PROCESSES ==="
+echo "=== STEP 7: RELOADING & STARTING PM2 PROCESSES ==="
 cd "${deployDir}"
-pm2 delete cloudpulse-backend cloudpulse-admin cloudpulse-web 2>/dev/null || true
-BACKEND_PORT=${backendPort} ADMIN_PORT=${adminPort} WEB_PORT=${webPort} pm2 start ecosystem.config.js --update-env || pm2 restart all
+if [ -f "ecosystem.config.js" ]; then
+  echo "Reloading PM2 processes configured in ecosystem.config.js..."
+  BACKEND_PORT=${backendPort} ADMIN_PORT=${adminPort} WEB_PORT=${webPort} pm2 startOrReload ecosystem.config.js --update-env || BACKEND_PORT=${backendPort} ADMIN_PORT=${adminPort} WEB_PORT=${webPort} pm2 reload ecosystem.config.js --update-env || pm2 restart all
+else
+  echo "Reloading PM2 process '${project.pm2Name || project.id}'..."
+  pm2 reload ${project.pm2Name || project.id} --update-env || pm2 restart ${project.pm2Name || project.id} || pm2 restart all
+fi
 pm2 status
 `.trim();
 
@@ -965,7 +1015,7 @@ pm2 status
     let lastSaveTime = 0;
     const onLogChunk = async (_chunk: string, cumulativeLogs: string) => {
       const now = Date.now();
-      if (now - lastSaveTime > 500) {
+      if (lastSaveTime === 0 || now - lastSaveTime > 300) {
         lastSaveTime = now;
         try {
           await this.prisma.deployment.update({
@@ -995,13 +1045,31 @@ pm2 status
       const hasErrorInLogs = fullLogs.includes('MODULE_NOT_FOUND') || fullLogs.includes('Could not find a production build');
       const isSuccess = sshRes.exitCode === 0 && !hasErrorInLogs;
 
+      const commitMatch = fullLogs.match(/Git Commit:\s*([a-f0-9]+)/i);
+      const latestCommit = commitMatch ? commitMatch[1] : project.gitHash || 'head';
+
       await this.prisma.deployment.update({
         where: { id: deployment.id },
         data: {
           status: isSuccess ? 'SUCCESS' : 'FAILED',
+          commitHash: latestCommit,
           logs: fullLogs,
         },
       });
+
+      if (isSuccess) {
+        try {
+          await this.prisma.project.update({
+            where: { id: projectId },
+            data: {
+              ...(latestCommit && latestCommit !== 'head' ? { gitHash: latestCommit } : {}),
+              status: 'RUNNING',
+            },
+          });
+        } catch (e) {
+          //
+        }
+      }
 
       await this.logActivity(
         projectId,
@@ -1278,30 +1346,71 @@ ${jobsYaml}`;
 
   async getEnvironment(vpsId: string, projectId: string) {
     const project = await this.validateProjectVpsRelation(vpsId, projectId);
+    const deployDir = project.workingDir || `/home/production-deploys/${project.id}`;
+
+    // Read live .env directly from existing VPS deployment directory over SSH
+    try {
+      const readCmd = `
+for d in "${deployDir}" "/home/production-deploys/${project.id}" "/home/deploy/apps/${project.id}" "/var/www/apps/${project.id}"; do
+  for f in "$d/apps/backend/.env" "$d/apps/admin/.env" "$d/apps/web/.env" "$d/.env"; do
+    if [ -f "$f" ] && [ -s "$f" ]; then
+      cat "$f"
+      exit 0
+    fi
+  done
+done
+`.trim();
+
+      const res = await this.sshService.executeCommand(project.vps, readCmd);
+
+      if (res.exitCode === 0 && res.stdout && res.stdout.trim()) {
+        const lines = res.stdout.split('\n');
+        const vars: Array<{ key: string; value: string }> = [];
+        lines.forEach((line) => {
+          const trimmed = line.trim();
+          if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+            const idx = trimmed.indexOf('=');
+            const key = trimmed.substring(0, idx).trim();
+            let value = trimmed.substring(idx + 1).trim();
+            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+              value = value.slice(1, -1);
+            }
+            if (key) vars.push({ key, value });
+          }
+        });
+        if (vars.length > 0) return vars;
+      }
+    } catch (e) {
+      //
+    }
 
     return [
-      { key: 'PORT', value: String(project.port) },
+      { key: 'PORT', value: String(project.port || 3000) },
       { key: 'NODE_ENV', value: project.environment === 'prod' ? 'production' : project.environment },
-      { key: 'DATABASE_URL', value: 'postgresql://postgres:pass_184920@103.56.162.77:5432/calo_prod' },
-      { key: 'REDIS_URL', value: 'redis://:red_auth_99182@103.178.234.19:6379/0' },
-      { key: 'JWT_SECRET', value: 'super_secret_jwt_key_9918237' },
     ];
   }
 
   async saveEnvironment(vpsId: string, projectId: string, vars: Array<{ key: string; value: string }>) {
-    await this.validateProjectVpsRelation(vpsId, projectId);
+    const project = await this.validateProjectVpsRelation(vpsId, projectId);
+    const deployDir = project.workingDir || `/home/production-deploys/${project.id}`;
+
+    const envContent = vars.map((v) => `${v.key}=${v.value}`).join('\n');
+    const b64 = Buffer.from(envContent).toString('base64');
+
+    const cmd = `mkdir -p ${deployDir} && echo "${b64}" | base64 -d > ${deployDir}/.env && (if [ -d ${deployDir}/apps/backend ]; then echo "${b64}" | base64 -d > ${deployDir}/apps/backend/.env; fi)`;
+    await this.sshService.executeCommand(project.vps, cmd);
 
     await this.logActivity(
       projectId,
       'ENV',
       'Environment Updated',
-      `Updated ${vars.length} environment variables`,
+      `Updated ${vars.length} environment variables directly on VPS`,
       'Just now',
     );
 
     return {
       success: true,
-      message: 'Environment configuration saved and updated successfully',
+      message: 'Environment configuration saved and written to VPS successfully',
     };
   }
 

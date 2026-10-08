@@ -25,8 +25,14 @@ export class ProjectsController {
 
   @Post('inspect-repo')
   @ApiOperation({ summary: 'Auto-inspect Git repository URL over SSH and extract specs' })
-  inspectRepo(@Param('vpsId') vpsId: string, @Body('gitRepo') gitRepo: string, @Body('branch') branch?: string) {
-    return this.projectsService.inspectRepo(vpsId, gitRepo, branch);
+  inspectRepo(
+    @Param('vpsId') vpsId: string,
+    @Body('gitRepo') gitRepo: string,
+    @Body('branch') branch?: string,
+    @Body('projectId') projectId?: string,
+    @Body('workingDir') workingDir?: string,
+  ) {
+    return this.projectsService.inspectRepo(vpsId, gitRepo, branch, projectId, workingDir);
   }
 
   @Post('check-ports')
