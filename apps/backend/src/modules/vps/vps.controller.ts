@@ -206,4 +206,22 @@ export class VpsController {
   updateUfwRule(@Param('id') id: string, @Body() body: { port: number; action: 'allow' | 'deny' }) {
     return this.vpsService.updateUfwRule(id, body.port, body.action);
   }
+
+  @Get(':id/deployments')
+  @ApiOperation({ summary: 'Get deployment history across all projects on this VPS' })
+  getVpsDeployments(@Param('id') id: string) {
+    return this.vpsService.getVpsDeployments(id);
+  }
+
+  @Get(':id/monitoring')
+  @ApiOperation({ summary: 'Get VPS live telemetry, active processes & chart metrics' })
+  getVpsMonitoring(@Param('id') id: string, @Query('range') range?: string) {
+    return this.vpsService.getVpsMonitoring(id, range);
+  }
+
+  @Get(':id/metrics')
+  @ApiOperation({ summary: 'Get VPS historical telemetry metrics time-series chart data' })
+  getVpsMetrics(@Param('id') id: string, @Query('range') range?: string) {
+    return this.vpsService.getVpsMonitoring(id, range);
+  }
 }
