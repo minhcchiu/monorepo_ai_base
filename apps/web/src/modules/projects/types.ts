@@ -7,6 +7,7 @@ export interface ProjectItem {
   environment: 'prod' | 'staging' | 'dev';
   status: 'running' | 'degraded' | 'error' | 'stopped';
   pm2Instances: string;
+  pm2Name?: string;
   port: number;
   domainProxy: string;
   gitBranch: string;
@@ -38,7 +39,7 @@ export interface DeploymentItem {
   commitHash: string;
   branch: string;
   author: string;
-  status: 'SUCCESS' | 'FAILED' | 'BUILDING';
+  status: 'SUCCESS' | 'FAILED' | 'BUILDING' | 'RUNNING' | 'QUEUED';
   timeAgo: string;
   triggeredBy?: string;
   logs?: string;

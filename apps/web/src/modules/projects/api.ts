@@ -142,7 +142,28 @@ export async function fetchProjectDetail(vpsId: string, projectId: string): Prom
   try {
     const { data } = await axiosInstance.get(`/vps/${vpsId}/projects/${projectId}`);
     if (data) {
-      return data;
+      return {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        engine: data.engine || 'Node.js',
+        hostVpsName: data.hostVpsName || data.vps?.name || 'VPS Node',
+        hostVpsIp: data.hostVpsIp || data.vps?.ip || '127.0.0.1',
+        environment: data.environment || 'prod',
+        status: (data.status || 'running').toLowerCase() as any,
+        pm2Instances: data.pm2Instances || '1 process',
+        port: data.port || 3000,
+        domainProxy: data.domainProxy || `${data.id}.io`,
+        gitBranch: data.gitBranch || 'main',
+        gitHash: data.gitHash || 'head',
+        gitRepo: data.gitRepo || '',
+        workingDir: data.workingDir || '',
+        lastRolloutAgo: data.lastRolloutAgo || 'Recently',
+        cpuPercent: data.cpuPercent || 0,
+        memoryMb: data.memoryMb || 0,
+        syncStatus: data.syncStatus || 'SYNCED',
+        syncStatusText: data.syncStatusText || 'Đã đồng bộ',
+      };
     }
   } catch (e) {
     // Fallback
@@ -222,6 +243,8 @@ export async function triggerProjectDeployment(
     deployDir?: string;
     buildCmd?: string;
     port?: number;
+    adminPort?: number;
+    webPort?: number;
     domainName?: string;
     envText?: string;
     runPrismaDbPush?: boolean;
@@ -230,6 +253,9 @@ export async function triggerProjectDeployment(
       admin?: string;
       web?: string;
     };
+    gitBranch?: string;
+    branch?: string;
+    buildFilter?: string;
   } | string = {},
 ) {
   const body = typeof payload === 'string' ? { author: payload } : payload;
@@ -374,6 +400,11 @@ export async function fetchProjectStorage(vpsId: string, projectId: string) {
   } catch (e) {
     return null;
   }
+}
+
+export async function testProjectDbConnection(vpsId: string, projectId: string) {
+  const { data } = await axiosInstance.post(`/vps/${vpsId}/projects/${projectId}/storage/test-db`);
+  return data;
 }
 
 export async function fetchProjectActivity(vpsId: string, projectId: string) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 import { RefreshCw } from 'lucide-react';
 import { isAuthenticated, getStoredUser } from '@/lib/auth';
 import { DashboardShell } from '@/components/common/dashboard-shell';
@@ -10,7 +10,7 @@ import { ROUTES } from '@/constants/routes';
 import { OverviewCards } from '@/modules/dashboard/components/overview-cards';
 import { useDashboardOverview } from '@/modules/dashboard/hooks/use-dashboard';
 
-const UserStatsChart = dynamic(
+const UserStatsChart = nextDynamic(
   () => import('@/modules/dashboard/components/user-stats-chart').then((m) => m.UserStatsChart),
   { ssr: false, loading: () => <div className="h-80 rounded-xl bg-slate-100 animate-pulse" /> }
 );
@@ -97,15 +97,25 @@ export default function DashboardPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.replace(ROUTES.LOGIN);
-    } else {
-      // eslint-disable-next-line
-      setReady(true);
-    }
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        if (!isAuthenticated()) {
+          router.replace(ROUTES.LOGIN);
+        } else {
+          setReady(true);
+        }
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [router]);
 
-  if (!ready) return null;
+  if (!ready) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-100">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <DashboardShell>

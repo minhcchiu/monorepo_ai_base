@@ -74,9 +74,10 @@ export function VpsHealthOverview({
       {/* Nodes List */}
       <div className="grid grid-cols-1 gap-3">
         {filteredNodes.map((node) => {
-          const isHealthy = node.status === 'healthy';
-          const isWarning = node.status === 'warning';
-          const isOffline = node.status === 'offline';
+          const statusLower = (node.status || '').toLowerCase();
+          const isHealthy = statusLower === 'healthy' || statusLower === 'online';
+          const isWarning = statusLower === 'warning' || statusLower === 'degraded';
+          const isOffline = statusLower === 'offline' || (!isHealthy && !isWarning);
 
           return (
             <div

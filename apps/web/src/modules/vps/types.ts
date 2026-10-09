@@ -6,6 +6,7 @@ export interface VpsClusterDetail {
   name: string;
   ip: string;
   port: number;
+  username?: string;
   os: string;
   kernel: string;
   uptime: string;

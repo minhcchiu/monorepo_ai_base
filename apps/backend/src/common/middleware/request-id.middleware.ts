@@ -136,10 +136,9 @@ export class LoggingMiddleware implements NestMiddleware {
     let responsePayload: any = null;
 
     // Override res.json to log response
-    const originalJson = res.json;
+    const originalJson = res.json.bind(res);
     const logger = this.logger;
-    const self = this;
-    res.json = function (this: Response, body: any) {
+    (res as any).json = (body: any) => {
       responsePayload = body;
       const duration = Date.now() - startTime;
 
@@ -153,10 +152,11 @@ export class LoggingMiddleware implements NestMiddleware {
         contentLength: Buffer.byteLength(typeof body === 'string' ? body : JSON.stringify(body)),
       });
 
-      return originalJson.call(this, body);
-    } as any;
+      return originalJson(body);
+    };
 
     if (apiLogEnabled) {
+      const prisma = this.prisma;
       res.on('finish', () => {
         const duration = Date.now() - startTime;
         const userId = (req as any).user?.id ?? null;
@@ -165,7 +165,7 @@ export class LoggingMiddleware implements NestMiddleware {
         const path = req.originalUrl || req.path;
         const statusCode = res.statusCode;
 
-        void self.prisma.apiRequestLog
+        void prisma.apiRequestLog
           .create({
             data: {
               requestId: Array.isArray(requestId) ? requestId[0] : (requestId ?? null),
@@ -179,7 +179,7 @@ export class LoggingMiddleware implements NestMiddleware {
               queryParams,
               routeParams,
               requestBody,
-              responseBody: self.sanitizePayload(responsePayload),
+              responseBody: this.sanitizePayload(responsePayload),
               errorMessage: statusCode >= 500 ? `HTTP_${statusCode}` : null,
             },
           })

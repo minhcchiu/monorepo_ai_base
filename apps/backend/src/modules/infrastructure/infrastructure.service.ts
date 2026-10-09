@@ -42,7 +42,8 @@ export class InfrastructureService {
         totalVps,
         activeClustersText: `Active clusters across ${totalVps} registered nodes`,
         onlineHealthyCount,
-        onlineHealthyPercent: totalVps > 0 ? Math.round((onlineHealthyCount / totalVps) * 100) : 100,
+        onlineHealthyPercent:
+          totalVps > 0 ? Math.round((onlineHealthyCount / totalVps) * 100) : 100,
         latencyText: 'Operational, latency < 28ms',
         highLoadWarningCount,
         highLoadText: `${highLoadWarningCount} node(s) with high resource load`,
@@ -52,8 +53,10 @@ export class InfrastructureService {
       telemetry: {
         cpuAggregatePercent: avgCpu,
         cpuPeakNode: vpsList[0]?.name || 'worker-node-01',
-        cpuPeakPercent: vpsList.length > 0 ? Math.max(...vpsList.map((v) => v.cpuPercent || 0), 0) : 0,
-        memoryAllocationPercent: totalRamTotal > 0 ? Math.round((totalRamUsed / totalRamTotal) * 100) : 45,
+        cpuPeakPercent:
+          vpsList.length > 0 ? Math.max(...vpsList.map((v) => v.cpuPercent || 0), 0) : 0,
+        memoryAllocationPercent:
+          totalRamTotal > 0 ? Math.round((totalRamUsed / totalRamTotal) * 100) : 45,
         memoryUsedGb: totalRamUsed,
         memoryAvailGb: Math.max(totalRamTotal - totalRamUsed, 0),
         memoryTotalGb: totalRamTotal,

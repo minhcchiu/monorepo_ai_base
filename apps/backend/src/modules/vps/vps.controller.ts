@@ -21,7 +21,16 @@ export class VpsController {
 
   @Post('test-connection')
   @ApiOperation({ summary: 'Test SSH connectivity before creating VPS' })
-  testConnection(@Body() body: { ip: string; port?: number; username?: string; password?: string; sshKey?: string }) {
+  testConnection(
+    @Body()
+    body: {
+      ip: string;
+      port?: number;
+      username?: string;
+      password?: string;
+      sshKey?: string;
+    },
+  ) {
     return this.vpsService.testConnection(body);
   }
 
@@ -73,7 +82,11 @@ export class VpsController {
 
   @Post(':id/pm2/scale/:name')
   @ApiOperation({ summary: 'Scale PM2 process cluster instances' })
-  scalePm2Process(@Param('id') id: string, @Param('name') name: string, @Body('instances') instances: number) {
+  scalePm2Process(
+    @Param('id') id: string,
+    @Param('name') name: string,
+    @Body('instances') instances: number,
+  ) {
     return this.vpsService.scalePm2Process(id, name, instances || 1);
   }
 
@@ -157,7 +170,10 @@ export class VpsController {
 
   @Post(':id/crons')
   @ApiOperation({ summary: 'Save/Update entire crontab schedule' })
-  saveCronJobs(@Param('id') id: string, @Body('cronJobs') cronJobs: Array<{ schedule: string; command: string; active?: boolean }>) {
+  saveCronJobs(
+    @Param('id') id: string,
+    @Body('cronJobs') cronJobs: Array<{ schedule: string; command: string; active?: boolean }>,
+  ) {
     return this.vpsService.saveCronJobs(id, cronJobs);
   }
 
@@ -185,7 +201,16 @@ export class VpsController {
 
   @Post(':id/backups')
   @ApiOperation({ summary: 'Create new database or file backup' })
-  createBackup(@Param('id') id: string, @Body() body: { type: 'database' | 'filesystem'; dbName?: string; dbType?: 'postgres' | 'mysql'; targetDir?: string }) {
+  createBackup(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      type: 'database' | 'filesystem';
+      dbName?: string;
+      dbType?: 'postgres' | 'mysql';
+      targetDir?: string;
+    },
+  ) {
     return this.vpsService.createBackup(id, body);
   }
 

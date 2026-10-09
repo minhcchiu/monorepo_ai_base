@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
-function unwrapParams<T>(params: Promise<T> | T): T {
+function useUnwrapParams<T>(params: Promise<T> | T): T {
   if (params && typeof (params as any).then === 'function') {
     return use(params as Promise<T>);
   }
@@ -29,7 +29,7 @@ export default function ProjectNginxPage({
 }: {
   params: Promise<{ id: string; projectId: string }> | { id: string; projectId: string };
 }) {
-  const resolvedParams = unwrapParams(params);
+  const resolvedParams = useUnwrapParams(params);
   const vpsId = resolvedParams?.id || '';
   const projectId = resolvedParams?.projectId || '';
   const [project, setProject] = useState<ProjectItem | null>(null);
@@ -59,8 +59,6 @@ export default function ProjectNginxPage({
       }
       if (nginxData?.config) {
         setNginxConf(nginxData.config);
-      } else {
-        handleGenerate('SUBDOMAIN');
       }
     } catch (e) {
       //

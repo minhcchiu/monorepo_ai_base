@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState, useCallback } from 'react';
 import { DashboardShell } from '@/components/common/dashboard-shell';
-import { fetchProjectDetail, fetchProjectStorage } from '@/modules/projects/api';
+import { fetchProjectDetail, fetchProjectStorage, testProjectDbConnection } from '@/modules/projects/api';
 import { ProjectNavHeader } from '@/modules/projects/components/project-nav-header';
 import { ProjectItem, ProjectStorageInfo } from '@/modules/projects/types';
 import { HardDrive, Database, Folder, CheckCircle2, RefreshCw, Loader2, Server } from 'lucide-react';
@@ -39,9 +39,13 @@ export default function ProjectStoragePage({
   const handleTestDbConnection = async () => {
     try {
       setTestingDb(true);
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.success('Database connection test SUCCESS (PostgreSQL 15.4 @ 103.56.162.77:5432)');
-    } catch (e) {
+      const res = await testProjectDbConnection(vpsId, projectId);
+      if (res?.success) {
+        toast.success(res.message || `Database connection test SUCCESS (${res.databaseName} @ ${res.host}:${res.port})`);
+      } else {
+        toast.error(res?.message || 'Failed to connect to target Database');
+      }
+    } catch (e: any) {
       toast.error('Failed to connect to target Database');
     } finally {
       setTestingDb(false);

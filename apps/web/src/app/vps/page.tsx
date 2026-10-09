@@ -117,9 +117,10 @@ export default function VpsListPage() {
         {/* VPS Fleet Cards List */}
         <div className="space-y-3">
           {filteredNodes.map((vps) => {
-            const isHealthy = vps.status === 'healthy';
-            const isWarning = vps.status === 'warning';
-            const isOffline = vps.status === 'offline';
+            const statusLower = (vps.status || '').toLowerCase();
+            const isHealthy = statusLower === 'healthy' || statusLower === 'online';
+            const isWarning = statusLower === 'warning' || statusLower === 'degraded';
+            const isOffline = statusLower === 'offline' || (!isHealthy && !isWarning);
 
             return (
               <div

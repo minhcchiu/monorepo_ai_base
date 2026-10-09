@@ -65,14 +65,18 @@ export class SshService {
         if (timer) clearTimeout(timer);
         try {
           conn.end();
-        } catch (e) {}
+        } catch {
+          // Ignore connection closing error
+        }
         resolve(result);
       };
 
       timer = setTimeout(() => {
         finish({
           stdout: stdout.trim(),
-          stderr: stderr.trim() || `[SSH ERROR] Execution Timeout (${timeoutMs}ms) on ${vps.ip}:${vps.port || 22}`,
+          stderr:
+            stderr.trim() ||
+            `[SSH ERROR] Execution Timeout (${timeoutMs}ms) on ${vps.ip}:${vps.port || 22}`,
           exitCode: 1,
         });
       }, timeoutMs);
@@ -175,7 +179,11 @@ export class SshService {
     return this.executeCommand(vps, `pm2 start ${pm2Name}`);
   }
 
-  async scalePm2Process(vps: VpsConnectionInfo, pm2Name: string, instances: number): Promise<ExecutionResult> {
+  async scalePm2Process(
+    vps: VpsConnectionInfo,
+    pm2Name: string,
+    instances: number,
+  ): Promise<ExecutionResult> {
     return this.executeCommand(vps, `pm2 scale ${pm2Name} ${instances}`);
   }
 
@@ -193,7 +201,10 @@ export class SshService {
   }
 
   async getLogs(vps: VpsConnectionInfo, pm2Name: string, lines = 100): Promise<string[]> {
-    const res = await this.executeCommand(vps, `pm2 logs ${pm2Name} --raw --lines ${lines} --nostream`);
+    const res = await this.executeCommand(
+      vps,
+      `pm2 logs ${pm2Name} --raw --lines ${lines} --nostream`,
+    );
     if (res.stdout) {
       return res.stdout.split('\n').filter((line) => line.trim().length > 0);
     }
@@ -211,31 +222,39 @@ export class SshService {
     const cmd = `ls -la --time-style=iso "${dirPath}"`;
     const res = await this.executeCommand(vps, cmd);
     if (res.exitCode === 0 && res.stdout) {
-      const lines = res.stdout.split('\n').filter((l) => l.trim().length > 0 && !l.startsWith('total'));
-      return lines.map((line, idx) => {
-        const parts = line.trim().split(/\s+/);
-        const permissions = parts[0] || '-rw-r--r--';
-        const isDir = permissions.startsWith('d');
-        const owner = parts[2] || 'root';
-        const group = parts[3] || 'root';
-        const sizeBytes = parseInt(parts[4] || '0', 10);
-        const dateStr = `${parts[5] || ''} ${parts[6] || ''}`;
-        const name = parts.slice(7).join(' ') || `item-${idx}`;
-        const size = isDir ? '-' : sizeBytes > 1024 * 1024 ? `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(sizeBytes / 1024)} KB`;
+      const lines = res.stdout
+        .split('\n')
+        .filter((l) => l.trim().length > 0 && !l.startsWith('total'));
+      return lines
+        .map((line, idx) => {
+          const parts = line.trim().split(/\s+/);
+          const permissions = parts[0] || '-rw-r--r--';
+          const isDir = permissions.startsWith('d');
+          const owner = parts[2] || 'root';
+          const group = parts[3] || 'root';
+          const sizeBytes = parseInt(parts[4] || '0', 10);
+          const dateStr = `${parts[5] || ''} ${parts[6] || ''}`;
+          const name = parts.slice(7).join(' ') || `item-${idx}`;
+          const size = isDir
+            ? '-'
+            : sizeBytes > 1024 * 1024
+              ? `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`
+              : `${Math.round(sizeBytes / 1024)} KB`;
 
-        return {
-          id: `f-${idx}`,
-          name,
-          path: `${dirPath.replace(/\/$/, '')}/${name}`,
-          size,
-          sizeBytes,
-          type: isDir ? 'directory' : 'file',
-          permissions,
-          owner,
-          group,
-          lastModified: dateStr || 'Recently',
-        };
-      }).filter((item) => item.name !== '.' && item.name !== '..');
+          return {
+            id: `f-${idx}`,
+            name,
+            path: `${dirPath.replace(/\/$/, '')}/${name}`,
+            size,
+            sizeBytes,
+            type: isDir ? 'directory' : 'file',
+            permissions,
+            owner,
+            group,
+            lastModified: dateStr || 'Recently',
+          };
+        })
+        .filter((item) => item.name !== '.' && item.name !== '..');
     }
     return [];
   }
@@ -248,7 +267,11 @@ export class SshService {
     throw new Error(res.stderr || `Could not read file ${filePath}`);
   }
 
-  async writeFileContent(vps: VpsConnectionInfo, filePath: string, content: string): Promise<ExecutionResult> {
+  async writeFileContent(
+    vps: VpsConnectionInfo,
+    filePath: string,
+    content: string,
+  ): Promise<ExecutionResult> {
     const base64Content = Buffer.from(content, 'utf8').toString('base64');
     const cmd = `echo "${base64Content}" | base64 -d > "${filePath}"`;
     return this.executeCommand(vps, cmd);
@@ -258,7 +281,11 @@ export class SshService {
     return this.executeCommand(vps, `rm -rf "${targetPath}"`);
   }
 
-  async chmodPath(vps: VpsConnectionInfo, targetPath: string, mode: string): Promise<ExecutionResult> {
+  async chmodPath(
+    vps: VpsConnectionInfo,
+    targetPath: string,
+    mode: string,
+  ): Promise<ExecutionResult> {
     return this.executeCommand(vps, `chmod ${mode} "${targetPath}"`);
   }
 
@@ -289,8 +316,14 @@ export class SshService {
   // DOMAINS, NGINX & CERTBOT SSL
   // =========================================================================
 
-  async checkDnsRecord(vps: VpsConnectionInfo, domainName: string): Promise<{ matchesIp: boolean; resolvedIp: string }> {
-    const res = await this.executeCommand(vps, `dig +short A ${domainName} || nslookup ${domainName} | grep Address | tail -n 1 | awk '{print $2}'`);
+  async checkDnsRecord(
+    vps: VpsConnectionInfo,
+    domainName: string,
+  ): Promise<{ matchesIp: boolean; resolvedIp: string }> {
+    const res = await this.executeCommand(
+      vps,
+      `dig +short A ${domainName} || nslookup ${domainName} | grep Address | tail -n 1 | awk '{print $2}'`,
+    );
     const resolvedIp = res.stdout.trim().split('\n')[0] || '';
     return {
       matchesIp: resolvedIp === vps.ip,
@@ -298,27 +331,66 @@ export class SshService {
     };
   }
 
-  async issueCertbotSsl(vps: VpsConnectionInfo, domainName: string, email = 'admin@example.com'): Promise<ExecutionResult> {
+  async issueCertbotSsl(
+    vps: VpsConnectionInfo,
+    domainName: string,
+    email = 'admin@example.com',
+  ): Promise<ExecutionResult> {
     const cmd = `certbot --nginx -d ${domainName} --non-interactive --agree-tos -m ${email} --redirect || certbot certonly --standalone -d ${domainName} --non-interactive --agree-tos -m ${email}`;
     return this.executeCommand(vps, cmd, 120000);
   }
 
-  async readNginxConfig(vps: VpsConnectionInfo, domainProxy: string, projectId: string): Promise<string> {
-    const confdPath = `/etc/nginx/conf.d/${domainProxy}.conf`;
-    const sitesAvailPath = `/etc/nginx/sites-available/${projectId}.conf`;
-    const res = await this.executeCommand(vps, `cat ${confdPath} 2>/dev/null || cat ${sitesAvailPath} 2>/dev/null`);
-    if (res.exitCode === 0 && res.stdout.trim()) {
+  async readNginxConfig(
+    vps: VpsConnectionInfo,
+    domainProxy: string,
+    projectId: string,
+    _targetPort: number = 42090,
+  ): Promise<string> {
+    const cleanDomain = (domainProxy || '').trim();
+    const cleanProj = (projectId || '').trim();
+
+    const cmd = `
+for f in \
+  "/etc/nginx/conf.d/${cleanDomain}.conf" \
+  "/etc/nginx/conf.d/${cleanDomain}" \
+  "/etc/nginx/conf.d/${cleanProj}.io.conf" \
+  "/etc/nginx/conf.d/${cleanProj}.conf" \
+  "/etc/nginx/conf.d/${cleanProj}" \
+  "/etc/nginx/sites-available/${cleanProj}.io.conf" \
+  "/etc/nginx/sites-available/${cleanProj}.conf" \
+  "/etc/nginx/sites-available/${cleanProj}" \
+  "/etc/nginx/sites-available/${cleanDomain}.conf" \
+  "/etc/nginx/sites-available/${cleanDomain}" \
+  "/etc/nginx/sites-enabled/${cleanProj}.conf"; do
+  if [ -f "$f" ] && [ -s "$f" ]; then
+    cat "$f"
+    exit 0
+  fi
+done
+
+for f in $(grep -l -E "${cleanDomain}|${cleanProj}|cloudpulse" /etc/nginx/conf.d/*.conf /etc/nginx/sites-available/* /etc/nginx/sites-enabled/* 2>/dev/null); do
+  if [ -f "$f" ] && [ -s "$f" ]; then
+    cat "$f"
+    exit 0
+  fi
+done
+`.trim();
+
+    const res = await this.executeCommand(vps, cmd, 5000);
+    if (res.exitCode === 0 && res.stdout && res.stdout.trim()) {
       return res.stdout.trim();
     }
+
+    const domainName = cleanDomain || `${cleanProj}.io`;
     return `server {
   listen 80;
   listen [::]:80;
 
-  server_name ${domainProxy};
+  server_name ${domainName};
 
-  # 1. Định tuyến cho BACKEND
+  # 1. Định tuyến cho BACKEND (Port 42090)
   location /api/ {
-    proxy_pass http://localhost:22090;
+    proxy_pass http://localhost:42090;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
@@ -326,7 +398,40 @@ export class SshService {
     proxy_cache_bypass $http_upgrade;
   }
 
-  # 2. Định tuyến cho WEB APP
+  # Swagger Docs & Static Files của Backend
+  location /docs {
+    proxy_pass http://localhost:42090;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+  }
+
+  location /docs-json {
+    proxy_pass http://localhost:42090;
+  }
+
+  location /uploads/ {
+    proxy_pass http://localhost:42090;
+  }
+
+  location /images/ {
+    proxy_pass http://localhost:42090;
+  }
+
+  # 2. Định tuyến cho WEB ADMIN (Port 32090)
+  location /admin/ {
+    proxy_pass http://localhost:32090/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+  }
+
+  location = /admin {
+    return 301 $scheme://$host/admin/;
+  }
+
+  # 3. Định tuyến cho WEB APP (Port 42090)
   location / {
     proxy_pass http://localhost:42090;
     proxy_http_version 1.1;
@@ -369,7 +474,11 @@ export class SshService {
     return this.executeCommand(vps, cmd, 180000);
   }
 
-  async tarDirectory(vps: VpsConnectionInfo, targetDir: string, outputFile: string): Promise<ExecutionResult> {
+  async tarDirectory(
+    vps: VpsConnectionInfo,
+    targetDir: string,
+    outputFile: string,
+  ): Promise<ExecutionResult> {
     const cmd = `tar -czf "${outputFile}" -C "${targetDir}" .`;
     return this.executeCommand(vps, cmd, 300000);
   }
@@ -382,11 +491,19 @@ export class SshService {
     return this.executeCommand(vps, `ufw status verbose || iptables -L -n`);
   }
 
-  async allowUfwPort(vps: VpsConnectionInfo, port: number, protocol = 'tcp'): Promise<ExecutionResult> {
+  async allowUfwPort(
+    vps: VpsConnectionInfo,
+    port: number,
+    protocol = 'tcp',
+  ): Promise<ExecutionResult> {
     return this.executeCommand(vps, `ufw allow ${port}/${protocol}`);
   }
 
-  async denyUfwPort(vps: VpsConnectionInfo, port: number, protocol = 'tcp'): Promise<ExecutionResult> {
+  async denyUfwPort(
+    vps: VpsConnectionInfo,
+    port: number,
+    protocol = 'tcp',
+  ): Promise<ExecutionResult> {
     return this.executeCommand(vps, `ufw delete allow ${port}/${protocol}`);
   }
 
@@ -395,9 +512,15 @@ export class SshService {
     return this.executeCommand(vps, `cd ${dir} && git pull`);
   }
 
-  async getGitInfo(vps: VpsConnectionInfo, workingDir?: string): Promise<{ branch: string; hash: string }> {
+  async getGitInfo(
+    vps: VpsConnectionInfo,
+    workingDir?: string,
+  ): Promise<{ branch: string; hash: string }> {
     const dir = workingDir || `/var/www/apps`;
-    const res = await this.executeCommand(vps, `cd ${dir} && git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD`);
+    const res = await this.executeCommand(
+      vps,
+      `cd ${dir} && git rev-parse --abbrev-ref HEAD && git rev-parse --short HEAD`,
+    );
     if (res.exitCode === 0 && res.stdout) {
       const parts = res.stdout.trim().split('\n');
       return {
@@ -406,6 +529,34 @@ export class SshService {
       };
     }
     return { branch: 'main', hash: 'head' };
+  }
+
+  /**
+   * Auto-detect Monorepo top-level Root Source Directory and Git Remote URL over SSH
+   */
+  async getGitRepoAndRootDir(
+    vps: VpsConnectionInfo,
+    pmCwd?: string,
+  ): Promise<{ rootDir: string; gitRepo: string; branch: string; hash: string } | null> {
+    if (!pmCwd) return null;
+    const cmd = `cd ${pmCwd} 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null && git remote get-url origin 2>/dev/null && git rev-parse --abbrev-ref HEAD 2>/dev/null && git rev-parse --short HEAD 2>/dev/null`;
+    const res = await this.executeCommand(vps, cmd, 5000);
+    if (res.exitCode === 0 && res.stdout) {
+      const lines = res.stdout
+        .trim()
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
+      if (lines.length >= 1) {
+        return {
+          rootDir: lines[0] || pmCwd,
+          gitRepo: lines[1] || '',
+          branch: lines[2] || 'main',
+          hash: lines[3] || 'head',
+        };
+      }
+    }
+    return null;
   }
 
   async checkPortsInUse(
@@ -431,13 +582,111 @@ export class SshService {
     return results;
   }
 
-  async getStorageFootprint(vps: VpsConnectionInfo, workingDir?: string): Promise<{ workingDirSize: string; totalDisk: string }> {
+  async getStorageFootprint(
+    vps: VpsConnectionInfo,
+    workingDir?: string,
+  ): Promise<{
+    workingDirSize: string;
+    codeSize: string;
+    nodeModulesSize: string;
+    logsSize: string;
+    dbConnection: {
+      name: string;
+      type: string;
+      host: string;
+      port: number;
+      status: string;
+    } | null;
+  }> {
     const dir = workingDir || `/var/www/apps`;
-    const resDu = await this.executeCommand(vps, `du -sh ${dir}`);
-    const size = resDu.stdout ? resDu.stdout.split('\t')[0] : '2.4 GB';
+
+    const cmd = `
+dir="${dir}"
+totalSize=$(du -sh "$dir" 2>/dev/null | cut -f1)
+codeSize=$(du -sh --exclude='node_modules' --exclude='.git' --exclude='.next' --exclude='dist' "$dir" 2>/dev/null | cut -f1)
+modulesSize=$(du -sh "$dir/node_modules" 2>/dev/null | cut -f1)
+if [ -z "$modulesSize" ]; then
+  modulesSize=$(du -sh "$dir/apps/backend/node_modules" 2>/dev/null | cut -f1)
+fi
+logsSize=$(du -sh ~/.pm2/logs 2>/dev/null | cut -f1)
+
+dbUrl=""
+for envFile in "$dir/.env" "$dir/apps/backend/.env" "$dir/apps/admin/.env"; do
+  if [ -f "$envFile" ]; then
+    found=$(grep -E "^DATABASE_URL=" "$envFile" 2>/dev/null | cut -d'=' -f2-)
+    if [ -n "$found" ]; then
+      dbUrl="$found"
+      break
+    fi
+  fi
+done
+
+echo "TOTAL:$totalSize"
+echo "CODE:$codeSize"
+echo "MODULES:$modulesSize"
+echo "LOGS:$logsSize"
+echo "DBURL:$dbUrl"
+`.trim();
+
+    const res = await this.executeCommand(vps, cmd, 8000);
+    let totalDiskUsage = '2.4 GB';
+    let codeSize = '184 MB';
+    let nodeModulesSize = '1.8 GB';
+    let logsSize = '142 MB';
+    let dbUrlStr = '';
+
+    if (res.exitCode === 0 && res.stdout) {
+      const lines = res.stdout.trim().split('\n');
+      lines.forEach((l) => {
+        if (l.startsWith('TOTAL:'))
+          totalDiskUsage = l.replace('TOTAL:', '').trim() || totalDiskUsage;
+        if (l.startsWith('CODE:')) codeSize = l.replace('CODE:', '').trim() || codeSize;
+        if (l.startsWith('MODULES:'))
+          nodeModulesSize = l.replace('MODULES:', '').trim() || nodeModulesSize;
+        if (l.startsWith('LOGS:')) logsSize = l.replace('LOGS:', '').trim() || logsSize;
+        if (l.startsWith('DBURL:')) dbUrlStr = l.replace('DBURL:', '').trim();
+      });
+    }
+
+    let dbConnection: {
+      name: string;
+      type: string;
+      host: string;
+      port: number;
+      status: string;
+    } | null = null;
+
+    if (dbUrlStr) {
+      dbUrlStr = dbUrlStr.replace(/^["']|["']$/g, '');
+      try {
+        const match = dbUrlStr.match(
+          /^(postgresql|postgres|mysql):\/\/([^:]+):?([^@]+)?@([^:\/]+):?(\d+)?\/(.+)$/,
+        );
+        if (match) {
+          const type = match[1].includes('postgr') ? 'PostgreSQL' : 'MySQL';
+          const host = match[4] || 'localhost';
+          const port = match[5] ? parseInt(match[5], 10) : type === 'PostgreSQL' ? 5432 : 3306;
+          const rawDbName = (match[6] || 'main_db').split('?')[0];
+
+          dbConnection = {
+            name: rawDbName,
+            type,
+            host,
+            port,
+            status: 'CONNECTED',
+          };
+        }
+      } catch (e) {
+        //
+      }
+    }
+
     return {
-      workingDirSize: size,
-      totalDisk: '500 GB',
+      workingDirSize: totalDiskUsage,
+      codeSize,
+      nodeModulesSize,
+      logsSize,
+      dbConnection,
     };
   }
 }

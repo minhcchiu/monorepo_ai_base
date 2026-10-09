@@ -1,6 +1,6 @@
 'use client';
 
-import { UserCircle, Shield, Mail, Phone } from 'lucide-react';
+import { Shield, Mail, Phone } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { UpdateProfileForm } from '@/modules/admin/components/update-profile-form';
 import { ChangePasswordForm } from '@/modules/admin/components/change-password-form';

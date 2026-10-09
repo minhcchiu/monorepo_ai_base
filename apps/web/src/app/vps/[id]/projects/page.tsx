@@ -14,6 +14,7 @@ import {
   restartProjectRuntime,
   removeProjectScope,
   triggerProjectDeployment,
+  fetchProjectDeployments,
   fetchProjectEnvironment,
   inspectProjectRepoApi,
   syncGitlabVariablesApi,
@@ -69,11 +70,11 @@ export interface SubAppConfig {
   id: string;
   name: string;
   path: string;
-  filter: string;
+  filter?: string;
   port: number;
   enabled: boolean;
   envText: string;
-  envMode: 'PASTE' | 'FILE';
+  envMode?: 'PASTE' | 'FILE';
 }
 
 const DEFAULT_SUB_APPS: SubAppConfig[] = [
@@ -109,7 +110,7 @@ const DEFAULT_SUB_APPS: SubAppConfig[] = [
   },
 ];
 
-function unwrapParams<T>(params: Promise<T> | T): T {
+function useUnwrapParams<T>(params: Promise<T> | T): T {
   if (params && typeof (params as any).then === 'function') {
     return use(params as Promise<T>);
   }
@@ -117,7 +118,7 @@ function unwrapParams<T>(params: Promise<T> | T): T {
 }
 
 export default function VpsProjectsPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
-  const resolvedParams = unwrapParams(params);
+  const resolvedParams = useUnwrapParams(params);
   const rawId = resolvedParams?.id || '';
   const id = rawId ? decodeURIComponent(rawId) : '';
   const router = useRouter();
@@ -339,7 +340,7 @@ export default function VpsProjectsPage({ params }: { params: Promise<{ id: stri
       setRedeployStep('RUNNING');
       setRedeployError(null);
       setRedeploySuccess(false);
-      setRedeployLogs(`🚀 Kích hoạt Re-deploy cho dự án '${redeployProject.name}'...\nĐang kết nối SSH đến VPS ${cluster.ip}...\nĐang chuẩn bị git pull origin ${redeployBranch}...`);
+      setRedeployLogs(`🚀 Kích hoạt Re-deploy cho dự án '${redeployProject.name}'...\nĐang kết nối SSH đến VPS ${cluster?.ip || 'Server'}...\nĐang chuẩn bị git pull origin ${redeployBranch}...`);
 
       const deployRes = await triggerProjectDeployment(id, redeployProject.id, {
         deployMode: 'RE_DEPLOY',

@@ -8,6 +8,30 @@ import { ProjectItem, ProjectActivityItem } from '@/modules/projects/types';
 import { History, Rocket, RotateCw, Key, Globe, ShieldAlert, Sliders } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
+function formatTimeAgo(dateInput: Date | string | null | undefined): string {
+  if (!dateInput) return 'Recently';
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return typeof dateInput === 'string' ? dateInput : 'Recently';
+
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 10) return 'Just now';
+  if (seconds < 60) return `${seconds}s ago`;
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+
+  return `${Math.floor(months / 12)}y ago`;
+}
+
 export default function ProjectActivityPage({
   params,
 }: {
@@ -26,16 +50,8 @@ export default function ProjectActivityPage({
         fetchProjectActivity(vpsId, projectId),
       ]);
       setProject(projData);
-      if (Array.isArray(actData) && actData.length > 0) {
+      if (Array.isArray(actData)) {
         setActivities(actData);
-      } else {
-        setActivities([
-          { id: '1', title: 'Project Rollout Completed', description: 'Build #210 deployed by Tuấn Lê via Git Pull', time: '18m ago', type: 'DEPLOY' },
-          { id: '2', title: 'Process Restarted', description: 'PM2 process reloaded by Minh Nguyễn', time: '42m ago', type: 'PM2' },
-          { id: '3', title: 'Environment Variables Saved', description: 'Updated DATABASE_URL and JWT_SECRET keys', time: '1d ago', type: 'ENV' },
-          { id: '4', title: 'Nginx Configuration Reloaded', description: 'Reloaded VirtualHost proxy for api.calo.io', time: '2d ago', type: 'NGINX' },
-          { id: '5', title: 'Custom Domain Added', description: 'Linked auth.calo.io domain with SSL certificate', time: '3d ago', type: 'DOMAIN' },
-        ]);
       }
     } catch (e) {
       //
@@ -144,7 +160,9 @@ export default function ProjectActivityPage({
                   <div className="flex-1 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-slate-900">{act.title}</span>
-                      <span className="font-mono text-[11px] text-slate-400">{act.time}</span>
+                      <span className="font-mono text-[11px] text-slate-400">
+                        {formatTimeAgo((act as any).createdAt || act.time)}
+                      </span>
                     </div>
                     <p className="text-slate-600 mt-1 leading-relaxed">{act.description}</p>
                   </div>

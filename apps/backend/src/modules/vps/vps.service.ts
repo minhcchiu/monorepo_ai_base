@@ -1,16 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SshService } from './ssh.service';
+import { EncryptionService } from '../../common/services/encryption.service';
 
 @Injectable()
 export class VpsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sshService: SshService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
+  private prepareVpsForSsh(vps: any) {
+    if (!vps) return vps;
+    return {
+      ...vps,
+      password: this.encryptionService.decrypt(vps.password) || undefined,
+      sshKey: this.encryptionService.decrypt(vps.sshKey) || undefined,
+    };
+  }
+
   async findAll() {
-    return this.prisma.vps.findMany({
+    const list = await this.prisma.vps.findMany({
       include: {
         projects: {
           select: {
@@ -25,6 +36,36 @@ export class VpsService {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    // Check live SSH status for any VPS in the list
+    const updatedList = await Promise.all(
+      list.map(async (vpsRecord) => {
+        try {
+          const sshVps = this.prepareVpsForSsh(vpsRecord);
+          const res = await this.sshService.executeCommand(sshVps, 'uptime', 4000);
+          if (res.exitCode === 0) {
+            if (vpsRecord.status !== 'ONLINE') {
+              await this.prisma.vps
+                .update({
+                  where: { id: vpsRecord.id },
+                  data: { status: 'ONLINE', statusBadgeText: 'Online' },
+                })
+                .catch(() => {});
+            }
+            return {
+              ...vpsRecord,
+              status: 'ONLINE',
+              statusBadgeText: 'Online',
+            };
+          }
+        } catch (e) {
+          //
+        }
+        return vpsRecord;
+      }),
+    );
+
+    return updatedList;
   }
 
   async findOne(id: string) {
@@ -47,45 +88,26 @@ export class VpsService {
 
     if (!vps) {
       vps = await this.prisma.vps.findFirst({
+        where: {
+          OR: [{ ip: id }, { name: id }],
+        },
         include: projectInclude,
       });
     }
 
     if (!vps) {
-      vps = await this.prisma.vps.create({
-        data: {
-          id: id || 'bcf8819c-954f-4235-a63c-8e5a79177e7f',
-          name: 'Primary VPS Node',
-          ip: '36.50.176.26',
-          port: 22,
-          username: 'root',
-          os: 'Ubuntu 24.04 LTS',
-          kernel: 'Linux 6.8.0-generic',
-          uptime: '142 days 18 hrs',
-          region: 'Singapore (SG-01)',
-          regionCode: 'SG-01',
-          environment: 'prod',
-          status: 'ONLINE',
-          statusBadgeText: 'Online',
-          cpuPercent: 24,
-          ramPercent: 48,
-          diskPercent: 35,
-          ramUsedGb: 15.3,
-          ramTotalGb: 32,
-          diskUsedGb: 175,
-          diskTotalGb: 500,
-          networkInMbps: 28.5,
-          networkOutMbps: 18.2,
-        },
-        include: {
-          projects: true,
-        },
-      });
+      throw new NotFoundException(`VPS node '${id}' not found in database.`);
     }
+
+    const sshVps = this.prepareVpsForSsh(vps);
 
     // Attempt live telemetry inspection via SSH in real time
     try {
-      const res = await this.sshService.executeCommand(vps, 'uptime && free -m && df -h /', 4000);
+      const res = await this.sshService.executeCommand(
+        sshVps,
+        'uptime && free -m && df -h /',
+        4000,
+      );
       if (res.exitCode === 0 && res.stdout) {
         const parsed = this.parseTelemetry(res.stdout);
         vps.cpuPercent = parsed.cpuPercent;
@@ -96,7 +118,9 @@ export class VpsService {
         vps.diskUsedGb = parsed.diskUsedGb;
         vps.diskTotalGb = parsed.diskTotalGb;
         if (parsed.uptime) vps.uptime = parsed.uptime;
-        vps.status = (parsed.cpuPercent > 85 || parsed.ramPercent > 85 ? 'WARNING' : 'ONLINE') as any;
+        vps.status = (
+          parsed.cpuPercent > 85 || parsed.ramPercent > 85 ? 'WARNING' : 'ONLINE'
+        ) as any;
         vps.statusBadgeText = vps.status === 'WARNING' ? 'High Resource Load' : 'Online';
 
         void this.prisma.vps.update({
@@ -122,7 +146,13 @@ export class VpsService {
     return vps;
   }
 
-  async testConnection(body: { ip: string; port?: number; username?: string; password?: string; sshKey?: string }) {
+  async testConnection(body: {
+    ip: string;
+    port?: number;
+    username?: string;
+    password?: string;
+    sshKey?: string;
+  }) {
     const tempVps = {
       id: 'temp',
       ip: body.ip,
@@ -155,21 +185,27 @@ export class VpsService {
         ip: body.ip,
         port: body.port ? parseInt(body.port, 10) : 22,
         username: body.username || 'root',
-        password: body.password,
-        sshKey: body.sshKey,
+        password: this.encryptionService.encrypt(body.password),
+        sshKey: this.encryptionService.encrypt(body.sshKey),
         region: body.region || 'Singapore (SG-01)',
         regionCode: body.regionCode || 'SG-01',
         environment: body.environment || 'prod',
         status: 'ONLINE',
         statusBadgeText: 'Online',
+        ownerId: body.ownerId,
+        workspaceId: body.workspaceId || 'default-workspace',
       },
     });
   }
 
   async update(id: string, body: any) {
+    const data = { ...body };
+    if (data.password) data.password = this.encryptionService.encrypt(data.password);
+    if (data.sshKey) data.sshKey = this.encryptionService.encrypt(data.sshKey);
+
     return this.prisma.vps.update({
       where: { id },
-      data: body,
+      data,
     });
   }
 
@@ -180,11 +216,15 @@ export class VpsService {
   }
 
   async diagnose(id: string) {
-    const vps = await this.findOne(id);
-    const result = await this.sshService.executeCommand(vps, 'uptime && free -m && df -h / && docker --version 2>/dev/null || true');
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const result = await this.sshService.executeCommand(
+      sshVps,
+      'uptime && free -m && df -h / && docker --version 2>/dev/null || true',
+    );
     return {
       vpsId: id,
-      ip: vps.ip,
+      ip: vpsRecord.ip,
       diagnostics: result.stdout || 'System healthy',
       exitCode: result.exitCode,
     };
@@ -195,8 +235,9 @@ export class VpsService {
   // =========================================================================
 
   async getPm2Processes(id: string) {
-    const vps = await this.findOne(id);
-    const pm2List = await this.sshService.getPm2Processes(vps);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const pm2List = await this.sshService.getPm2Processes(sshVps);
     if (pm2List && pm2List.length > 0) {
       return pm2List.map((p: any, idx: number) => ({
         id: p.pm_id ?? idx,
@@ -214,8 +255,9 @@ export class VpsService {
   }
 
   async reloadPm2Processes(id: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.reloadPm2Process(vps);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.reloadPm2Process(sshVps);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? 'PM2 processes reloaded successfully' : res.stderr,
@@ -223,8 +265,9 @@ export class VpsService {
   }
 
   async restartPm2Process(id: string, name: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.restartPm2Process(vps, name);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.restartPm2Process(sshVps, name);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `Restarted ${name}` : res.stderr,
@@ -232,8 +275,9 @@ export class VpsService {
   }
 
   async scalePm2Process(id: string, name: string, instances: number) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.scalePm2Process(vps, name, instances);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.scalePm2Process(sshVps, name, instances);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `Scaled ${name} to ${instances} instances` : res.stderr,
@@ -241,8 +285,9 @@ export class VpsService {
   }
 
   async flushPm2Logs(id: string, name?: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.flushPm2Logs(vps, name);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.flushPm2Logs(sshVps, name);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `Flushed PM2 logs` : res.stderr,
@@ -250,8 +295,9 @@ export class VpsService {
   }
 
   async savePm2State(id: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.savePm2State(vps);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.savePm2State(sshVps);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `PM2 process list saved to ecosystem` : res.stderr,
@@ -259,8 +305,9 @@ export class VpsService {
   }
 
   async deletePm2Process(id: string, name: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.deletePm2Process(vps, name);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.deletePm2Process(sshVps, name);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `Deleted PM2 process ${name}` : res.stderr,
@@ -268,8 +315,9 @@ export class VpsService {
   }
 
   async execTerminalCommand(id: string, command: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.executeCommand(vps, command);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.executeCommand(sshVps, command);
     return {
       success: res.exitCode === 0,
       command,
@@ -284,19 +332,22 @@ export class VpsService {
   // =========================================================================
 
   async getFiles(id: string, dirPath = '/var/www/apps') {
-    const vps = await this.findOne(id);
-    return this.sshService.listFiles(vps, dirPath);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    return this.sshService.listFiles(sshVps, dirPath);
   }
 
   async readFile(id: string, filePath: string) {
-    const vps = await this.findOne(id);
-    const content = await this.sshService.readFileContent(vps, filePath);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const content = await this.sshService.readFileContent(sshVps, filePath);
     return { filePath, content };
   }
 
   async writeFile(id: string, filePath: string, content: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.writeFileContent(vps, filePath, content);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.writeFileContent(sshVps, filePath, content);
     return {
       success: res.exitCode === 0,
       filePath,
@@ -305,8 +356,9 @@ export class VpsService {
   }
 
   async deletePath(id: string, targetPath: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.deletePath(vps, targetPath);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.deletePath(sshVps, targetPath);
     return {
       success: res.exitCode === 0,
       targetPath,
@@ -315,8 +367,9 @@ export class VpsService {
   }
 
   async chmodPath(id: string, targetPath: string, mode: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.chmodPath(vps, targetPath, mode);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.chmodPath(sshVps, targetPath, mode);
     return {
       success: res.exitCode === 0,
       targetPath,
@@ -325,8 +378,9 @@ export class VpsService {
   }
 
   async createDir(id: string, dirPath: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.createDirectory(vps, dirPath);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.createDirectory(sshVps, dirPath);
     return {
       success: res.exitCode === 0,
       dirPath,
@@ -339,8 +393,9 @@ export class VpsService {
   // =========================================================================
 
   async getCrons(id: string) {
-    const vps = await this.findOne(id);
-    const rawCrontab = await this.sshService.getCrontab(vps);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const rawCrontab = await this.sshService.getCrontab(sshVps);
     const lines = rawCrontab.split('\n').filter((l) => l.trim().length > 0);
 
     const crons: any[] = [];
@@ -367,15 +422,19 @@ export class VpsService {
     return crons;
   }
 
-  async saveCronJobs(id: string, cronJobs: Array<{ schedule: string; command: string; active?: boolean }>) {
-    const vps = await this.findOne(id);
+  async saveCronJobs(
+    id: string,
+    cronJobs: Array<{ schedule: string; command: string; active?: boolean }>,
+  ) {
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
     const crontabLines = cronJobs.map((c) => {
       const line = `${c.schedule} ${c.command}`;
       return c.active === false ? `# ${line}` : line;
     });
 
     const content = crontabLines.join('\n') + '\n';
-    const res = await this.sshService.saveCrontab(vps, content);
+    const res = await this.sshService.saveCrontab(sshVps, content);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? 'Crontab updated successfully' : res.stderr,
@@ -383,8 +442,9 @@ export class VpsService {
   }
 
   async runCronNow(id: string, command: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.runCronCommand(vps, command);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.runCronCommand(sshVps, command);
     return {
       success: res.exitCode === 0,
       command,
@@ -436,35 +496,48 @@ export class VpsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    if (dbBackups.length > 0) {
-      return dbBackups.map((b) => ({
-        id: b.id,
-        filename: b.filename,
-        type: b.backupType,
-        size: `${(Number(b.sizeBytes) / (1024 * 1024)).toFixed(1)} MB`,
-        createdAt: b.createdAt.toLocaleString(),
-        checksum: b.checksum || 'sha256:d8a9f201...',
-      }));
-    }
-
-    return [
-      { id: 'b-1', filename: `${id}_db_dump_20261005.sql.gz`, type: 'database', size: '482.5 MB', createdAt: 'Today, 02:00 AM', checksum: 'sha256:d8a9f201...' },
-    ];
+    return dbBackups.map((b) => ({
+      id: b.id,
+      filename: b.filename,
+      type: b.backupType,
+      size: `${(Number(b.sizeBytes) / (1024 * 1024)).toFixed(1)} MB`,
+      createdAt: b.createdAt.toLocaleString(),
+      checksum: b.checksum || 'sha256:d8a9f201...',
+    }));
   }
 
-  async createBackup(id: string, body: { type: 'database' | 'filesystem'; dbName?: string; dbType?: 'postgres' | 'mysql'; targetDir?: string }) {
-    const vps = await this.findOne(id);
+  async createBackup(
+    id: string,
+    body: {
+      type: 'database' | 'filesystem';
+      dbName?: string;
+      dbType?: 'postgres' | 'mysql';
+      targetDir?: string;
+    },
+  ) {
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = body.type === 'database'
-      ? `${vps.id}_${body.dbName || 'db'}_${timestamp}.sql.gz`
-      : `${vps.id}_fs_${timestamp}.tar.gz`;
+    const filename =
+      body.type === 'database'
+        ? `${vpsRecord.id}_${body.dbName || 'db'}_${timestamp}.sql.gz`
+        : `${vpsRecord.id}_fs_${timestamp}.tar.gz`;
     const outputFile = `/var/backups/${filename}`;
 
     let res;
     if (body.type === 'database') {
-      res = await this.sshService.dumpDatabase(vps, body.dbType || 'postgres', body.dbName || 'postgres', outputFile);
+      res = await this.sshService.dumpDatabase(
+        sshVps,
+        body.dbType || 'postgres',
+        body.dbName || 'postgres',
+        outputFile,
+      );
     } else {
-      res = await this.sshService.tarDirectory(vps, body.targetDir || '/var/www/apps', outputFile);
+      res = await this.sshService.tarDirectory(
+        sshVps,
+        body.targetDir || '/var/www/apps',
+        outputFile,
+      );
     }
 
     if (res.exitCode === 0) {
@@ -493,14 +566,16 @@ export class VpsService {
   }
 
   async getLogs(id: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.getLogs(vps, 'all', 100);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.getLogs(sshVps, 'all', 100);
     return res;
   }
 
   async getUfwStatus(id: string) {
-    const vps = await this.findOne(id);
-    const res = await this.sshService.getUfwStatus(vps);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res = await this.sshService.getUfwStatus(sshVps);
     return {
       vpsId: id,
       status: res.stdout,
@@ -508,10 +583,12 @@ export class VpsService {
   }
 
   async updateUfwRule(id: string, port: number, action: 'allow' | 'deny') {
-    const vps = await this.findOne(id);
-    const res = action === 'allow'
-      ? await this.sshService.allowUfwPort(vps, port)
-      : await this.sshService.denyUfwPort(vps, port);
+    const vpsRecord = await this.findOne(id);
+    const sshVps = this.prepareVpsForSsh(vpsRecord);
+    const res =
+      action === 'allow'
+        ? await this.sshService.allowUfwPort(sshVps, port)
+        : await this.sshService.denyUfwPort(sshVps, port);
     return {
       success: res.exitCode === 0,
       message: res.exitCode === 0 ? `UFW rule updated: ${action} ${port}` : res.stderr,
@@ -519,9 +596,9 @@ export class VpsService {
   }
 
   async getVpsDeployments(id: string) {
-    const vps = await this.prisma.vps.findUnique({ where: { id } });
+    const vps = await this.findOne(id);
     const projects = await this.prisma.project.findMany({
-      where: { vpsId: id },
+      where: { vpsId: vps.id },
       select: { id: true },
     });
     const projectIds = projects.map((p) => p.id);
@@ -536,10 +613,6 @@ export class VpsService {
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
-
-    if (!deployments || deployments.length === 0) {
-      return this.getFallbackDeployments(vps || { id, name: 'Primary VPS' });
-    }
 
     return deployments.map((d) => ({
       id: d.id,
@@ -568,33 +641,37 @@ export class VpsService {
 
     const metricHistory = await this.prisma.vpsMetricHistory.findMany({
       where: {
-        vpsId: id,
+        vpsId: vps.id,
         createdAt: { gte: sinceDate },
       },
       orderBy: { createdAt: 'asc' },
       take: 200,
     });
 
-    const pm2Processes = await this.getPm2Processes(id);
+    const pm2Processes = await this.getPm2Processes(vps.id);
 
-    const chartPoints = metricHistory.length >= 5
-      ? metricHistory.map((m) => ({
-          timestamp: m.createdAt.toISOString(),
-          time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          cpuPercent: m.cpuPercent,
-          ramPercent: m.ramPercent,
-          diskPercent: m.diskPercent,
-          networkInMbps: m.networkInMbps,
-          networkOutMbps: m.networkOutMbps,
-          cpu: m.cpuPercent,
-          ram: m.ramPercent,
-          disk: m.diskPercent,
-          networkIn: m.networkInMbps,
-          networkOut: m.networkOutMbps,
-        }))
-      : this.generate24hFallbackMetrics(vps);
+    const chartPoints =
+      metricHistory.length >= 5
+        ? metricHistory.map((m) => ({
+            timestamp: m.createdAt.toISOString(),
+            time: new Date(m.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            cpuPercent: m.cpuPercent,
+            ramPercent: m.ramPercent,
+            diskPercent: m.diskPercent,
+            networkInMbps: m.networkInMbps,
+            networkOutMbps: m.networkOutMbps,
+            cpu: m.cpuPercent,
+            ram: m.ramPercent,
+            disk: m.diskPercent,
+            networkIn: m.networkInMbps,
+            networkOut: m.networkOutMbps,
+          }))
+        : this.generate24hFallbackMetrics(vps);
 
-    const deployments = await this.getVpsDeployments(id);
+    const deployments = await this.getVpsDeployments(vps.id);
 
     return {
       vpsId: vps.id,
@@ -631,7 +708,7 @@ export class VpsService {
     const baseNetIn = vps.networkInMbps || 28.5;
     const baseNetOut = vps.networkOutMbps || 18.2;
 
-    const points = [];
+    const points: any[] = [];
     const now = Date.now();
     for (let i = 24; i >= 0; i--) {
       const time = new Date(now - i * 60 * 60 * 1000);
@@ -664,76 +741,60 @@ export class VpsService {
     return points;
   }
 
-  private getFallbackDeployments(vps: any) {
-    const projName = vps.projects?.[0]?.name || 'cloude-pulse-backend';
-    return [
-      {
-        id: 'dep-211',
-        projectId: vps.projects?.[0]?.id || 'cloude-pulse',
-        projectName: projName,
-        environment: 'prod',
-        buildNumber: '#211',
-        commitHash: '8f2a91b',
-        commitMessage: 'feat: add realtime websocket PTY & certbot ssl engine',
-        branch: 'cloude-pulse',
-        author: 'System Admin',
-        status: 'success',
-        triggeredBy: 'GitLab CI/CD Pipeline',
-        timeAgo: '12 minutes ago',
-        startedAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
-        finishedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-        durationMs: 120000,
-        logs: '=== DEPLOYMENT COMPLETED (SUCCESS) ===',
-      },
-      {
-        id: 'dep-210',
-        projectId: vps.projects?.[0]?.id || 'cloude-pulse',
-        projectName: projName,
-        environment: 'prod',
-        buildNumber: '#210',
-        commitHash: 'c9f82a1',
-        commitMessage: 'fix: update pnpm build script and environment vault',
-        branch: 'main',
-        author: 'System Admin',
-        status: 'success',
-        triggeredBy: 'Manual Trigger',
-        timeAgo: '2 hours ago',
-        startedAt: new Date(Date.now() - 122 * 60 * 1000).toISOString(),
-        finishedAt: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
-        durationMs: 115000,
-        logs: '=== DEPLOYMENT COMPLETED (SUCCESS) ===',
-      },
-      {
-        id: 'dep-209',
-        projectId: vps.projects?.[0]?.id || 'cloude-pulse',
-        projectName: projName,
-        environment: 'prod',
-        buildNumber: '#209',
-        commitHash: 'a12b3c4',
-        commitMessage: 'chore: configure nginx virtualhost proxy for monorepo',
-        branch: 'main',
-        author: 'System Admin',
-        status: 'success',
-        triggeredBy: 'Webhook Trigger',
-        timeAgo: 'Yesterday, 18:30',
-        startedAt: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
-        finishedAt: new Date(Date.now() - 18 * 60 * 60 * 1000 - 100000).toISOString(),
-        durationMs: 100000,
-        logs: '=== DEPLOYMENT COMPLETED (SUCCESS) ===',
-      },
-    ];
-  }
-
   private parseTelemetry(raw: string) {
+    let cpuPercent = 15;
+    let ramPercent = 40;
+    let diskPercent = 30;
+    let ramUsedGb = 0;
+    let ramTotalGb = 0;
+    let diskUsedGb = 0;
+    let diskTotalGb = 0;
+    let uptime = 'Online';
+
+    try {
+      const uptimeMatch = raw.match(/up\s+([^,\n]+)/i);
+      if (uptimeMatch && uptimeMatch[1]) {
+        uptime = `up ${uptimeMatch[1].trim()}`;
+      }
+
+      const memMatch = raw.match(/Mem:\s+(\d+)\s+(\d+)\s+(\d+)/i);
+      if (memMatch) {
+        const totalMb = parseInt(memMatch[1], 10);
+        const usedMb = parseInt(memMatch[2], 10);
+        if (totalMb > 0) {
+          ramTotalGb = parseFloat((totalMb / 1024).toFixed(1));
+          ramUsedGb = parseFloat((usedMb / 1024).toFixed(1));
+          ramPercent = Math.min(100, Math.round((usedMb / totalMb) * 100));
+        }
+      }
+
+      const dfMatch = raw.match(
+        /(\d+(?:\.\d+)?[G|M|T])\s+(\d+(?:\.\d+)?[G|M|T])\s+(\d+(?:\.\d+)?[G|M|T])\s+(\d+)%/i,
+      );
+      if (dfMatch) {
+        diskPercent = parseInt(dfMatch[4], 10);
+        diskTotalGb = parseFloat(dfMatch[1].replace(/[G|M|T]/gi, '')) || 0;
+        diskUsedGb = parseFloat(dfMatch[2].replace(/[G|M|T]/gi, '')) || 0;
+      }
+
+      const loadMatch = raw.match(/load average:\s*([\d.]+)/i);
+      if (loadMatch) {
+        const load1 = parseFloat(loadMatch[1]);
+        cpuPercent = Math.min(100, Math.round(load1 * 25));
+      }
+    } catch (e) {
+      //
+    }
+
     return {
-      cpuPercent: 24,
-      ramPercent: 48,
-      diskPercent: 35,
-      ramUsedGb: 15.3,
-      ramTotalGb: 32,
-      diskUsedGb: 175,
-      diskTotalGb: 500,
-      uptime: '142 days 18 hrs',
+      cpuPercent,
+      ramPercent,
+      diskPercent,
+      ramUsedGb,
+      ramTotalGb,
+      diskUsedGb,
+      diskTotalGb,
+      uptime,
     };
   }
 }

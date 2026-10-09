@@ -66,7 +66,7 @@ export default function VpsDomainsPage({ params }: { params: Promise<{ id: strin
                     <td className="py-3 px-3">
                       <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px] flex items-center gap-1 w-fit">
                         <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>Let's Encrypt SSL</span>
+                        <span>Let&apos;s Encrypt SSL</span>
                       </span>
                     </td>
                     <td className="py-3 px-3 font-mono text-slate-500">{dom.sslExpiryDays} days remaining</td>

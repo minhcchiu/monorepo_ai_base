@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) {
+    if (typeof window !== 'undefined' && isAuthenticated()) {
       router.replace(ROUTES.DASHBOARD);
     }
   }, [router]);

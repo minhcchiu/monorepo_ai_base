@@ -10,7 +10,7 @@ import {
 } from '@/modules/projects/api';
 import { ProjectNavHeader } from '@/modules/projects/components/project-nav-header';
 import { ProjectItem } from '@/modules/projects/types';
-import { GitBranch, ExternalLink, RefreshCw, Loader2, Save, Terminal, ShieldCheck } from 'lucide-react';
+import { GitBranch, ExternalLink, RefreshCw, Loader2, Save, Terminal, ShieldCheck, Folder, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,11 +23,13 @@ export default function ProjectSourcePage({
 }) {
   const { id: vpsId, projectId } = use(params);
   const [project, setProject] = useState<ProjectItem | null>(null);
+  const [sourceData, setSourceData] = useState<any>(null);
   const [repoUrl, setRepoUrl] = useState('');
   const [branch, setBranch] = useState('main');
   const [commitHash, setCommitHash] = useState('head');
   const [pulling, setPulling] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
   const [pullOutput, setPullOutput] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -37,8 +39,9 @@ export default function ProjectSourcePage({
         fetchProjectSource(vpsId, projectId),
       ]);
       setProject(projData);
+      setSourceData(srcData);
       if (srcData) {
-        setRepoUrl(srcData.repoUrl || projData?.gitRepo || 'https://github.com/izisoft/calo-ai-backend');
+        setRepoUrl(srcData.repoUrl && srcData.repoUrl !== 'N/A' ? srcData.repoUrl : projData?.gitRepo || '');
         setBranch(srcData.branch || projData?.gitBranch || 'main');
         setCommitHash(srcData.commitHash || projData?.gitHash || 'head');
       }
@@ -74,7 +77,7 @@ export default function ProjectSourcePage({
       } else {
         toast.info(res?.output || 'Git pull completed');
       }
-      setPullOutput(res?.output || 'Already up to date.\nUpdated 1 path from origin/main');
+      setPullOutput(res?.output || 'Already up to date.');
       await loadData();
     } catch (e) {
       toast.error('Failed to run git pull');
@@ -82,6 +85,14 @@ export default function ProjectSourcePage({
     } finally {
       setPulling(false);
     }
+  };
+
+  const handleCopySshKey = () => {
+    if (!sourceData?.sshPublicKey) return;
+    navigator.clipboard.writeText(sourceData.sshPublicKey);
+    setCopiedKey(true);
+    toast.success('Copied SSH Deploy Public Key to clipboard!');
+    setTimeout(() => setCopiedKey(false), 2000);
   };
 
   const proj = project || {
@@ -133,7 +144,7 @@ export default function ProjectSourcePage({
                 <Input
                   value={repoUrl}
                   onChange={(e) => setRepoUrl(e.target.value)}
-                  placeholder="https://github.com/org/repo.git"
+                  placeholder="git@github.com:org/repo.git or https://github.com/org/repo.git"
                   className="h-9 text-xs font-mono"
                 />
               </div>
@@ -150,11 +161,30 @@ export default function ProjectSourcePage({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label>Active Commit Hash</Label>
-                  <div className="h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center font-mono text-xs text-blue-600 font-semibold">
-                    #{commitHash}
+                  <Label>Active Commit Details</Label>
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">#{commitHash}</span>
+                      {sourceData?.commitMessage && (
+                        <span className="text-slate-800 font-sans truncate font-medium">{sourceData.commitMessage}</span>
+                      )}
+                    </div>
+                    {sourceData?.commitAuthor && (
+                      <div className="text-[11px] text-slate-500 font-sans">
+                        By {sourceData.commitAuthor} • {sourceData.commitTimeAgo}
+                      </div>
+                    )}
                   </div>
                 </div>
+              </div>
+
+              {/* Working Directory Info */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-xs font-mono">
+                <span className="font-sans text-slate-500 flex items-center gap-1.5">
+                  <Folder className="w-4 h-4 text-amber-500" />
+                  <span>VPS Working Directory:</span>
+                </span>
+                <span className="font-semibold text-slate-900">{sourceData?.workingDir || proj.workingDir || '/var/www/apps'}</span>
               </div>
             </div>
 
@@ -173,34 +203,49 @@ export default function ProjectSourcePage({
 
           {/* SSH Deploy Key Status */}
           <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs space-y-4 h-fit">
-            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>SSH Deploy Key & Access</span>
+            <h3 className="text-sm font-semibold text-slate-900 flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>SSH Deploy Key & Access</span>
+              </span>
             </h3>
 
             <p className="text-xs text-slate-500 leading-relaxed">
               Your VPS node uses configured SSH deploy keys to authenticate with GitHub/GitLab repositories.
             </p>
 
-            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-xs text-emerald-900 space-y-1">
-              <div className="font-semibold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                <span>Deploy Key Active</span>
+            <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-xs text-emerald-900 space-y-2">
+              <div className="font-semibold flex items-center justify-between gap-1.5">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <span>Deploy Key Active</span>
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopySshKey}
+                  className="h-6 px-1.5 text-[11px] text-emerald-800 hover:bg-emerald-100 gap-1"
+                >
+                  {copiedKey ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedKey ? 'Copied' : 'Copy Key'}</span>
+                </Button>
               </div>
-              <p className="text-emerald-700 font-mono text-[11px] truncate">
-                ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
+              <p className="text-emerald-800 font-mono text-[11px] break-all bg-emerald-100/60 p-1.5 rounded border border-emerald-200/60 select-all">
+                {sourceData?.sshPublicKey || 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...'}
               </p>
             </div>
 
-            <a
-              href={repoUrl.startsWith('http') ? repoUrl : `https://${repoUrl}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-medium hover:underline pt-1"
-            >
-              <span>View Repository on Git Provider</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            {repoUrl && (
+              <a
+                href={repoUrl.startsWith('http') ? repoUrl : `https://${repoUrl.replace(/^git@([^:]+):/, '$1/')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-medium hover:underline pt-1"
+              >
+                <span>View Repository on Git Provider</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
           </div>
         </div>
       </div>

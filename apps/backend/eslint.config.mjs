@@ -28,8 +28,10 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-this-alias': 'off',
       'no-unused-vars': 'off',
       'no-useless-escape': 'off',
+      'no-empty': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       "prettier/prettier": ["error", { endOfLine: "auto" }],

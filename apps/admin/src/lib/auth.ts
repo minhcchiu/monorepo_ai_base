@@ -18,6 +18,7 @@ export const getToken = (): string | null => {
 };
 
 export const setToken = (token: string): void => {
+  if (typeof window === 'undefined') return;
   localStorage.setItem(ACCESS_TOKEN_KEY, token);
 };
 
@@ -27,10 +28,12 @@ export const getRefreshToken = (): string | null => {
 };
 
 export const setRefreshToken = (token: string): void => {
+  if (typeof window === 'undefined') return;
   localStorage.setItem(REFRESH_TOKEN_KEY, token);
 };
 
 export const removeToken = (): void => {
+  if (typeof window === 'undefined') return;
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
@@ -50,5 +53,6 @@ export const getStoredUser = (): StoredUser | null => {
 };
 
 export const storeUser = (user: StoredUser): void => {
+  if (typeof window === 'undefined') return;
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 };

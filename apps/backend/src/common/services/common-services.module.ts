@@ -1,13 +1,13 @@
 import { Global, Module } from '@nestjs/common';
+import { EncryptionService } from './encryption.service';
 
 /**
  * CommonServicesModule
  * Global module for shared application-wide services.
- * Add providers here to expose them across feature modules.
  */
 @Global()
 @Module({
-  providers: [],
-  exports: [],
+  providers: [EncryptionService],
+  exports: [EncryptionService],
 })
 export class CommonServicesModule {}

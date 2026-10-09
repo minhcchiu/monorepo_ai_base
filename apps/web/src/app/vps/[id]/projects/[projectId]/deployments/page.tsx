@@ -295,15 +295,20 @@ export default function ProjectDeploymentsPage({
                     <td className="py-3.5 px-4 font-sans text-slate-700">{d.author}</td>
                     <td className="py-3.5 px-4 font-sans text-slate-500 text-[11px]">{d.triggeredBy || 'Manual'}</td>
                     <td className="py-3.5 px-4 font-sans">
-                      {d.status === 'SUCCESS' ? (
+                      {d.status?.toUpperCase() === 'SUCCESS' ? (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px] inline-flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>{d.status}</span>
+                          <span>SUCCESS</span>
+                        </span>
+                      ) : d.status?.toUpperCase() === 'RUNNING' || d.status?.toUpperCase() === 'QUEUED' ? (
+                        <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold text-[11px] inline-flex items-center gap-1">
+                          <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin" />
+                          <span>BUILDING</span>
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-semibold text-[11px] inline-flex items-center gap-1">
                           <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                          <span>{d.status}</span>
+                          <span>FAILED</span>
                         </span>
                       )}
                     </td>

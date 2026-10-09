@@ -9,7 +9,7 @@ import { Cpu, HardDrive, Server, Shield, Activity, Terminal } from 'lucide-react
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-function unwrapParams<T>(params: Promise<T> | T): T {
+function useUnwrapParams<T>(params: Promise<T> | T): T {
   if (params && typeof (params as any).then === 'function') {
     return use(params as Promise<T>);
   }
@@ -17,7 +17,7 @@ function unwrapParams<T>(params: Promise<T> | T): T {
 }
 
 export default function VpsOverviewPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
-  const resolvedParams = unwrapParams(params);
+  const resolvedParams = useUnwrapParams(params);
   const rawId = resolvedParams?.id || '';
   const id = rawId ? decodeURIComponent(rawId) : '';
   const { data: cluster, isLoading } = useVpsDetail(id);

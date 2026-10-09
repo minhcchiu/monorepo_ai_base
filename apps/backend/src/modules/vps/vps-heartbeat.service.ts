@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SshService } from './ssh.service';
+import { EncryptionService } from '../../common/services/encryption.service';
 
 @Injectable()
 export class VpsHeartbeatService implements OnModuleInit, OnModuleDestroy {
@@ -10,6 +11,7 @@ export class VpsHeartbeatService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sshService: SshService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   onModuleInit() {
@@ -47,7 +49,17 @@ export class VpsHeartbeatService implements OnModuleInit, OnModuleDestroy {
 
       for (const vps of vpsList) {
         try {
-          const res = await this.sshService.executeCommand(vps, 'uptime && free -m && df -h /', 5000);
+          const sshVps = {
+            ...vps,
+            password: this.encryptionService.decrypt(vps.password) || undefined,
+            sshKey: this.encryptionService.decrypt(vps.sshKey) || undefined,
+          };
+
+          const res = await this.sshService.executeCommand(
+            sshVps,
+            'uptime && free -m && df -h /',
+            10000,
+          );
 
           if (res.exitCode === 0 && res.stdout) {
             const parsed = this.parseTelemetryOutput(res.stdout);
@@ -113,25 +125,23 @@ export class VpsHeartbeatService implements OnModuleInit, OnModuleDestroy {
   }
 
   private parseTelemetryOutput(stdout: string) {
-    let cpuPercent = 15;
+    const cpuPercent = 15;
     let ramPercent = 40;
     let diskPercent = 35;
     let ramUsedGb = 8.0;
     let ramTotalGb = 16.0;
-    let diskUsedGb = 80.0;
-    let diskTotalGb = 250.0;
+    const diskUsedGb = 80.0;
+    const diskTotalGb = 250.0;
     let uptime = 'Active';
 
     try {
       const lines = stdout.split('\n');
 
-      // Line 1: uptime
       if (lines[0] && lines[0].includes('up')) {
         const match = lines[0].match(/up\s+([^,]+)/);
         if (match) uptime = match[1].trim();
       }
 
-      // Memory parsing from free -m
       const memLine = lines.find((l) => l.startsWith('Mem:'));
       if (memLine) {
         const parts = memLine.split(/\s+/);
@@ -142,7 +152,6 @@ export class VpsHeartbeatService implements OnModuleInit, OnModuleDestroy {
         ramPercent = Math.round((usedMb / totalMb) * 100);
       }
 
-      // Disk parsing from df -h /
       const diskLine = lines.find((l) => l.includes('/') || l.includes('G') || l.includes('M'));
       if (diskLine) {
         const parts = diskLine.split(/\s+/);

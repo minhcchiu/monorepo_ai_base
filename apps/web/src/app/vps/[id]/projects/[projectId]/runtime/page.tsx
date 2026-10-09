@@ -45,7 +45,12 @@ export default function ProjectRuntimePage({
       setProject(projData);
       setRuntime(runData);
 
-      if (projData) {
+      if (runData) {
+        setEngine(runData.engine || projData?.engine || 'Node.js 20 / PM2');
+        setExecMode(runData.execMode || 'cluster');
+        setInstances(runData.instances || 4);
+        setEntryPoint(runData.script || 'dist/src/main.js');
+      } else if (projData) {
         setEngine(projData.engine || 'Node.js 20 / PM2');
         setInstances(projData.pm2Instances?.includes('workers') ? parseInt(projData.pm2Instances) : 4);
       }
@@ -133,6 +138,8 @@ export default function ProjectRuntimePage({
     memoryMb: 0,
   };
 
+  const isOnline = runtime?.status === 'ONLINE' || runtime?.status === 'RUNNING' || proj.status === 'running';
+
   return (
     <DashboardShell>
       <div className="space-y-6 max-w-[1440px] mx-auto pb-8">
@@ -142,27 +149,27 @@ export default function ProjectRuntimePage({
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 font-mono text-xs">
           <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-1">
             <div className="text-slate-500 font-sans font-medium">Status</div>
-            <div className="text-emerald-700 font-bold text-sm uppercase flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{runtime?.status || 'ONLINE'}</span>
+            <div className={`${isOnline ? 'text-emerald-700' : 'text-amber-700'} font-bold text-sm uppercase flex items-center gap-1.5`}>
+              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span>{runtime?.status || (isOnline ? 'ONLINE' : 'STOPPED')}</span>
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-1">
             <div className="text-slate-500 font-sans font-medium">PID & Port</div>
             <div className="text-slate-900 font-bold text-sm">
-              PID {runtime?.pid || 1842} • Port {proj.port}
+              {runtime?.rawPid ? `PID ${runtime.rawPid}` : (runtime?.pid || 'N/A')} • Port {proj.port}
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-1">
             <div className="text-slate-500 font-sans font-medium">Memory Usage</div>
-            <div className="text-indigo-600 font-bold text-sm">{proj.memoryMb} MB</div>
+            <div className="text-indigo-600 font-bold text-sm">{runtime?.memoryMb ?? proj.memoryMb} MB</div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-1">
             <div className="text-slate-500 font-sans font-medium">CPU Load</div>
-            <div className="text-blue-600 font-bold text-sm">{proj.cpuPercent}%</div>
+            <div className="text-blue-600 font-bold text-sm">{runtime?.cpuPercent ?? proj.cpuPercent}%</div>
           </div>
         </div>
 

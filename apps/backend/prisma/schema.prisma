@@ -167,6 +167,8 @@ model User {
   purchases      Purchase[]
   usage          Usage?
   apiRequestLogs ApiRequestLog[]
+  vpsNodes       Vps[]
+  projects       Project[]
 
   // Indexes for performance optimization
   @@index([email])
@@ -462,6 +464,10 @@ model Vps {
   redisInstalled     Boolean    @default(false)
   postgresInstalled  Boolean    @default(false)
 
+  ownerId            String?
+  owner              User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  workspaceId        String?    @default("default-workspace")
+
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 
@@ -495,6 +501,10 @@ model Project {
   workingDir   String?
   cpuPercent   Float             @default(0)
   memoryMb     Float             @default(0)
+
+  ownerId      String?
+  owner        User?             @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  workspaceId  String?           @default("default-workspace")
 
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt

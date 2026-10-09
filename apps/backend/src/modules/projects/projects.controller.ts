@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Sse, MessageEvent } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Sse } from '@nestjs/common';
+import type { MessageEvent } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProjectsService } from './projects.service';
@@ -49,7 +50,8 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Auto-create CI/CD Variables on GitLab repository via REST API' })
   syncGitlabVariables(
     @Param('vpsId') vpsId: string,
-    @Body() body: {
+    @Body()
+    body: {
       gitRepo: string;
       gitlabToken?: string;
       variables: Array<{ key: string; value: string; masked?: boolean }>;
@@ -62,7 +64,8 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Trigger pipeline run on GitLab repository via REST API' })
   triggerGitlabPipeline(
     @Param('vpsId') vpsId: string,
-    @Body() body: {
+    @Body()
+    body: {
       gitRepo: string;
       gitlabToken?: string;
       branch?: string;
@@ -148,7 +151,8 @@ export class ProjectsController {
   createDeployment(
     @Param('vpsId') vpsId: string,
     @Param('projectId') projectId: string,
-    @Body() body: {
+    @Body()
+    body: {
       deployMode?: 'INITIAL' | 'RE_DEPLOY';
       author?: string;
       deployDir?: string;
@@ -171,10 +175,7 @@ export class ProjectsController {
 
   @Get(':projectId/gitlab-ci')
   @ApiOperation({ summary: 'Generate pre-configured .gitlab-ci.yml template' })
-  getGitlabCiTemplate(
-    @Param('vpsId') vpsId: string,
-    @Param('projectId') projectId: string,
-  ) {
+  getGitlabCiTemplate(@Param('vpsId') vpsId: string, @Param('projectId') projectId: string) {
     return this.projectsService.getGitlabCiTemplate(vpsId, projectId);
   }
 
@@ -199,7 +200,8 @@ export class ProjectsController {
   updateProjectPorts(
     @Param('vpsId') vpsId: string,
     @Param('projectId') projectId: string,
-    @Body() body: {
+    @Body()
+    body: {
       backendPort?: number;
       adminPort?: number;
       webPort?: number;
@@ -273,7 +275,7 @@ export class ProjectsController {
   }
 
   @Post(':projectId/domains/:domainId/ssl')
-  @ApiOperation({ summary: 'Issue or renew Let\'s Encrypt SSL certificate' })
+  @ApiOperation({ summary: "Issue or renew Let's Encrypt SSL certificate" })
   issueDomainSsl(
     @Param('vpsId') vpsId: string,
     @Param('projectId') projectId: string,
@@ -293,7 +295,8 @@ export class ProjectsController {
   generateNginxConfig(
     @Param('vpsId') vpsId: string,
     @Param('projectId') projectId: string,
-    @Body() body?: {
+    @Body()
+    body?: {
       routingStrategy?: 'SUBDOMAIN' | 'PATH_PREFIX';
       baseDomain?: string;
       backendPort?: number;
@@ -330,6 +333,12 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Get project working directory storage footprint' })
   getStorage(@Param('vpsId') vpsId: string, @Param('projectId') projectId: string) {
     return this.projectsService.getStorage(vpsId, projectId);
+  }
+
+  @Post(':projectId/storage/test-db')
+  @ApiOperation({ summary: 'Test TCP database connection from target VPS' })
+  testDbConnection(@Param('vpsId') vpsId: string, @Param('projectId') projectId: string) {
+    return this.projectsService.testDbConnection(vpsId, projectId);
   }
 
   @Get(':projectId/activity')
